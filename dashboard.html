@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Montenegro Industria LTDA</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;padding-bottom:68px}
+:root{
+  --bg:#f0f2f5;--card:#fff;--bd:#e5e7eb;--tx:#111827;--mu:#6b7280;
+  --gn:#059669;--g1:#ecfdf5;--g2:#d1fae5;
+  --am:#d97706;--a1:#fffbeb;--a2:#fde68a;
+  --rd:#dc2626;--r1:#fef2f2;--r2:#fecaca;
+  --bl:#2563eb;--b1:#eff6ff;--b2:#bfdbfe;
+  --pu:#7c3aed;--p1:#f5f3ff;--p2:#ddd6fe;
+  --sh:0 1px 3px rgba(0,0,0,.08);--r:10px;--r2:14px}
+/* TOPBAR */
+.top{position:sticky;top:0;z-index:200;background:#fff;border-bottom:1px solid var(--bd);padding:0 14px;height:54px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.brand{display:flex;align-items:center;gap:9px}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--am);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo svg{width:18px;height:18px}
+.bn{font-size:13px;font-weight:800;letter-spacing:-.02em;line-height:1.15}
+.bs{font-size:10px;color:var(--mu)}
+.top-r{display:flex;align-items:center;gap:8px}
+.live{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:var(--gn);background:var(--g1);border:1px solid var(--g2);padding:4px 8px;border-radius:20px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--gn);animation:pu 2s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.2}}
+.clk{font-size:11px;font-weight:600;color:var(--mu)}
+/* VIEWS */
+.view{display:none;padding:14px 12px 10px;animation:fi .2s ease}.view.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:1px solid var(--bd);display:grid;grid-template-columns:repeat(4,1fr);height:60px;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.ntab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:transparent;color:var(--mu);cursor:pointer;font-size:10px;font-weight:500;padding:6px 4px;transition:color .15s}.ntab.on{color:var(--am)}
+.ni{font-size:22px;line-height:1}
+/* CARD */
+.card{background:#fff;border:1px solid var(--bd);border-radius:var(--r2);box-shadow:var(--sh);margin-bottom:12px;overflow:hidden}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:13px 14px 11px;border-bottom:1px solid var(--bd)}
+.ct{font-size:14px;font-weight:700}.cs{font-size:11px;color:var(--mu);margin-top:1px}
+.cb{padding:13px 14px}
+/* KPI */
+.kg{display:grid;gap:10px;margin-bottom:12px}.k2{grid-template-columns:1fr 1fr}
+.kpi{background:#fff;border:1px solid var(--bd);border-radius:var(--r2);padding:13px 14px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.ka{position:absolute;top:0;left:0;right:0;height:3px}
+.kl{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-bottom:7px}
+.kv{font-size:26px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.kf{font-size:11px;color:var(--mu);margin-top:6px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.bg{background:var(--g1);color:var(--gn);border:1px solid var(--g2)}
+.ba{background:var(--a1);color:var(--am);border:1px solid var(--a2)}
+.br{background:var(--r1);color:var(--rd);border:1px solid var(--r2)}
+.bb{background:var(--b1);color:var(--bl);border:1px solid var(--b2)}
+.bp{background:var(--p1);color:var(--pu);border:1px solid var(--p2)}
+/* PROGRESS */
+.pg{margin-bottom:10px}
+.pgh{display:flex;justify-content:space-between;margin-bottom:4px}
+.pgn{font-size:11px;color:var(--mu)}.pgv{font-size:12px;font-weight:700}
+.pgt{height:6px;background:#f3f4f6;border-radius:6px;overflow:hidden}
+.pgf{height:100%;border-radius:6px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.fg{background:var(--gn)}.fa{background:var(--am)}.fb{background:var(--bl)}.fr{background:var(--rd)}
+/* STAT ROW */
+.sr{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd)}.sr:last-child{border-bottom:none}
+.srl{font-size:13px;color:var(--mu)}.srv{font-size:14px;font-weight:700}
+/* RANK BAR */
+.rkr{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.rkn{font-size:12px;min-width:85px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkt{flex:1;height:5px;background:#f3f4f6;border-radius:4px;overflow:hidden}
+.rkf{height:100%;border-radius:4px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.rkv{font-size:11px;font-weight:700;color:var(--mu);min-width:36px;text-align:right}
+/* ALERT */
+.al{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;border-radius:var(--r);margin-bottom:8px;font-size:12px;line-height:1.5}
+.al-r{background:var(--r1);border:1px solid var(--r2);color:var(--rd)}
+.al-a{background:var(--a1);border:1px solid var(--a2);color:var(--am)}
+.al-g{background:var(--g1);border:1px solid var(--g2);color:var(--gn)}
+.al-b{background:var(--b1);border:1px solid var(--b2);color:var(--bl)}
+.al-ic{font-size:15px;flex-shrink:0}
+.al strong{font-weight:700;display:block;margin-bottom:1px}
+/* ACTION ITEM */
+.aci{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:var(--r);font-size:12px;margin-bottom:6px}
+.aci-g{background:var(--g1);color:#065f46}.aci-a{background:var(--a1);color:#92400e}.aci-r{background:var(--r1);color:#991b1b}
+.aci-ic{font-size:13px;flex-shrink:0}
+/* BUTTON */
+.btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:8px 14px;border-radius:9px;border:none;cursor:pointer;transition:opacity .15s}.btn:active{opacity:.75}
+.bt-g{background:var(--g1);color:var(--gn);border:1px solid var(--g2)}
+.bt-a{background:var(--a1);color:var(--am);border:1px solid var(--a2)}
+.bt-b{background:var(--b1);color:var(--bl);border:1px solid var(--b2)}
+.bt-p{background:var(--p1);color:var(--pu);border:1px solid var(--p2)}
+.bt-wa{background:#25d366;color:#fff}
+/* WA BTN */
+.wab{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:#25d366;border:none;cursor:pointer;text-decoration:none;flex-shrink:0}
+.wab svg{width:16px;height:16px;fill:#fff}
+/* SECTION TITLE */
+.stl{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--mu);margin:14px 0 8px;display:flex;align-items:center;gap:8px}
+.stl::after{content:'';flex:1;height:1px;background:var(--bd)}
+/* PROJECTION */
+.proj{border-radius:var(--r);padding:12px 14px;margin-bottom:10px}
+.proj.ok{background:var(--g1);border:1px solid var(--g2)}
+.proj.warn{background:var(--a1);border:1px solid var(--a2)}
+.proj.bad{background:var(--r1);border:1px solid var(--r2)}
+.proj-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--mu);margin-bottom:4px}
+.proj-val{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.proj-sub{font-size:11px;color:var(--mu);margin-top:4px}
+/* STOCK CARD */
+.skc{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;box-shadow:var(--sh)}
+.skh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.skn{font-size:13px;font-weight:700}.sksup{font-size:11px;color:var(--mu);margin-top:1px}
+.skb{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.skbc{text-align:center}
+.skbl{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu);margin-bottom:2px}
+.skbv{font-size:15px;font-weight:700}
+.skf{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid var(--bd)}
+.skft{font-size:11px;color:var(--mu)}
+.sc-ctrl{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--b1);color:var(--bl);border:1px solid var(--b2)}
+.sc-soon{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--a1);color:var(--am);border:1px solid var(--a2)}
+/* MODAL */
+.ovl{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:flex-end;justify-content:center}
+.ovl.show{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 18px 36px;width:100%;max-width:480px;box-shadow:0 -8px 32px rgba(0,0,0,.2)}
+.mh{width:36px;height:4px;background:#e5e7eb;border-radius:4px;margin:0 auto 18px}
+.mtitle{font-size:17px;font-weight:800;margin-bottom:14px}
+.field{margin-bottom:12px}
+.field label{font-size:12px;font-weight:600;color:var(--mu);display:block;margin-bottom:5px}
+.field input{width:100%;padding:11px 13px;border:1.5px solid var(--bd);border-radius:9px;font-size:14px;background:#fff;outline:none}
+.field input:focus{border-color:var(--am)}
+.mact{display:flex;gap:8px;margin-top:4px}.mact .btn{flex:1;justify-content:center;padding:12px}
+/* WEEKLY */
+.wt{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)}.wt:last-child{border-bottom:none}
+.wtl{font-size:12px;font-weight:600;color:var(--mu);min-width:28px}
+.wtb{flex:1;height:4px;background:#f3f4f6;border-radius:4px;overflow:hidden}
+.wtf{height:100%;border-radius:4px}
+.wtv{font-size:12px;font-weight:700;min-width:65px;text-align:right}
+/* ADS CAMPAIGN */
+.cmp{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;box-shadow:var(--sh)}
+.cmph{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cmpicon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.pi-f{background:#1877f2;color:#fff}.pi-s{background:#ee4d2d;color:#fff}
+.cmpn{font-size:13px;font-weight:700}.cmpd{font-size:10px;color:var(--mu)}
+.roas-big{font-size:22px;font-weight:800}
+.roas-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu)}
+.cmp-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.cmp-m{background:#f9fafb;border-radius:8px;padding:8px 6px;text-align:center}
+.cmp-ml{font-size:9px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu);margin-bottom:2px}
+.cmp-mv{font-size:14px;font-weight:700}
+/* AGENTS */
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.agc{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:11px;box-shadow:var(--sh)}
+.ach{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.acnum{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.act2{font-size:11px;font-weight:700}
+.actask{font-size:10px;color:var(--mu);padding:3px 0;border-bottom:1px solid var(--bd)}.actask:last-child{border-bottom:none}
+/* UTILS */
+.gn{color:var(--gn)}.am{color:var(--am)}.rd{color:var(--rd)}.bl{color:var(--bl)}.pu{color:var(--pu)}
+.divd{height:1px;background:var(--bd);margin:10px 0}
+.gap{margin-bottom:10px}
+.flex{display:flex;align-items:center;gap:7px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <div class="logo">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="1" y="8" width="3" height="7" rx="1" fill="#000"/><rect x="6" y="4" width="3" height="11" rx="1" fill="#000"/><rect x="11" y="1" width="3" height="14" rx="1" fill="#000"/></svg>
+    </div>
+    <div><div class="bn">Montenegro</div><div class="bs">Industria LTDA</div></div>
+  </div>
+  <div class="top-r">
+    <div class="live"><div class="dot"></div>AO VIVO</div>
+    <div class="clk" id="clock">--:--</div>
+  </div>
+</header>
+
+<!-- ═══ FÁBRICA ═══ -->
+<div id="v-fab" class="view on">
+  <div class="kg k2">
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Varejo hoje</div><div class="kv am" id="kv-var">R$ 5.840</div><div class="kf"><span class="bdg ba" id="kb-var">83%</span> meta R$ 7k</div></div>
+    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Atacado hoje</div><div class="kv bl" id="kv-atac">R$ 1.840</div><div class="kf"><span class="bdg bb">81%</span> meta R$ 2.272</div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Produção hoje</div><div class="kv gn" id="kv-prod">6.280</div><div class="kf"><span class="bdg bg">92%</span> meta 6.800</div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Saldo do dia</div><div class="kv gn">+R$ 1.690</div><div class="kf"><span class="bdg bg">positivo</span></div></div>
+  </div>
+
+  <div class="stl">Projeção mensal — Produção</div>
+  <div id="proj-prod" class="proj ok">
+    <div class="proj-lbl">Se manter esse ritmo</div>
+    <div class="proj-val gn" id="proj-val">~138.160 un</div>
+    <div class="proj-sub" id="proj-sub">Média 6.280/dia × 22 dias úteis · Meta: 150.000 · <strong>92% — atenção</strong></div>
+  </div>
+
+  <div class="stl">Meta comercial mensal</div>
+  <div class="card">
+    <div class="cb">
+      <div class="pg">
+        <div class="pgh"><span class="pgn">Varejo (meta R$ 210.000)</span><span class="pgv am">R$ 78.540 · faltam R$ 131.460</span></div>
+        <div class="pgt"><div class="pgf fa" id="pm-var" style="width:37%"></div></div>
+        <div style="font-size:11px;color:var(--rd);margin-top:4px">14 dias úteis restantes · precisam R$ 9.390/dia</div>
+      </div>
+      <div class="pg" style="margin-top:10px">
+        <div class="pgh"><span class="pgn">Atacado (meta R$ 50.000)</span><span class="pgv bl">R$ 22.180 · faltam R$ 27.820</span></div>
+        <div class="pgt"><div class="pgf fb" id="pm-atac" style="width:44%"></div></div>
+        <div style="font-size:11px;color:var(--am);margin-top:4px">Precisam R$ 1.987/dia útil</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stl">Expedição</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Expedição — Varejo</div><div class="cs">Padrão: 1,5 min/pedido</div></div><span class="bdg br">2 devol. hoje</span></div>
+    <div class="cb">
+      <div class="kg k2" style="margin-bottom:10px">
+        <div style="background:#f9fafb;border-radius:var(--r);padding:11px;text-align:center"><div class="kl">Embalados</div><div style="font-size:22px;font-weight:800;color:var(--bl)">1.462</div></div>
+        <div style="background:#f9fafb;border-radius:var(--r);padding:11px;text-align:center"><div class="kl">Tempo total est.</div><div style="font-size:22px;font-weight:800">36,6h</div></div>
+      </div>
+      <div class="stl">Produtividade</div>
+      <div class="rkr"><span class="rkn">🥇 Morhana</span><div class="rkt"><div class="rkf fg" style="width:100%"></div></div><span class="rkv gn">312</span></div>
+      <div class="rkr"><span class="rkn">Lidiane</span><div class="rkt"><div class="rkf fb" style="width:96%"></div></div><span class="rkv">301</span></div>
+      <div class="rkr"><span class="rkn">Diogo</span><div class="rkt"><div class="rkf fb" style="width:95%"></div></div><span class="rkv">298</span></div>
+      <div class="rkr"><span class="rkn">Renilza</span><div class="rkt"><div class="rkf fb" style="width:92%"></div></div><span class="rkv">287</span></div>
+      <div class="rkr"><span class="rkn">⚠ M. Eduarda</span><div class="rkt"><div class="rkf fr" style="width:84%"></div></div><span class="rkv rd">264</span></div>
+      <div class="divd"></div>
+      <div class="stl">Devoluções hoje</div>
+      <div class="al al-r"><span class="al-ic">📦</span><div><strong>2 devoluções bipadas</strong>Embalagens amassadas — análise semanal agrupada</div></div>
+      <div class="stl">Itens danificados — semana</div>
+      <div class="al al-a"><span class="al-ic">📋</span><div><strong>Relatório semanal via Google Forms</strong>Preenchido pela encarregada toda sexta-feira. Dados agrupados por funcionária.</div></div>
+    </div>
+  </div>
+
+  <div class="stl">Fechamento semanal — Produção</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Histórico da semana</div><div class="cs">Seg–Sex · armazenado localmente</div></div></div>
+    <div class="cb" id="week-prod"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Acumulando dados do dia a dia...</div></div>
+  </div>
+
+  <div class="stl">Fechamento semanal — Devoluções</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Devoluções da semana</div><div class="cs">Agrupadas para análise</div></div></div>
+    <div class="cb" id="week-devol"></div>
+  </div>
+
+  <div class="stl">Resumo diário às 18h</div>
+  <button class="btn bt-wa" style="width:100%;justify-content:center;padding:13px;font-size:13px" onclick="sendWhatsapp()">📱 Enviar resumo WhatsApp agora</button>
+</div>
+
+<!-- ═══ TRÁFEGO PAGO ═══ -->
+<div id="v-ads" class="view">
+  <div id="al-shopee-bal" class="al al-r" style="display:none"><span class="al-ic">🚨</span><div><strong>Saldo Shopee ADS crítico!</strong>Saldo abaixo de R$ 80. Recarregue agora ou as campanhas param.</div></div>
+  <div id="al-roas-shopee" class="al al-r" style="display:none"><span class="al-ic">🚨</span><div><strong>ROAS Shopee abaixo de 15x</strong>Alerta WhatsApp enviado automaticamente.</div></div>
+  <div id="al-roas-meta" class="al al-a" style="display:none"><span class="al-ic">⚠️</span><div><strong>ROAS Meta Ads abaixo de 5x</strong>Revise criativos e segmentação.</div></div>
+
+  <div class="kg k2">
+    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Gasto total</div><div class="kv pu">R$ 1.886</div><div class="kf"><span class="bdg bp">Meta + Shopee</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Receita ads</div><div class="kv gn">R$ 6.125</div><div class="kf"><span class="bdg bg">3,25x ROAS total</span></div></div>
+  </div>
+
+  <div class="stl">Meta Ads (Facebook) · Meta ROAS: 5x</div>
+  <div id="cmp-meta"></div>
+
+  <div class="stl">Shopee Ads · Meta ROAS: 20x · Mínimo: 15x</div>
+  <div id="cmp-shopee"></div>
+
+  <div class="stl">Ações recomendadas</div>
+  <div class="card"><div class="cb" id="actions-ads"></div></div>
+</div>
+
+<!-- ═══ COMERCIAL ═══ -->
+<div id="v-com" class="view">
+  <div class="kg k2">
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">ERP preenchido</div><div class="kv gn" style="font-size:20px">✓ 08:42</div><div class="kf"><span class="bdg bg">por Carlos</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Prospecções hoje</div><div class="kv am">7<span style="font-size:14px;font-weight:500"> / 30</span></div><div class="kf"><span class="bdg ba">23% meta</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Ticket médio hoje</div><div class="kv pu">R$ 1.636</div><div class="kf"><span class="bdg bg">meta R$ 1.500 ✓</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Orçamentos abertos</div><div class="kv bl">4</div><div class="kf"><span class="bdg bb">R$ 28.400</span></div></div>
+  </div>
+
+  <div class="stl">Meta mensal comercial</div>
+  <div class="card">
+    <div class="cb">
+      <div class="pg">
+        <div class="pgh"><span class="pgn">Varejo mês (R$ 210.000)</span><span class="pgv am">37% — R$ 78.540</span></div>
+        <div class="pgt"><div class="pgf fa" style="width:37%"></div></div>
+        <div style="font-size:11px;color:var(--rd);margin-top:4px">Faltam R$ 131.460 · 14 dias úteis · precisam R$ 9.390/dia</div>
+      </div>
+      <div class="pg" style="margin-top:10px">
+        <div class="pgh"><span class="pgn">Atacado mês (R$ 50.000)</span><span class="pgv bl">44% — R$ 22.180</span></div>
+        <div class="pgt"><div class="pgf fb" style="width:44%"></div></div>
+        <div style="font-size:11px;color:var(--am);margin-top:4px">Faltam R$ 27.820 · precisam R$ 1.987/dia</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stl">Top produtos — contribuição & garrafas</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Produtos mais vendidos</div><div class="cs">Hoje · % do total · garrafas consumidas</div></div></div>
+    <div class="cb" id="top-prod"></div>
+  </div>
+
+  <div class="stl">Pipeline comercial</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Orçamentos ativos</div><div class="cs">Via Gestão Click</div></div><span class="bdg bp">R$ 28.400</span></div>
+    <div class="cb">
+      <div class="sr"><span class="srl">🔥 Distribuidora Norte Ltda</span><span class="srv gn">R$ 9.200</span></div>
+      <div class="sr"><span class="srl">Negociando · Super Atacado Vitória</span><span class="srv am">R$ 7.800</span></div>
+      <div class="sr"><span class="srl">Frio · Mercado Central ES</span><span class="srv bl">R$ 6.400</span></div>
+    </div>
+  </div>
+
+  <div class="stl">Fechamento semanal — Comercial</div>
+  <div class="card">
+    <div class="cb" id="week-com"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Acumulando dados do dia a dia...</div></div>
+  </div>
+</div>
+
+<!-- ═══ COMPRAS ═══ -->
+<div id="v-buy" class="view">
+  <div class="al al-b gap"><span class="al-ic">⚙️</span><div><strong>Configure para agendar compras automaticamente</strong>Informe e-mail e WhatsApp dos fornecedores. <button class="btn bt-b" style="margin-top:6px;font-size:11px;padding:6px 10px" onclick="openModal('settings-modal')">Configurar agora</button></div></div>
+
+  <div class="kg k2">
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Comprar em breve</div><div class="kv am">3</div><div class="kf"><span class="bdg ba">próx. gatilho</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Controlado</div><div class="kv gn">8</div><div class="kf"><span class="bdg bg">estoque ok</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Agendamentos</div><div class="kv bl">3</div><div class="kf"><span class="bdg bb">Google Agenda</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Monitorados</div><div class="kv pu">13</div><div class="kf"><span class="bdg bp">IA ativa</span></div></div>
+  </div>
+
+  <div class="stl">Estoque — todos os materiais</div>
+  <div id="stk-list"></div>
+
+  <div class="stl">Automação de compras (IA)</div>
+  <div class="agrid" id="agents"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="ntab on" onclick="go('fab',this)"><span class="ni">🏭</span>Fábrica</button>
+  <button class="ntab" onclick="go('ads',this)"><span class="ni">📢</span>Ads</button>
+  <button class="ntab" onclick="go('com',this)"><span class="ni">💼</span>Comercial</button>
+  <button class="ntab" onclick="go('buy',this)"><span class="ni">🛒</span>Compras</button>
+</nav>
+
+<!-- SETTINGS MODAL -->
+<div class="ovl" id="settings-modal">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mtitle">⚙️ Agendamento de compras</div>
+    <div class="field"><label>Seu e-mail (Google Agenda)</label><input type="email" id="user-email" placeholder="seuemail@gmail.com"></div>
+    <div class="field"><label>Seu WhatsApp (alertas às 18h)</label><input type="tel" id="user-wa" placeholder="5527999990000"></div>
+    <div class="mact">
+      <button class="btn" style="background:#f3f4f6;color:var(--mu);border:1px solid var(--bd);flex:1;justify-content:center" onclick="closeModal('settings-modal')">Cancelar</button>
+      <button class="btn bt-a" onclick="saveSettings()" style="flex:1.5;justify-content:center">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUPPLIER MODAL -->
+<div class="ovl" id="supplier-modal">
+  <div class="modal">
+    <div class="mh"></div>
+    <div class="mtitle" id="sup-title">Agendar compra</div>
+    <div class="field"><label>WhatsApp do fornecedor</label><input type="tel" id="sup-wa" placeholder="5527999990001"></div>
+    <div class="field"><label>Data para comprar</label><input type="date" id="sup-date"></div>
+    <div class="mact">
+      <button class="btn" style="background:#f3f4f6;color:var(--mu);border:1px solid var(--bd);flex:1;justify-content:center" onclick="closeModal('supplier-modal')">Fechar</button>
+      <button class="btn bt-g" onclick="scheduleCompra()" style="flex:1;justify-content:center">📅 Agendar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ STORAGE ═══
+const DB={
+  KEY:'mnt_v2',
+  today:new Date().toISOString().slice(0,10),
+  s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+  g(k,d=null){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d}catch{return d}},
+  saveDay(data){const all=this.g(this.KEY,{});all[this.today]={...all[this.today],...data};this.s(this.KEY,all)},
+  getWeek(){
+    const all=this.g(this.KEY,{});
+    const labels={1:'Seg',2:'Ter',3:'Qua',4:'Qui',5:'Sex'};
+    const days=[];const d=new Date();let n=0;
+    while(n<5&&days.length<8){
+      const wd=d.getDay();
+      if(wd>=1&&wd<=5){days.unshift({label:labels[wd],date:d.toISOString().slice(0,10),data:all[d.toISOString().slice(0,10)]||null});n++;}
+      d.setDate(d.getDate()-1);
+    }
+    return days;
+  }
+};
+
+// Seed demo data
+DB.saveDay({varejo:5840,atacado:1840,producao:6280,saldo:1690,expedicao:1462,devol:2,pedidos:47,prospeccoes:7,ticket:1636,roas_shopee:3.86,roas_meta:2.78,shopee_bal:380});
+
+// ═══ CLOCK ═══
+function tick(){
+  const n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  if(n.getHours()===18&&n.getMinutes()===0&&n.getSeconds()<5)sendWhatsapp();
+}
+tick();setInterval(tick,1000);
+
+// ═══ TABS ═══
+function go(id,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('v-'+id).classList.add('on');
+  btn.classList.add('on');
+  setTimeout(animBars,150);
+}
+
+// ═══ PROGRESS BARS ═══
+const BARS={'pm-var':37,'pm-atac':44};
+function animBars(){
+  Object.entries(BARS).forEach(([id,w])=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.style.width='0';void el.offsetWidth;
+    setTimeout(()=>el.style.width=Math.min(w,100)+'%',80);
+  });
+}
+setTimeout(animBars,400);
+
+// ═══ ALERTS ═══
+const D=DB.g(DB.KEY,{})[DB.today]||{};
+function checkAlerts(){
+  const bal=D.shopee_bal||380;
+  const rS=D.roas_shopee||3.86;
+  const rM=D.roas_meta||2.78;
+  document.getElementById('al-shopee-bal').style.display=bal<=80?'flex':'none';
+  document.getElementById('al-roas-shopee').style.display=rS<15?'flex':'none';
+  document.getElementById('al-roas-meta').style.display=rM<5?'flex':'none';
+}
+checkAlerts();
+
+// ═══ ADS ═══
+const META_CAMPS=[
+  {name:'Site Montenegro',plat:'f',roas:2.78,pedidos:40,receita:2976,gasto:1070,ctr:2.82,imp:'56,2k'}
+];
+const SHOPEE_CAMPS=[
+  {name:'Nemesis',plat:'s',roas:5.24,pedidos:5,receita:1195,gasto:228,ctr:3.1,imp:'12,1k'},
+  {name:'Garrafast',plat:'s',roas:3.99,pedidos:13,receita:639,gasto:160,ctr:2.8,imp:'11,4k'},
+  {name:'Montenegro Ind.',plat:'s',roas:3.81,pedidos:8,receita:881,gasto:231,ctr:2.6,imp:'13,2k'},
+  {name:'Temperarte',plat:'s',roas:2.19,pedidos:19,receita:434,gasto:198,ctr:1.9,imp:'11,8k'}
+];
+
+function rcColor(r,meta,min){return r>=meta?'var(--gn)':(!min||r>=min)?'var(--am)':'var(--rd)'}
+function rcAction(r,meta,min,name){
+  if(r>=meta)return{cls:'aci-g',ic:'✓',txt:`<strong>${name}</strong> ROAS ${r.toFixed(2)}x ≥ meta ${meta}x — manter orçamento.`};
+  if(!min||r>=min)return{cls:'aci-a',ic:'!',txt:`<strong>${name}</strong> ROAS ${r.toFixed(2)}x — abaixo da meta. Revisar criativos.`};
+  return{cls:'aci-r',ic:'✗',txt:`<strong>${name}</strong> ROAS ${r.toFixed(2)}x — abaixo do mínimo. Pausar campanha. Alerta WA enviado.`};
+}
+
+function renderCamps(elId,camps,meta,min=null){
+  document.getElementById(elId).innerHTML=camps.map(c=>{
+    const rc=rcColor(c.roas,meta,min);
+    return`<div class="cmp">
+      <div class="cmph">
+        <div class="flex"><div class="cmpicon pi-${c.plat}">${c.plat==='f'?'f':'S'}</div><div><div class="cmpn">${c.name}</div><div class="cmpd">${c.imp} imp.</div></div></div>
+        <div style="text-align:right"><div class="roas-big" style="color:${rc}">${c.roas.toFixed(2)}x</div><div class="roas-lbl">ROAS</div></div>
+      </div>
+      <div class="cmp-metrics">
+        <div class="cmp-m"><div class="cmp-ml">Pedidos</div><div class="cmp-mv">${c.pedidos}</div></div>
+        <div class="cmp-m"><div class="cmp-ml">Receita</div><div class="cmp-mv gn" style="font-size:12px">R$${(c.receita/1000).toFixed(1)}k</div></div>
+        <div class="cmp-m"><div class="cmp-ml">Gasto</div><div class="cmp-mv" style="font-size:12px">R$${c.gasto}</div></div>
+        <div class="cmp-m"><div class="cmp-ml">CTR</div><div class="cmp-mv">${c.ctr}%</div></div>
+      </div>
+      <div class="aci ${rcAction(c.roas,meta,min,c.name).cls}"><span class="aci-ic">${rcAction(c.roas,meta,min,c.name).ic}</span><span>${rcAction(c.roas,meta,min,c.name).txt}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderAllActions(){
+  const el=document.getElementById('actions-ads');
+  const all=[
+    ...META_CAMPS.map(c=>rcAction(c.roas,5,null,c.name+' (Meta)')),
+    ...SHOPEE_CAMPS.map(c=>rcAction(c.roas,20,15,c.name+' (Shopee)'))
+  ];
+  el.innerHTML=all.map(a=>`<div class="aci ${a.cls}"><span class="aci-ic">${a.ic}</span><span>${a.txt}</span></div>`).join('');
+}
+
+// ═══ TOP PRODUTOS ═══
+const PRODS=[
+  {name:'300ml Tempero',un:842,rev:5894,garrafas:842},
+  {name:'200ml Suco',un:514,rev:3084,garrafas:514},
+  {name:'Borrifador 500ml',un:374,rev:3366,garrafas:374},
+  {name:'120ml Tempero',un:318,rev:1908,garrafas:318},
+  {name:'Pump 500ml',un:236,rev:2124,garrafas:236}
+];
+
+function renderTopProd(){
+  const el=document.getElementById('top-prod');
+  const totalUn=PRODS.reduce((s,p)=>s+p.un,0);
+  const totalRev=PRODS.reduce((s,p)=>s+p.rev,0);
+  el.innerHTML=PRODS.map((p,i)=>{
+    const pctUn=Math.round(p.un/totalUn*100);
+    const pctRev=Math.round(p.rev/totalRev*100);
+    return`<div class="rkr"><span class="rkn">${i===0?'🥇 ':''}<strong>${p.name}</strong></span><div class="rkt"><div class="rkf fa" style="width:${pctUn}%"></div></div><span class="rkv">${pctUn}%</span></div>
+    <div style="font-size:10px;color:var(--mu);padding:0 0 8px;border-bottom:1px solid var(--bd);margin-bottom:8px">${p.un} un · <strong>${p.garrafas} garrafas</strong> · R$ ${p.rev.toLocaleString('pt-BR')} · ${pctRev}% faturamento</div>`;
+  }).join('');
+}
+
+// ═══ ESTOQUE ═══
+const STOCK=[
+  {name:'Resina PET virgem',sup:'Petroquímica Sul',stock:420,consume:180,lead:3,unit:'kg',buyDate:'17/03'},
+  {name:'Masterbatch preto',sup:'Colorfix SP',stock:38,consume:12,lead:2,unit:'kg',buyDate:'16/03'},
+  {name:'Tampas rosca 28mm',sup:'Tampas Brasil',stock:12400,consume:6800,lead:4,unit:'un',buyDate:'18/03'},
+  {name:'Rótulos 300ml',sup:'Gráfica Vitória',stock:48000,consume:5500,lead:5,unit:'un',buyDate:null},
+  {name:'Rótulos 200ml',sup:'Gráfica Vitória',stock:22000,consume:2800,lead:5,unit:'un',buyDate:null},
+  {name:'Caixas papelão',sup:'Caixas Sul',stock:420,consume:160,lead:3,unit:'un',buyDate:'19/03'},
+  {name:'Fita adesiva',sup:'Embalagens ES',stock:84,consume:8,lead:2,unit:'rl',buyDate:null},
+  {name:'Etiquetas envio',sup:'Gráfica Vitória',stock:8500,consume:700,lead:3,unit:'un',buyDate:null}
+];
+
+const WA_SVG=`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#fff"/></svg>`;
+
+function renderStock(){
+  const savedWa=DB.g('sup_wa',{});
+  document.getElementById('stk-list').innerHTML=STOCK.map((it,i)=>{
+    const ideal=it.consume*10;
+    const days=(it.stock/it.consume).toFixed(1);
+    const pct=Math.min(Math.round(it.stock/ideal*100),100);
+    const toBuy=Math.max(ideal-it.stock+it.consume*3,0);
+    const isCtrl=it.stock>=ideal;
+    const barColor=isCtrl?'var(--gn)':parseFloat(days)<5?'var(--rd)':'var(--am)';
+    const wa=savedWa[i]||'';
+    const msg=encodeURIComponent(`Olá! Precisamos repor ${toBuy.toLocaleString('pt-BR')} ${it.unit} de ${it.name}. Qual prazo de entrega?`);
+    return`<div class="skc">
+      <div class="skh"><div><div class="skn">${it.name}</div><div class="sksup">${it.sup}</div></div><span class="${isCtrl?'sc-ctrl':'sc-soon'}">${isCtrl?'Controlado':'Comprar em breve'}</span></div>
+      <div class="skb">
+        <div class="skbc"><div class="skbl">Estoque</div><div class="skbv" style="color:${barColor}">${it.stock.toLocaleString('pt-BR')} ${it.unit}</div></div>
+        <div class="skbc"><div class="skbl">Dias rest.</div><div class="skbv" style="color:${barColor}">${days}d</div></div>
+        <div class="skbc"><div class="skbl">A comprar</div><div class="skbv am">${toBuy>0?toBuy.toLocaleString('pt-BR')+' '+it.unit:'—'}</div></div>
+      </div>
+      <div style="margin-bottom:8px"><div style="font-size:9px;color:var(--mu);margin-bottom:3px">${pct}% do ideal (${ideal.toLocaleString('pt-BR')} ${it.unit})</div><div style="height:5px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:${barColor};width:${pct}%"></div></div></div>
+      <div class="skf">
+        <div>${it.buyDate?`<div class="skft">📅 Comprar até: <strong>${it.buyDate}</strong></div>`:'<div class="skft gn">✓ Estoque adequado</div>'}<div class="skft">Lead: ${it.lead} dias úteis</div></div>
+        <div class="flex">
+          <button class="btn bt-b" style="font-size:11px;padding:6px 10px" onclick="openSupplier(${i},'${it.name}')">📅 Agendar</button>
+          ${wa?`<a href="https://wa.me/${wa}?text=${msg}" target="_blank" class="wab" title="WhatsApp ${it.sup}">${WA_SVG}</a>`:`<button class="btn bt-a" style="font-size:11px;padding:6px 10px" onclick="openSupplier(${i},'${it.name}')">+ WA</button>`}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ AGENTS ═══
+function renderAgents(){
+  const AGTS=[
+    {n:'1',bg:'var(--a1)',c:'var(--am)',name:'Agente Estoque',tasks:['Lê Gestão Click + Shopee','Calcula dias restantes','Detecta gatilhos de reposição','Salva em JSON consolidado']},
+    {n:'2',bg:'var(--p1)',c:'var(--pu)',name:'Agente IA',tasks:['Calcula giro de 10 dias','Sugere quantidade ideal','Projeta data de chegada','Gera sugestão de compra']},
+    {n:'3',bg:'var(--b1)',c:'var(--bl)',name:'Agente Agenda',tasks:['Google Calendar API','Cria evento com lembrete','Envia convite por e-mail','Lead time automático']},
+    {n:'4',bg:'var(--g1)',c:'var(--gn)',name:'Agente WhatsApp',tasks:['Alerta estoque crítico','Mensagem ao fornecedor','Resumo diário às 18h','Confirma pedidos recebidos']}
+  ];
+  document.getElementById('agents').innerHTML=AGTS.map(a=>`
+    <div class="agc">
+      <div class="ach"><div class="acnum" style="background:${a.bg};color:${a.c}">${a.n}</div><div class="act2">${a.name}</div></div>
+      ${a.tasks.map(t=>`<div class="actask">→ ${t}</div>`).join('')}
+    </div>`).join('');
+}
+
+// ═══ WEEKLY CLOSINGS ═══
+function renderWeek(){
+  const week=DB.getWeek();
+  const maxP=Math.max(...week.map(d=>d.data?.producao||0),1);
+  const maxV=Math.max(...week.map(d=>d.data?.varejo||0),1);
+
+  // Produção
+  const wpEl=document.getElementById('week-prod');
+  if(wpEl){
+    const valid=week.filter(d=>d.data?.producao);
+    const total=valid.reduce((s,d)=>s+d.data.producao,0);
+    const avg=valid.length?Math.round(total/valid.length):0;
+    const proj=avg*22;
+    const pct=Math.round(proj/150000*100);
+    wpEl.innerHTML=`<div style="font-size:12px;color:var(--mu);margin-bottom:10px">Total: <strong>${total.toLocaleString('pt-BR')} un</strong> · Média: <strong>${avg.toLocaleString('pt-BR')}/dia</strong></div>
+    ${week.map(d=>`<div class="wt"><span class="wtl">${d.label}</span><div class="wtb"><div class="wtf fg" style="width:${d.data?.producao?Math.round(d.data.producao/maxP*100):0}%"></div></div><span class="wtv">${d.data?.producao?d.data.producao.toLocaleString('pt-BR'):'-'}</span></div>`).join('')}
+    <div class="divd"></div>
+    <div style="font-size:12px;color:var(--mu)">Projeção mensal: <strong style="color:${pct>=100?'var(--gn)':pct>=80?'var(--am)':'var(--rd)'}">${proj.toLocaleString('pt-BR')} un — ${pct}% da meta</strong></div>`;
+    // Also update projection box
+    const pb=document.getElementById('proj-prod');
+    const pv=document.getElementById('proj-val');
+    const ps=document.getElementById('proj-sub');
+    if(avg>0){
+      pb.className='proj '+(pct>=100?'ok':pct>=80?'warn':'bad');
+      pv.textContent='~'+proj.toLocaleString('pt-BR')+' un';
+      pv.className='proj-val '+(pct>=100?'gn':pct>=80?'am':'rd');
+      ps.innerHTML=`Média ${avg.toLocaleString('pt-BR')}/dia × 22 dias úteis · Meta: 150.000 · <strong>${pct}% da meta ${pct>=100?'✓':pct>=80?'⚠':'✗'}</strong>`;
+    }
+  }
+
+  // Devoluções
+  const wdEl=document.getElementById('week-devol');
+  if(wdEl){
+    const totalD=week.reduce((s,d)=>s+(d.data?.devol||0),0);
+    wdEl.innerHTML=`<div style="font-size:12px;color:var(--mu);margin-bottom:10px">Total semana: <strong class="${totalD>5?'rd':totalD>2?'am':'gn'}">${totalD} devoluções</strong></div>
+    ${week.map(d=>`<div class="wt"><span class="wtl">${d.label}</span><div class="wtb"><div class="wtf fr" style="width:${d.data?.devol?Math.min(d.data.devol*20,100):0}%"></div></div><span class="wtv">${d.data?.devol!=null?d.data.devol+' devol.':'-'}</span></div>`).join('')}
+    <div class="divd" style="margin-top:10px"></div>
+    <div style="font-size:11px;color:var(--mu)">Análise detalhada disponível na planilha de bipagem. Dados agrupados para revisão na sexta-feira.</div>`;
+  }
+
+  // Comercial
+  const wcEl=document.getElementById('week-com');
+  if(wcEl){
+    const totalV=week.reduce((s,d)=>s+(d.data?.varejo||0),0);
+    const totalA=week.reduce((s,d)=>s+(d.data?.atacado||0),0);
+    if(totalV>0){
+      wcEl.innerHTML=`<div style="font-size:12px;color:var(--mu);margin-bottom:10px">Varejo semana: <strong class="am">R$ ${totalV.toLocaleString('pt-BR')}</strong> · Atacado: <strong class="bl">R$ ${totalA.toLocaleString('pt-BR')}</strong></div>
+      ${week.map(d=>`<div class="wt"><span class="wtl">${d.label}</span><div class="wtb"><div class="wtf fa" style="width:${d.data?.varejo?Math.round(d.data.varejo/maxV*100):0}%"></div></div><span class="wtv">${d.data?.varejo?'R$'+d.data.varejo.toLocaleString('pt-BR'):'-'}</span></div>`).join('')}`;
+    }
+  }
+}
+
+// ═══ SETTINGS ═══
+function openModal(id){
+  const e=DB.g('user_email','');const w=DB.g('user_wa','');
+  if(id==='settings-modal'){document.getElementById('user-email').value=e;document.getElementById('user-wa').value=w;}
+  document.getElementById(id).classList.add('show');
+}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+function saveSettings(){
+  DB.s('user_email',document.getElementById('user-email').value);
+  DB.s('user_wa',document.getElementById('user-wa').value);
+  closeModal('settings-modal');
+  alert('✅ Configurações salvas!');
+}
+
+let _supIdx=-1;
+function openSupplier(idx,name){
+  _supIdx=idx;
+  document.getElementById('sup-title').textContent='📅 '+name;
+  const wa=DB.g('sup_wa',{})[idx]||'';
+  document.getElementById('sup-wa').value=wa;
+  const d=new Date();d.setDate(d.getDate()+STOCK[idx].lead+1);
+  document.getElementById('sup-date').value=d.toISOString().slice(0,10);
+  document.getElementById('supplier-modal').classList.add('show');
+}
+function scheduleCompra(){
+  const wa=document.getElementById('sup-wa').value.trim();
+  const date=document.getElementById('sup-date').value;
+  if(wa){const all=DB.g('sup_wa',{});all[_supIdx]=wa;DB.s('sup_wa',all);}
+  const it=STOCK[_supIdx];
+  const email=DB.g('user_email','');
+  alert(`✅ Compra agendada!\n\n📦 ${it.name}\n📅 Data: ${date}\n📧 Google Agenda: ${email||'(configure seu e-mail)'}\n📱 WhatsApp fornecedor: ${wa||'(não configurado)'}`);
+  closeModal('supplier-modal');
+  renderStock();
+}
+
+// ═══ WHATSAPP DAILY ═══
+function sendWhatsapp(){
+  const d=DB.g(DB.KEY,{})[DB.today]||{};
+  const msg=`🏭 *Montenegro Industria LTDA*\n*Resumo ${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'short'})} — 18h*\n\n📦 *Produção:* ${(d.producao||6280).toLocaleString('pt-BR')} un\n📤 *Expedição:* ${(d.expedicao||1462).toLocaleString('pt-BR')} itens · ${d.devol||2} devol.\n💰 *Varejo:* R$ ${(d.varejo||5840).toLocaleString('pt-BR')} | *Atacado:* R$ ${(d.atacado||1840).toLocaleString('pt-BR')}\n💵 *Saldo:* +R$ ${(d.saldo||1690).toLocaleString('pt-BR')}\n📢 *Ads:* Meta ${(d.roas_meta||2.78).toFixed(2)}x · Shopee ${(d.roas_shopee||3.86).toFixed(2)}x\n\n_Painel Montenegro_`;
+  const wa=DB.g('user_wa','')||'5511999999999';
+  window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// ═══ API INTEGRATION POINT ═══
+// Chame aplicarDados(json) para atualizar todos os KPIs via API (Google Sheets, Gestão Click, Shopee)
+function aplicarDados(d){
+  const fv=d.varejo||{};const fa=d.atacado||{};const fp=d.producao||{};
+  const pv=fv.meta?Math.round(fv.realizado/fv.meta*100):83;
+  const pa=fa.meta?Math.round(fa.realizado/fa.meta*100):81;
+  const pp=fp.meta?Math.round(fp.realizado/fp.meta*100):92;
+  const fmt=v=>'R$ '+Number(v).toLocaleString('pt-BR');
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  s('kv-var',fmt(fv.realizado||5840));
+  s('kv-atac',fmt(fa.realizado||1840));
+  s('kv-prod',(fp.realizado||6280).toLocaleString('pt-BR'));
+  s('kb-var',pv+'%');
+  if(d.shopee_bal)SHOPEE_BAL=d.shopee_bal;
+  if(d.roas_shopee)SHOPEE_ROAS=d.roas_shopee;
+  if(d.roas_meta)META_ROAS=d.roas_meta;
+  DB.saveDay({varejo:fv.realizado,atacado:fa.realizado,producao:fp.realizado,roas_shopee:d.roas_shopee,roas_meta:d.roas_meta,shopee_bal:d.shopee_bal});
+  renderWeek();checkAlerts();
+}
+
+// ═══ INIT ═══
+renderCamps('cmp-meta',META_CAMPS,5);
+renderCamps('cmp-shopee',SHOPEE_CAMPS,20,15);
+renderAllActions();
+renderTopProd();
+renderStock();
+renderAgents();
+renderWeek();
+</script>
+</body>
+</html>
