@@ -670,6 +670,34 @@ function aplicarDados(d){
   renderWeek();checkAlerts();
 }
 
+// ═══ APPS SCRIPT — cole a URL após implantar ═══
+const APPS_URL=''; // ex: https://script.google.com/macros/s/AKfy.../exec
+
+async function fetchData(){
+  if(!APPS_URL)return;
+  try{const res=await fetch(APPS_URL);const data=await res.json();aplicarDadosReais(data);}
+  catch(e){console.warn('Usando dados locais:',e);}
+}
+function aplicarDadosReais(d){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const prod=d.producao||{},exp=d.expedicao||{},dev=d.devolucoes||{},pro=d.prospeccao||{},reu=d.reuniao||{};
+  if(prod.realizado){
+    set('kv-prod',prod.realizado.toLocaleString('pt-BR'));
+    const pct=Math.round(prod.realizado/6800*100);
+    const kb=document.getElementById('kb-prod');
+    if(kb){kb.textContent=pct+'%';kb.className='bdg '+(pct>=100?'bg':pct>=80?'ba':'br');}
+  }
+  if(dev.total_dia!==undefined){
+    const badge=document.getElementById('dev-badge');
+    if(badge)badge.textContent=dev.total_dia+' devol. hoje';
+    DB.saveDay({devol:dev.total_dia});
+  }
+  if(pro.prospeccoes)DB.saveDay({prospeccoes:pro.prospeccoes,valor_fechado:pro.valor_fechado});
+  if(d.atualizado_em)set('clock',d.atualizado_em.slice(-5));
+  DB.saveDay({producao:prod.realizado,perda_kg:prod.perda_kg,perda_un:prod.perda_un});
+  renderWeek();checkAlerts();
+}
+
 // ═══ INIT ═══
 renderCamps('cmp-meta',META_CAMPS,5);
 renderCamps('cmp-shopee',SHOPEE_CAMPS,20,15);
@@ -678,6 +706,8 @@ renderTopProd();
 renderStock();
 renderAgents();
 renderWeek();
+fetchData();
+setInterval(fetchData,60*1000);
 </script>
 </body>
 </html>

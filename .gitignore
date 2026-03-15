@@ -1,0 +1,31 @@
+# ── Credenciais — NUNCA subir ──────────────────────
+.env
+config/
+*.json.key
+*.pickle
+google_service_account.json
+*_credentials.json
+*_token.json
+
+# ── Dados de runtime ────────────────────────────────
+dados/dashboard.json
+dados/comercial.json
+dados/estoque.json
+dados/historico/
+dados/semanal/
+
+# ── Logs ────────────────────────────────────────────
+logs/
+*.log
+log_*.txt
+
+# ── Claude Code ─────────────────────────────────────
+.claude/
+
+# ── Python ──────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+venv/
+.venv/
