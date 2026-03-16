@@ -266,10 +266,10 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
 <!-- ═══ COMERCIAL ═══ -->
 <div id="v-com" class="view">
   <div class="kg k2">
-    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">ERP preenchido</div><div class="kv gn" style="font-size:20px">✓ 08:42</div><div class="kf"><span class="bdg bg">por Carlos</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Prospecções hoje</div><div class="kv am">7<span style="font-size:14px;font-weight:500"> / 30</span></div><div class="kf"><span class="bdg ba">23% meta</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Ticket médio hoje</div><div class="kv pu">R$ 1.636</div><div class="kf"><span class="bdg bg">meta R$ 1.500 ✓</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Orçamentos abertos</div><div class="kv bl">4</div><div class="kf"><span class="bdg bb">R$ 28.400</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Pedidos no mês</div><div class="kv gn" id="kv-ped-mes">—</div><div class="kf"><span class="bdg bg" id="kb-ped-mes">via GC</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Receita do mês</div><div class="kv am" id="kv-rec-mes" style="font-size:16px">—</div><div class="kf"><span class="bdg ba">Gestão Click</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Ticket médio</div><div class="kv pu" id="kv-tic" style="font-size:16px">—</div><div class="kf"><span class="bdg bp" id="kb-tic">mês atual</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Novos clientes</div><div class="kv bl" id="kv-cli-mes">—</div><div class="kf"><span class="bdg bb">no mês</span></div></div>
   </div>
 
   <div class="stl">Meta mensal comercial</div>
@@ -294,13 +294,13 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
     <div class="cb" id="top-prod"></div>
   </div>
 
-  <div class="stl">Pipeline comercial</div>
+  <div class="stl">Financeiro do mês</div>
   <div class="card">
-    <div class="ch"><div><div class="ct">Orçamentos ativos</div><div class="cs">Via Gestão Click</div></div><span class="bdg bp">R$ 28.400</span></div>
-    <div class="cb">
-      <div class="sr"><span class="srl">🔥 Distribuidora Norte Ltda</span><span class="srv gn">R$ 9.200</span></div>
-      <div class="sr"><span class="srl">Negociando · Super Atacado Vitória</span><span class="srv am">R$ 7.800</span></div>
-      <div class="sr"><span class="srl">Frio · Mercado Central ES</span><span class="srv bl">R$ 6.400</span></div>
+    <div class="ch"><div><div class="ct">Contas a receber × pagar</div><div class="cs">Via Gestão Click · mês atual</div></div></div>
+    <div class="cb" id="gc-fin-card">
+      <div class="sr"><span class="srl">A receber no mês</span><span class="srv gn" id="kv-a-rec">—</span></div>
+      <div class="sr"><span class="srl">Já pago no mês</span><span class="srv rd" id="kv-pago">—</span></div>
+      <div class="sr"><span class="srl">Saldo líquido</span><span class="srv" id="kv-saldo-mes">—</span></div>
     </div>
   </div>
 
@@ -315,14 +315,20 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
   <div class="al al-b gap"><span class="al-ic">⚙️</span><div><strong>Configure para agendar compras automaticamente</strong>Informe e-mail e WhatsApp dos fornecedores. <button class="btn bt-b" style="margin-top:6px;font-size:11px;padding:6px 10px" onclick="openModal('settings-modal')">Configurar agora</button></div></div>
 
   <div class="kg k2">
-    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Comprar em breve</div><div class="kv am">3</div><div class="kf"><span class="bdg ba">próx. gatilho</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Controlado</div><div class="kv gn">8</div><div class="kf"><span class="bdg bg">estoque ok</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Agendamentos</div><div class="kv bl">3</div><div class="kf"><span class="bdg bb">Google Agenda</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Monitorados</div><div class="kv pu">13</div><div class="kf"><span class="bdg bp">IA ativa</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Inventário Atual</div><div class="kv pu" id="kv-inv" style="font-size:16px">—</div><div class="kf"><span class="bdg bp" id="kb-inv">valor a custo</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">SKUs zerados</div><div class="kv am" id="kv-zer">—</div><div class="kf"><span class="bdg ba" id="kb-zer">sem estoque</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--rd)"></div><div class="kl">Estoque crítico</div><div class="kv rd" id="kv-crit">—</div><div class="kf"><span class="bdg br">≤ 10 unid.</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Total SKUs</div><div class="kv gn" id="kv-skus">—</div><div class="kf"><span class="bdg bg">cadastrados</span></div></div>
   </div>
 
-  <div class="stl">Estoque — todos os materiais</div>
-  <div id="stk-list"></div>
+  <div class="stl">Inventário — produtos em estoque (valor a custo)</div>
+  <div class="card" id="gc-inv-list"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Carregando dados do Gestão Click...</div></div>
+
+  <div class="stl">Alertas de estoque</div>
+  <div id="gc-alerts-list"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">—</div></div>
+
+  <div class="stl">Automação de compras (IA)</div>
+  <div class="agrid" id="agents"></div>
 
   <div class="stl">Automação de compras (IA)</div>
   <div class="agrid" id="agents"></div>
@@ -718,7 +724,155 @@ function aplicarDadosReais(d){
   // Timestamp e persistência
   if(d.atualizado_em)set('clock',d.atualizado_em.slice(-5));
   DB.saveDay({producao:realizado,perda_kg:prod.perda_kg??0,perda_un:prod.perda_un??0,expedicao:totalPed});
+
+  // Gestão Click — dados vindos direto do Apps Script (prioridade sobre localhost)
+  if(d.gestaoclick) aplicarGCDadosInline(d.gestaoclick);
+
   renderWeek();checkAlerts();
+}
+
+function aplicarGCDadosInline(gc){
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const v=gc.vendas||{}, fin=gc.financeiro||{}, est=gc.estoque||{};
+
+  // ── Comercial ──────────────────────────────────────────────
+  if(v.pedidos_mes!=null) s('kv-ped-mes', v.pedidos_mes);
+  if(v.receita_mes!=null) s('kv-rec-mes', fmt2(v.receita_mes));
+  if(v.ticket_medio!=null){
+    s('kv-tic', fmt2(v.ticket_medio));
+    const kb=document.getElementById('kb-tic');
+    if(kb) kb.className='bdg '+(v.ticket_medio>=1500?'bg':'ba');
+  }
+  if(gc.clientes?.novos_mes!=null) s('kv-cli-mes', gc.clientes.novos_mes);
+
+  // Financeiro
+  if(fin.recebimentos_mes!=null) s('kv-a-rec', fmt2(fin.recebimentos_mes));
+  if(fin.pago_mes!=null)         s('kv-pago',  fmt2(fin.pago_mes));
+  if(fin.saldo_mes!=null){
+    const el=document.getElementById('kv-saldo-mes');
+    if(el){ el.textContent=fmt2(fin.saldo_mes); el.className='srv '+(fin.saldo_mes>=0?'gn':'rd'); }
+  }
+
+  // ── Compras / Estoque ───────────────────────────────────────
+  if(est.inventario_custo!=null) s('kv-inv',  fmt2(est.inventario_custo));
+  if(est.zerados!=null)          s('kv-zer',  est.zerados);
+  if(est.criticos!=null)         s('kv-crit', est.criticos);
+  if(est.total_skus!=null)       s('kv-skus', est.total_skus);
+
+  // Card resumo inventário
+  const invEl=document.getElementById('gc-inv-list');
+  if(invEl && est.inventario_custo!=null){
+    invEl.innerHTML=`
+      <div class="ch"><div><div class="ct">Inventário a custo</div><div class="cs">Gestão Click · atualizado ${(gc.atualizado_em||'').slice(11,16)}</div></div>
+        <span class="bdg bp">${fmt2(est.inventario_custo)}</span></div>
+      <div class="cb">
+        <div class="sr"><span class="srl">Total SKUs cadastrados</span><span class="srv gn">${est.total_skus??'—'}</span></div>
+        <div class="sr"><span class="srl">Com estoque zerado</span><span class="srv ${est.zerados>0?'rd':'gn'}">${est.zerados??'—'}</span></div>
+        <div class="sr"><span class="srl">Estoque crítico (≤ 10)</span><span class="srv ${est.criticos>0?'am':'gn'}">${est.criticos??'—'}</span></div>
+      </div>`;
+  }
+
+  // Alertas zerados / críticos
+  const alertEl=document.getElementById('gc-alerts-list');
+  if(alertEl){
+    const zerados=est.zerados_nomes||[], criticos=est.criticos_nomes||[];
+    if(zerados.length===0 && criticos.length===0){
+      alertEl.innerHTML='<div class="al al-g gap"><span class="al-ic">✓</span><div><strong>Estoque sem alertas críticos</strong></div></div>';
+    } else {
+      alertEl.innerHTML=
+        (zerados.length?`<div class="al al-r gap"><span class="al-ic">🚨</span><div><strong>${est.zerados} SKU(s) sem estoque</strong><br><span style="font-size:11px;color:var(--mu)">${zerados.slice(0,3).join(' · ')}</span></div></div>`:'')
+       +(criticos.length?`<div class="al al-a gap" style="margin-top:6px"><span class="al-ic">⚠️</span><div><strong>${est.criticos} SKU(s) críticos (≤ 10)</strong><br><span style="font-size:11px;color:var(--mu)">${criticos.slice(0,3).join(' · ')}</span></div></div>`:'');
+    }
+  }
+}
+
+// ═══ GESTÃO CLICK — dados locais via servidor 8765 ═══
+const GC_URL = 'http://localhost:8765';
+const fmt2 = v => 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
+
+async function fetchGCData() {
+  try {
+    const [rCom, rEst] = await Promise.all([
+      fetch(GC_URL + '/comercial.json'),
+      fetch(GC_URL + '/estoque.json')
+    ]);
+    if (rCom.ok && rEst.ok) {
+      const com = await rCom.json();
+      const est = await rEst.json();
+      aplicarGCDados(com, est);
+    }
+  } catch(e) {
+    console.info('GC local não disponível:', e.message);
+  }
+}
+
+function aplicarGCDados(com, est) {
+  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  const v = com.vendas || {};
+  const fin = com.financeiro || {};
+
+  // ── Comercial ──────────────────────────────────────────
+  s('kv-ped-mes', v.pedidos_mes ?? '—');
+  s('kv-rec-mes', v.receita_mes ? fmt2(v.receita_mes) : '—');
+  if (v.ticket_medio) {
+    s('kv-tic', fmt2(v.ticket_medio));
+    const kb = document.getElementById('kb-tic');
+    if (kb) kb.className = 'bdg ' + (v.ticket_medio >= 1500 ? 'bg' : 'ba');
+  }
+  s('kv-cli-mes', com.clientes?.novos_mes ?? '—');
+
+  // Financeiro
+  s('kv-a-rec', fin.recebimentos_mes ? fmt2(fin.recebimentos_mes) : '—');
+  s('kv-pago',  fin.pago_mes         ? fmt2(fin.pago_mes)         : '—');
+  if (fin.saldo_mes !== undefined) {
+    const el = document.getElementById('kv-saldo-mes');
+    if (el) {
+      el.textContent = fmt2(fin.saldo_mes);
+      el.className = fin.saldo_mes >= 0 ? 'srv gn' : 'srv rd';
+    }
+  }
+
+  // ── Compras / Estoque ───────────────────────────────────
+  s('kv-inv',  est.inventario_custo ? fmt2(est.inventario_custo) : '—');
+  s('kv-zer',  est.zerados  ?? '—');
+  s('kv-crit', est.criticos ?? '—');
+  s('kv-skus', est.total_skus ?? '—');
+
+  // Alerta se zerados > 0
+  const alertEl = document.getElementById('gc-alerts-list');
+  if (alertEl && est.zerados_nomes && est.zerados_nomes.length > 0) {
+    alertEl.innerHTML = `
+      <div class="al al-r gap"><span class="al-ic">🚨</span>
+        <div><strong>${est.zerados} SKU(s) sem estoque</strong><br>
+          <span style="font-size:11px;color:var(--mu)">${est.zerados_nomes.slice(0,3).join(' · ')}</span>
+        </div>
+      </div>
+      ${est.criticos_nomes && est.criticos_nomes.length > 0 ? `
+      <div class="al al-a gap" style="margin-top:6px"><span class="al-ic">⚠️</span>
+        <div><strong>${est.criticos} SKU(s) com estoque crítico (≤ 10)</strong><br>
+          <span style="font-size:11px;color:var(--mu)">${est.criticos_nomes.slice(0,3).join(' · ')}</span>
+        </div>
+      </div>` : ''}`;
+  } else if (alertEl) {
+    alertEl.innerHTML = '<div class="al al-g gap"><span class="al-ic">✓</span><div><strong>Estoque sem alertas críticos</strong></div></div>';
+  }
+
+  // Lista de produtos em estoque por valor a custo
+  const listEl = document.getElementById('gc-inv-list');
+  if (listEl && est.em_estoque && est.em_estoque.length > 0) {
+    const total = est.inventario_custo || 0;
+    listEl.innerHTML = `
+      <div class="ch"><div><div class="ct">Top produtos por valor a custo</div><div class="cs">Total: <strong class="pu">${fmt2(total)}</strong></div></div></div>
+      <div class="cb">
+        ${est.em_estoque.slice(0, 10).map(p => {
+          const pct = total > 0 ? Math.round(p.total_custo / total * 100) : 0;
+          return `<div class="sr"><span class="srl" style="font-size:11px">${p.nome}</span>
+            <span class="srv pu" style="font-size:11px">${fmt2(p.total_custo)} <span style="color:var(--mu)">(${pct}%)</span></span></div>`;
+        }).join('')}
+      </div>`;
+  } else if (listEl) {
+    listEl.innerHTML = '<div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Sem itens em estoque</div>';
+  }
 }
 
 // ═══ INIT ═══
@@ -730,7 +884,9 @@ renderStock();
 renderAgents();
 renderWeek();
 fetchData();
-setInterval(fetchData,60*1000);
+fetchGCData();
+setInterval(fetchData, 60*1000);
+setInterval(fetchGCData, 10*60*1000);
 </script>
 </body>
 </html>
