@@ -380,7 +380,13 @@ function testarWhatsApp() {
 
 // ── Helpers ───────────────────────────────────────────────────
 
-// Retorna a última linha com conteúdo real (coluna 1 = quem preencheu)
+// Verifica se uma linha é uma resposta real de formulário
+// Coluna 0 = Timestamp do Google Forms — sempre preenchida em respostas reais
+function _linhaReal(row) {
+  return row[0] && String(row[0]).trim() !== '' && String(row[0]).trim() !== '0';
+}
+
+// Retorna a última linha com conteúdo real (pelo timestamp, coluna 0)
 function ultimaLinha(sheetId, gid) {
   const ss    = SpreadsheetApp.openById(sheetId);
   const sheet = gid != null
@@ -388,12 +394,13 @@ function ultimaLinha(sheetId, gid) {
     : ss.getSheets()[0];
   const data  = sheet.getDataRange().getValues();
   for (let i = data.length - 1; i >= 1; i--) {
-    if (data[i][1] && String(data[i][1]).trim() !== '') return data[i];
+    if (_linhaReal(data[i])) return data[i];
   }
   return Array(20).fill('');
 }
 
 // Retorna TODOS os registros da data mais recente (manhã + tarde + etc.)
+// Usa coluna 2 da produção (Data de hoje) para agrupar turnos do mesmo dia
 function linhasDoDia(sheetId, gid) {
   const ss    = SpreadsheetApp.openById(sheetId);
   const sheet = gid != null
@@ -401,10 +408,10 @@ function linhasDoDia(sheetId, gid) {
     : ss.getSheets()[0];
   const data  = sheet.getDataRange().getValues();
 
-  // Acha a data do último registro real (coluna 2 = Data de hoje, ex: "16/03/2026")
+  // Acha a data do último registro real (coluna 2 = "Data de hoje" dd/MM/yyyy)
   let dataReferencia = '';
   for (let i = data.length - 1; i >= 1; i--) {
-    if (data[i][1] && String(data[i][1]).trim() !== '') {
+    if (_linhaReal(data[i])) {
       dataReferencia = String(data[i][2]).trim();
       break;
     }
@@ -414,7 +421,7 @@ function linhasDoDia(sheetId, gid) {
   // Coleta todas as linhas com essa mesma data
   const registros = [];
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][2]).trim() === dataReferencia && data[i][1] && String(data[i][1]).trim() !== '') {
+    if (_linhaReal(data[i]) && String(data[i][2]).trim() === dataReferencia) {
       registros.push(data[i]);
     }
   }
