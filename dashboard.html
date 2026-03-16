@@ -681,20 +681,43 @@ async function fetchData(){
 function aplicarDadosReais(d){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   const prod=d.producao||{},exp=d.expedicao||{},dev=d.devolucoes||{},pro=d.prospeccao||{},reu=d.reuniao||{};
-  if(prod.realizado){
-    set('kv-prod',prod.realizado.toLocaleString('pt-BR'));
-    const pct=Math.round(prod.realizado/6800*100);
-    const kb=document.getElementById('kb-prod');
-    if(kb){kb.textContent=pct+'%';kb.className='bdg '+(pct>=100?'bg':pct>=80?'ba':'br');}
-  }
+
+  // Produção — sempre atualiza (mesmo quando 0)
+  const realizado=prod.realizado??0;
+  set('kv-prod',realizado.toLocaleString('pt-BR'));
+  const pct=Math.round(realizado/6800*100);
+  const kb=document.getElementById('kb-prod');
+  if(kb){kb.textContent=pct+'%';kb.className='bdg '+(pct>=100?'bg':pct>=80?'ba':'br');}
+
+  // Expedição — total de pedidos
+  const totalPed=(exp.pedidos_1impressao??0)+(exp.pedidos_3impressao??0);
+  set('kv-exp', totalPed);
+  const kbExp=document.getElementById('kb-exp');
+  if(kbExp)kbExp.textContent=totalPed+' pedidos';
+
+  // Devoluções
   if(dev.total_dia!==undefined){
     const badge=document.getElementById('dev-badge');
     if(badge)badge.textContent=dev.total_dia+' devol. hoje';
     DB.saveDay({devol:dev.total_dia});
   }
-  if(pro.prospeccoes)DB.saveDay({prospeccoes:pro.prospeccoes,valor_fechado:pro.valor_fechado});
+
+  // Prospecção
+  DB.saveDay({prospeccoes:pro.prospeccoes??0,valor_fechado:pro.valor_fechado??0});
+
+  // Reunião status
+  if(reu.pct_17h){
+    const alEl=document.getElementById('al-reuniao');
+    if(alEl){
+      const ok=String(reu.pct_17h).includes('100');
+      alEl.className='al '+(ok?'al-g':'al-a');
+      alEl.innerHTML=`<span class="al-ic">${ok?'✓':'⚠️'}</span><div><strong>Reunião 15h — ${reu.pct_17h} previsto às 17h</strong>${reu.ameaca!=='Não'?'<br>Ameaça: '+reu.ameaca:''}</div>`;
+    }
+  }
+
+  // Timestamp e persistência
   if(d.atualizado_em)set('clock',d.atualizado_em.slice(-5));
-  DB.saveDay({producao:prod.realizado,perda_kg:prod.perda_kg,perda_un:prod.perda_un});
+  DB.saveDay({producao:realizado,perda_kg:prod.perda_kg??0,perda_un:prod.perda_un??0,expedicao:totalPed});
   renderWeek();checkAlerts();
 }
 
