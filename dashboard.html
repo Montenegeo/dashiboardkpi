@@ -181,6 +181,11 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
     <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Saldo do dia</div><div class="kv gn">+R$ 1.690</div><div class="kf"><span class="bdg bg">positivo</span></div></div>
   </div>
 
+  <div class="stl">Produção — detalhamento do dia</div>
+  <div class="card" id="prod-turnos-card">
+    <div class="cb" id="prod-turnos"><div style="font-size:12px;color:var(--mu);text-align:center;padding:12px 0">Carregando...</div></div>
+  </div>
+
   <div class="stl">Projeção mensal — Produção</div>
   <div id="proj-prod" class="proj ok">
     <div class="proj-lbl">Se manter esse ritmo</div>
@@ -688,12 +693,42 @@ function aplicarDadosReais(d){
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   const prod=d.producao||{},exp=d.expedicao||{},dev=d.devolucoes||{},pro=d.prospeccao||{},reu=d.reuniao||{};
 
-  // Produção — sempre atualiza (mesmo quando 0)
-  const realizado=prod.realizado??0;
+  // Produção — total do dia (soma manhã + tarde)
+  const realizado=prod.total_realizado??prod.realizado??0;
   set('kv-prod',realizado.toLocaleString('pt-BR'));
   const pct=Math.round(realizado/6800*100);
   const kb=document.getElementById('kb-prod');
   if(kb){kb.textContent=pct+'%';kb.className='bdg '+(pct>=100?'bg':pct>=80?'ba':'br');}
+
+  // Card de turnos — manhã / tarde / total
+  const ptEl=document.getElementById('prod-turnos');
+  if(ptEl){
+    const turnos=prod.turnos||[];
+    if(turnos.length===0){
+      ptEl.innerHTML='<div style="font-size:12px;color:var(--mu);text-align:center;padding:12px 0">Sem registros hoje</div>';
+    } else if(turnos.length===1){
+      const t=turnos[0];
+      ptEl.innerHTML=`<div class="sr"><span class="srl">Turno ${t.turno}</span><span class="srv gn">${(t.realizado||0).toLocaleString('pt-BR')} un</span></div>
+        ${t.perda_un>0?`<div class="sr"><span class="srl" style="color:var(--mu)">Perdas</span><span class="srv am">${t.perda_un} un · ${t.perda_kg} kg</span></div>`:''}
+        ${t.molde?`<div class="sr"><span class="srl" style="color:var(--mu)">Molde</span><span class="srv">${t.molde}</span></div>`:''}
+        ${t.troca&&t.troca!=='Não'?`<div class="al al-a gap" style="margin-top:8px"><span class="al-ic">🔄</span><div><strong>Troca de molde</strong></div></div>`:''}`;
+    } else {
+      const totalUn=turnos.reduce((s,t)=>s+(t.realizado||0),0);
+      const totalPU=turnos.reduce((s,t)=>s+(t.perda_un||0),0);
+      const totalPK=turnos.reduce((s,t)=>s+(t.perda_kg||0),0);
+      const houveTroca=turnos.some(t=>t.troca&&t.troca!=='Não');
+      ptEl.innerHTML=
+        turnos.map(t=>`
+          <div class="sr"><span class="srl"><strong>Turno ${t.turno}</strong>${t.troca&&t.troca!=='Não'?' 🔄':''}</span><span class="srv gn"><strong>${(t.realizado||0).toLocaleString('pt-BR')} un</strong></span></div>
+          ${t.perda_un>0?`<div class="sr" style="padding-left:12px"><span class="srl" style="color:var(--mu);font-size:11px">↳ Perdas ${t.perda_un} un · ${t.perda_kg} kg</span><span></span></div>`:''}
+          ${t.molde?`<div class="sr" style="padding-left:12px"><span class="srl" style="color:var(--mu);font-size:11px">↳ Molde: ${t.molde}</span><span></span></div>`:''}
+        `).join('<div class="divd" style="margin:6px 0"></div>')
+        +`<div class="divd" style="margin:8px 0"></div>
+           <div class="sr"><span class="srl"><strong>Total do dia</strong></span><span class="srv gn" style="font-size:16px;font-weight:800">${totalUn.toLocaleString('pt-BR')} un</span></div>
+           ${totalPU>0?`<div class="sr"><span class="srl" style="color:var(--mu)">Total perdas</span><span class="srv am">${totalPU} un · ${totalPK} kg</span></div>`:''}
+           ${houveTroca?`<div class="al al-a gap" style="margin-top:8px"><span class="al-ic">🔄</span><div><strong>Houve troca de molde hoje</strong></div></div>`:''}`;
+    }
+  }
 
   // Expedição — total de pedidos
   const totalPed=(exp.pedidos_1impressao??0)+(exp.pedidos_3impressao??0);
