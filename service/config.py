@@ -13,7 +13,7 @@ SEM_DIR    = f"{DADOS_DIR}/semanal"
 LOG_DIR    = f"{BASE_DIR}/logs"
 
 # Apps Script — cole a URL após implantar
-APPS_URL = os.getenv("APPS_URL", "")
+APPS_URL = os.getenv("APPS_URL", "https://script.google.com/macros/s/AKfycbyzwtuRf2Y2wLhdANf5_eDkBVgByxbm0X1Q32dJmC-7Hzc6AAP6WsISyEoxETT8ptRrSw/exec")
 
 # Green API — WhatsApp
 WA_API_URL  = os.getenv("GREEN_API_URL",      "https://7107.api.greenapi.com")
