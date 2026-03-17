@@ -655,15 +655,43 @@ function lancarEstoqueGC_(params) {
 
     const produtos = JSON.parse(resProd.getContentText()).data || [];
 
-    // Encontra produto por itemId (SKU) ou por correspondência de nome
-    const idLower   = itemId.toLowerCase();
-    const nomeLower = itemNome.toLowerCase().slice(0, 20);
-    let produto = produtos.find(p =>
-      (p.codigo || '').toLowerCase() === idLower ||
-      (p.nome   || '').toLowerCase().includes(nomeLower)
-    );
+    // Encontra produto por itemId (SKU) ou por palavras-chave do nome
+    const idLower = itemId.toLowerCase();
 
-    if (!produto) return resp('Produto não encontrado no GC: ' + itemNome, false);
+    // Extrai tokens relevantes (>= 2 chars, sem palavras vazias)
+    const tokens = itemNome.toLowerCase()
+      .replace(/[^a-z0-9\s]/gi, ' ')
+      .split(/\s+/)
+      .filter(w => w.length >= 2);
+
+    let produto = null;
+
+    // Estratégia 1: SKU exato (campo codigo)
+    produto = produtos.find(p => (p.codigo || '').toLowerCase() === idLower);
+
+    // Estratégia 2: todos os tokens presentes no nome do GC
+    if (!produto && tokens.length) {
+      produto = produtos.find(p => {
+        const pn = (p.nome || '').toLowerCase().replace(/[^a-z0-9\s]/gi, ' ');
+        return tokens.every(t => pn.includes(t));
+      });
+    }
+
+    // Estratégia 3: maioria dos tokens (>=60%) para tolerar pequenas divergências
+    if (!produto && tokens.length) {
+      produto = produtos.find(p => {
+        const pn = (p.nome || '').toLowerCase().replace(/[^a-z0-9\s]/gi, ' ');
+        const matches = tokens.filter(t => pn.includes(t)).length;
+        return matches / tokens.length >= 0.6;
+      });
+    }
+
+    // Log para debug — mostra nomes disponíveis no GC quando não encontra
+    if (!produto) {
+      const nomes = produtos.slice(0, 30).map(p => p.nome).join(' | ');
+      Logger.log('❌ Não encontrado: "' + itemNome + '" | Tokens: ' + tokens.join(',') + ' | GC nomes: ' + nomes);
+      return resp('Produto não encontrado no GC: "' + itemNome + '" — verifique o log do Apps Script para ver os nomes cadastrados', false);
+    }
 
     // Atualiza estoque: substitui pelo valor contado (Modelo A — contagem)
     const estoqueAtual = gcNum(produto.estoque);
