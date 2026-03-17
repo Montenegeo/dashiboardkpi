@@ -665,9 +665,9 @@ function lancarEstoqueGC_(params) {
 
     if (!produto) return resp('Produto não encontrado no GC: ' + itemNome, false);
 
-    // Atualiza estoque: soma ao atual
+    // Atualiza estoque: substitui pelo valor contado (Modelo A — contagem)
     const estoqueAtual = gcNum(produto.estoque);
-    const novoEstoque  = estoqueAtual + totalUnidades;
+    const novoEstoque  = totalUnidades;
 
     const putRes = UrlFetchApp.fetch(`${GC.url}/produtos/${produto.id}`, {
       method: 'PUT',
