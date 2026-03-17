@@ -31,7 +31,7 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
 .view{display:none;padding:14px 12px 10px;animation:fi .2s ease}.view.on{display:block}
 @keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:1px solid var(--bd);display:grid;grid-template-columns:repeat(4,1fr);height:60px;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:1px solid var(--bd);display:grid;grid-template-columns:repeat(5,1fr);height:60px;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
 .ntab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:transparent;color:var(--mu);cursor:pointer;font-size:10px;font-weight:500;padding:6px 4px;transition:color .15s}.ntab.on{color:var(--am)}
 .ni{font-size:22px;line-height:1}
 /* CARD */
@@ -175,10 +175,10 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
 <!-- ═══ FÁBRICA ═══ -->
 <div id="v-fab" class="view on">
   <div class="kg k2">
-    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Varejo hoje</div><div class="kv am" id="kv-var">R$ 5.840</div><div class="kf"><span class="bdg ba" id="kb-var">83%</span> meta R$ 7k</div></div>
-    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Atacado hoje</div><div class="kv bl" id="kv-atac">R$ 1.840</div><div class="kf"><span class="bdg bb">81%</span> meta R$ 2.272</div></div>
-    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Produção hoje</div><div class="kv gn" id="kv-prod">6.280</div><div class="kf"><span class="bdg bg">92%</span> meta 6.800</div></div>
-    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Saldo do dia</div><div class="kv gn">+R$ 1.690</div><div class="kf"><span class="bdg bg">positivo</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Varejo hoje</div><div class="kv" id="kv-var" style="font-size:13px;color:var(--mu)">Em breve</div><div class="kf"><span class="bdg" style="background:#f3f4f6;color:var(--mu)">Shopee API</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Atacado hoje</div><div class="kv bl" id="kv-atac">—</div><div class="kf"><span class="bdg bb" id="kb-atac">Gestão Click</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Produção hoje</div><div class="kv gn" id="kv-prod">—</div><div class="kf"><span class="bdg bg" id="kb-prod">meta 6.800</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Saldo do dia</div><div class="kv gn" id="kv-saldo-dia">—</div><div class="kf"><span class="bdg bg" id="kb-saldo-dia">calculando...</span></div></div>
   </div>
 
   <div class="stl">Produção — detalhamento do dia</div>
@@ -193,41 +193,22 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
     <div class="proj-sub" id="proj-sub">Média 6.280/dia × 22 dias úteis · Meta: 150.000 · <strong>92% — atenção</strong></div>
   </div>
 
-  <div class="stl">Meta comercial mensal</div>
-  <div class="card">
-    <div class="cb">
-      <div class="pg">
-        <div class="pgh"><span class="pgn">Varejo (meta R$ 210.000)</span><span class="pgv am">R$ 78.540 · faltam R$ 131.460</span></div>
-        <div class="pgt"><div class="pgf fa" id="pm-var" style="width:37%"></div></div>
-        <div style="font-size:11px;color:var(--rd);margin-top:4px">14 dias úteis restantes · precisam R$ 9.390/dia</div>
-      </div>
-      <div class="pg" style="margin-top:10px">
-        <div class="pgh"><span class="pgn">Atacado (meta R$ 50.000)</span><span class="pgv bl">R$ 22.180 · faltam R$ 27.820</span></div>
-        <div class="pgt"><div class="pgf fb" id="pm-atac" style="width:44%"></div></div>
-        <div style="font-size:11px;color:var(--am);margin-top:4px">Precisam R$ 1.987/dia útil</div>
-      </div>
-    </div>
-  </div>
-
   <div class="stl">Expedição</div>
   <div class="card">
-    <div class="ch"><div><div class="ct">Expedição — Varejo</div><div class="cs">Padrão: 1,5 min/pedido</div></div><span class="bdg br">2 devol. hoje</span></div>
+    <div class="ch"><div><div class="ct">Expedição — dados do dia</div><div class="cs">via Google Forms · atualiza a cada 1 min</div></div><span class="bdg br" id="exp-devol-badge">—</span></div>
     <div class="cb">
       <div class="kg k2" style="margin-bottom:10px">
-        <div style="background:#f9fafb;border-radius:var(--r);padding:11px;text-align:center"><div class="kl">Embalados</div><div style="font-size:22px;font-weight:800;color:var(--bl)">1.462</div></div>
-        <div style="background:#f9fafb;border-radius:var(--r);padding:11px;text-align:center"><div class="kl">Tempo total est.</div><div style="font-size:22px;font-weight:800">36,6h</div></div>
+        <div style="background:#f9fafb;border-radius:var(--r);padding:11px;text-align:center"><div class="kl">1ª impressão</div><div style="font-size:22px;font-weight:800;color:var(--bl)" id="exp-ped1">—</div></div>
+        <div style="background:#f9fafb;border-radius:var(--r);padding:11px;text-align:center"><div class="kl">3ª impressão</div><div style="font-size:22px;font-weight:800;color:var(--bl)" id="exp-ped3">—</div></div>
       </div>
-      <div class="stl">Produtividade</div>
-      <div class="rkr"><span class="rkn">🥇 Morhana</span><div class="rkt"><div class="rkf fg" style="width:100%"></div></div><span class="rkv gn">312</span></div>
-      <div class="rkr"><span class="rkn">Lidiane</span><div class="rkt"><div class="rkf fb" style="width:96%"></div></div><span class="rkv">301</span></div>
-      <div class="rkr"><span class="rkn">Diogo</span><div class="rkt"><div class="rkf fb" style="width:95%"></div></div><span class="rkv">298</span></div>
-      <div class="rkr"><span class="rkn">Renilza</span><div class="rkt"><div class="rkf fb" style="width:92%"></div></div><span class="rkv">287</span></div>
-      <div class="rkr"><span class="rkn">⚠ M. Eduarda</span><div class="rkt"><div class="rkf fr" style="width:84%"></div></div><span class="rkv rd">264</span></div>
+      <div class="sr"><span class="srl">Total pedidos expedidos</span><span class="srv bl" style="font-weight:800" id="exp-total">—</span></div>
+      <div class="sr"><span class="srl">Etiquetas sobrando</span><span class="srv" id="exp-etiq">—</span></div>
+      <div class="divd"></div>
+      <div class="stl">Ocorrências do dia</div>
+      <div id="exp-ocorrencias"><div style="font-size:12px;color:var(--mu);text-align:center;padding:8px 0">Carregando...</div></div>
       <div class="divd"></div>
       <div class="stl">Devoluções hoje</div>
-      <div class="al al-r"><span class="al-ic">📦</span><div><strong>2 devoluções bipadas</strong>Embalagens amassadas — análise semanal agrupada</div></div>
-      <div class="stl">Itens danificados — semana</div>
-      <div class="al al-a"><span class="al-ic">📋</span><div><strong>Relatório semanal via Google Forms</strong>Preenchido pela encarregada toda sexta-feira. Dados agrupados por funcionária.</div></div>
+      <div id="exp-devol-lista"><div style="font-size:12px;color:var(--mu);text-align:center;padding:8px 0">—</div></div>
     </div>
   </div>
 
@@ -243,29 +224,35 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
     <div class="cb" id="week-devol"></div>
   </div>
 
-  <div class="stl">Resumo diário às 18h</div>
-  <button class="btn bt-wa" style="width:100%;justify-content:center;padding:13px;font-size:13px" onclick="sendWhatsapp()">📱 Enviar resumo WhatsApp agora</button>
 </div>
 
-<!-- ═══ TRÁFEGO PAGO ═══ -->
+<!-- ═══ ADS ═══ -->
 <div id="v-ads" class="view">
-  <div id="al-shopee-bal" class="al al-r" style="display:none"><span class="al-ic">🚨</span><div><strong>Saldo Shopee ADS crítico!</strong>Saldo abaixo de R$ 80. Recarregue agora ou as campanhas param.</div></div>
-  <div id="al-roas-shopee" class="al al-r" style="display:none"><span class="al-ic">🚨</span><div><strong>ROAS Shopee abaixo de 15x</strong>Alerta WhatsApp enviado automaticamente.</div></div>
-  <div id="al-roas-meta" class="al al-a" style="display:none"><span class="al-ic">⚠️</span><div><strong>ROAS Meta Ads abaixo de 5x</strong>Revise criativos e segmentação.</div></div>
-
-  <div class="kg k2">
-    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Gasto total</div><div class="kv pu">R$ 1.886</div><div class="kf"><span class="bdg bp">Meta + Shopee</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Receita ads</div><div class="kv gn">R$ 6.125</div><div class="kf"><span class="bdg bg">3,25x ROAS total</span></div></div>
+  <div class="al al-b gap">
+    <span class="al-ic">⏳</span>
+    <div><strong>Integração em desenvolvimento</strong><br>Os dados de Ads (Shopee e Meta) serão integrados em breve. Os campos estão reservados aguardando as APIs.</div>
   </div>
 
-  <div class="stl">Meta Ads (Facebook) · Meta ROAS: 5x</div>
-  <div id="cmp-meta"></div>
+  <div class="stl">Meta Ads (Facebook)</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Meta Ads</div><div class="cs">Aguardando integração</div></div><span class="bdg" style="background:#f3f4f6;color:var(--mu)">em breve</span></div>
+    <div class="cb">
+      <div class="sr"><span class="srl">Gasto do dia</span><span class="srv" style="color:var(--mu)">—</span></div>
+      <div class="sr"><span class="srl">Receita gerada</span><span class="srv" style="color:var(--mu)">—</span></div>
+      <div class="sr"><span class="srl">ROAS</span><span class="srv" style="color:var(--mu)">—</span></div>
+    </div>
+  </div>
 
-  <div class="stl">Shopee Ads · Meta ROAS: 20x · Mínimo: 15x</div>
-  <div id="cmp-shopee"></div>
-
-  <div class="stl">Ações recomendadas</div>
-  <div class="card"><div class="cb" id="actions-ads"></div></div>
+  <div class="stl">Shopee Ads</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Shopee Ads</div><div class="cs">Aguardando integração API Shopee</div></div><span class="bdg" style="background:#f3f4f6;color:var(--mu)">em breve</span></div>
+    <div class="cb">
+      <div class="sr"><span class="srl">Gasto do dia</span><span class="srv" style="color:var(--mu)">—</span></div>
+      <div class="sr"><span class="srl">Receita gerada</span><span class="srv" style="color:var(--mu)">—</span></div>
+      <div class="sr"><span class="srl">ROAS</span><span class="srv" style="color:var(--mu)">—</span></div>
+      <div class="sr"><span class="srl">Saldo ADS</span><span class="srv" style="color:var(--mu)">—</span></div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ COMERCIAL ═══ -->
@@ -299,52 +286,110 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
     <div class="cb" id="top-prod"></div>
   </div>
 
-  <div class="stl">Financeiro do mês</div>
-  <div class="card">
-    <div class="ch"><div><div class="ct">Contas a receber × pagar</div><div class="cs">Via Gestão Click · mês atual</div></div></div>
-    <div class="cb" id="gc-fin-card">
-      <div class="sr"><span class="srl">A receber no mês</span><span class="srv gn" id="kv-a-rec">—</span></div>
-      <div class="sr"><span class="srl">Já pago no mês</span><span class="srv rd" id="kv-pago">—</span></div>
-      <div class="sr"><span class="srl">Saldo líquido</span><span class="srv" id="kv-saldo-mes">—</span></div>
-    </div>
-  </div>
-
   <div class="stl">Fechamento semanal — Comercial</div>
   <div class="card">
     <div class="cb" id="week-com"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Acumulando dados do dia a dia...</div></div>
   </div>
 </div>
 
-<!-- ═══ COMPRAS ═══ -->
-<div id="v-buy" class="view">
-  <div class="al al-b gap"><span class="al-ic">⚙️</span><div><strong>Configure para agendar compras automaticamente</strong>Informe e-mail e WhatsApp dos fornecedores. <button class="btn bt-b" style="margin-top:6px;font-size:11px;padding:6px 10px" onclick="openModal('settings-modal')">Configurar agora</button></div></div>
-
+<!-- ═══ FINANCEIRO ═══ -->
+<div id="v-fin" class="view">
   <div class="kg k2">
-    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Inventário Atual</div><div class="kv pu" id="kv-inv" style="font-size:16px">—</div><div class="kf"><span class="bdg bp" id="kb-inv">valor a custo</span></div></div>
-    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">SKUs zerados</div><div class="kv am" id="kv-zer">—</div><div class="kf"><span class="bdg ba" id="kb-zer">sem estoque</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Entradas hoje</div><div class="kv gn" id="kv-rec-hoje">—</div><div class="kf"><span class="bdg bg">GC vendas · Shopee em breve</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--rd)"></div><div class="kl">Pago hoje</div><div class="kv rd" id="kv-pag-hoje">—</div><div class="kf"><span class="bdg br">liquidado hoje</span></div></div>
+  </div>
+  <div class="stl">Fluxo do mês — Gestão Click</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Contas a receber × pagar</div><div class="cs">Via Gestão Click · mês atual</div></div></div>
+    <div class="cb">
+      <div class="sr"><span class="srl">A receber no mês</span><span class="srv gn" id="kv-a-rec">—</span></div>
+      <div class="sr"><span class="srl">Já recebido no mês</span><span class="srv gn" id="kv-rec-mes-fin">—</span></div>
+      <div class="sr"><span class="srl">Já pago no mês</span><span class="srv rd" id="kv-pago">—</span></div>
+      <div class="sr"><span class="srl">Saldo líquido do mês</span><span class="srv" id="kv-saldo-mes">—</span></div>
+    </div>
+  </div>
+  <div class="stl">Fechamento semanal — Financeiro</div>
+  <div class="card">
+    <div class="cb" id="week-fin"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Acumulando dados do dia a dia...</div></div>
+  </div>
+</div>
+
+<!-- ═══ ESTOQUE ═══ -->
+<div id="v-est" class="view">
+
+  <!-- KPIs topo -->
+  <div class="kg k2">
+    <div class="kpi"><div class="ka" style="background:var(--pu)"></div><div class="kl">Inventário total</div><div class="kv pu" id="kv-inv" style="font-size:16px">—</div><div class="kf"><span class="bdg bp">valor a custo</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">SKUs zerados</div><div class="kv am" id="kv-zer">—</div><div class="kf"><button class="bdg ba" id="kb-zer" onclick="toggleZerados()" style="cursor:pointer;border:none;background:inherit">ver lista ▼</button></div></div>
     <div class="kpi"><div class="ka" style="background:var(--rd)"></div><div class="kl">Estoque crítico</div><div class="kv rd" id="kv-crit">—</div><div class="kf"><span class="bdg br">≤ 10 unid.</span></div></div>
     <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Total SKUs</div><div class="kv gn" id="kv-skus">—</div><div class="kf"><span class="bdg bg">cadastrados</span></div></div>
   </div>
 
-  <div class="stl">Inventário — produtos em estoque (valor a custo)</div>
-  <div class="card" id="gc-inv-list"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Carregando dados do Gestão Click...</div></div>
+  <!-- Zerados lista colapsável -->
+  <div id="zerados-panel" style="display:none;margin-bottom:10px">
+    <div class="card">
+      <div class="ch"><div><div class="ct">Itens sem estoque</div><div class="cs">Precisam de reposição</div></div></div>
+      <div class="cb" id="zerados-lista"></div>
+    </div>
+  </div>
 
-  <div class="stl">Alertas de estoque</div>
-  <div id="gc-alerts-list"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">—</div></div>
+  <!-- Bloco 1: Garrafas -->
+  <div class="stl">📦 Garrafas — por volume</div>
+  <div class="card" id="bloco-garrafas">
+    <div class="ch"><div><div class="ct">Garrafas em estoque</div><div class="cs" id="garrafas-custo-total">Custo total: —</div></div><span class="bdg bg" id="garrafas-total-un">—</span></div>
+    <div class="cb" id="garrafas-lista"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Carregando do Gestão Click...</div></div>
+  </div>
 
-  <div class="stl">Automação de compras (IA)</div>
-  <div class="agrid" id="agents"></div>
+  <!-- Bloco 2: Pré-formas -->
+  <div class="stl">🔵 Pré-formas — por gramatura</div>
+  <div class="card" id="bloco-preformas">
+    <div class="ch"><div><div class="ct">Pré-formas em estoque</div><div class="cs" id="preformas-custo-total">Custo total: —</div></div><span class="bdg bb" id="preformas-total-un">—</span></div>
+    <div class="cb" id="preformas-lista"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Carregando do Gestão Click...</div></div>
+  </div>
 
-  <div class="stl">Automação de compras (IA)</div>
-  <div class="agrid" id="agents"></div>
+  <!-- Bloco 3: Tampas -->
+  <div class="stl">🔴 Tampas — por linha e cor</div>
+  <div class="card" id="bloco-tampas">
+    <div class="ch"><div><div class="ct">Tampas em estoque</div><div class="cs" id="tampas-custo-total">Custo total: —</div></div><span class="bdg br" id="tampas-total-un">—</span></div>
+    <div class="cb" id="tampas-lista"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Carregando do Gestão Click...</div></div>
+  </div>
+
+  <!-- Gatilhos de reposição -->
+  <div class="stl">⚡ Gatilhos de reposição</div>
+  <div class="card">
+    <div class="ch"><div><div class="ct">Alertas automáticos de reposição</div><div class="cs">Configure o mínimo por item — dispara WA ao fornecedor</div></div></div>
+    <div class="cb">
+      <div class="al al-b gap" style="margin-bottom:12px"><span class="al-ic">ℹ️</span><div>Defina o estoque mínimo de cada item. Quando atingir o limite, o sistema avisa via WhatsApp ao fornecedor e cria lembrete na agenda.</div></div>
+      <div id="gatilhos-lista"></div>
+      <div style="margin-top:12px">
+        <div class="field"><label style="font-size:11px;color:var(--mu);font-weight:600">TELEFONE DO FORNECEDOR (WhatsApp)</label><input type="tel" id="forn-wa-global" placeholder="5527999990001" style="width:100%;padding:9px 12px;border:1px solid var(--bd);border-radius:8px;font-size:13px;margin-top:4px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal gatilho -->
+  <div class="ovl" id="gatilho-modal">
+    <div class="modal">
+      <div class="mh"></div>
+      <div class="mtitle" id="gatilho-title">Definir gatilho</div>
+      <div class="field"><label>Estoque mínimo para alerta</label><input type="number" id="gatilho-min" placeholder="100" min="0"></div>
+      <div class="field"><label>WhatsApp do fornecedor</label><input type="tel" id="gatilho-wa" placeholder="5527999990001"></div>
+      <div class="mact">
+        <button class="btn" style="background:#f3f4f6;color:var(--mu);border:1px solid var(--bd);flex:1;justify-content:center" onclick="closeModal('gatilho-modal')">Cancelar</button>
+        <button class="btn bt-a" onclick="salvarGatilho()" style="flex:1.5;justify-content:center">Salvar gatilho</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- BOTTOM NAV -->
 <nav class="bnav">
   <button class="ntab on" onclick="go('fab',this)"><span class="ni">🏭</span>Fábrica</button>
-  <button class="ntab" onclick="go('ads',this)"><span class="ni">📢</span>Ads</button>
   <button class="ntab" onclick="go('com',this)"><span class="ni">💼</span>Comercial</button>
-  <button class="ntab" onclick="go('buy',this)"><span class="ni">🛒</span>Compras</button>
+  <button class="ntab" onclick="go('fin',this)"><span class="ni">💰</span>Financeiro</button>
+  <button class="ntab" onclick="go('est',this)"><span class="ni">📦</span>Estoque</button>
+  <button class="ntab" onclick="go('ads',this)"><span class="ni">📢</span>Ads</button>
 </nav>
 
 <!-- SETTINGS MODAL -->
@@ -396,8 +441,7 @@ const DB={
   }
 };
 
-// Seed demo data
-DB.saveDay({varejo:5840,atacado:1840,producao:6280,saldo:1690,expedicao:1462,devol:2,pedidos:47,prospeccoes:7,ticket:1636,roas_shopee:3.86,roas_meta:2.78,shopee_bal:380});
+// (seed de dados fake removido)
 
 // ═══ CLOCK ═══
 function tick(){
@@ -431,14 +475,8 @@ setTimeout(animBars,400);
 // ═══ ALERTS ═══
 const D=DB.g(DB.KEY,{})[DB.today]||{};
 function checkAlerts(){
-  const bal=D.shopee_bal||380;
-  const rS=D.roas_shopee||3.86;
-  const rM=D.roas_meta||2.78;
-  document.getElementById('al-shopee-bal').style.display=bal<=80?'flex':'none';
-  document.getElementById('al-roas-shopee').style.display=rS<15?'flex':'none';
-  document.getElementById('al-roas-meta').style.display=rM<5?'flex':'none';
+  // Alertas de Ads removidos (view Ads aguarda integração real)
 }
-checkAlerts();
 
 // ═══ ADS ═══
 const META_CAMPS=[
@@ -522,8 +560,10 @@ const STOCK=[
 const WA_SVG=`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#fff"/></svg>`;
 
 function renderStock(){
+  const el=document.getElementById('stk-list');
+  if(!el) return;
   const savedWa=DB.g('sup_wa',{});
-  document.getElementById('stk-list').innerHTML=STOCK.map((it,i)=>{
+  el.innerHTML=STOCK.map((it,i)=>{
     const ideal=it.consume*10;
     const days=(it.stock/it.consume).toFixed(1);
     const pct=Math.min(Math.round(it.stock/ideal*100),100);
@@ -736,6 +776,35 @@ function aplicarDadosReais(d){
   const kbExp=document.getElementById('kb-exp');
   if(kbExp)kbExp.textContent=totalPed+' pedidos';
 
+  // Expedição — card dinâmico
+  set('exp-ped1', exp.pedidos_1impressao??'—');
+  set('exp-ped3', exp.pedidos_3impressao??'—');
+  set('exp-total', totalPed || '—');
+  set('exp-etiq', exp.etiquetas_sobra!=null ? exp.etiquetas_sobra+' un' : '—');
+  const expBadge=document.getElementById('exp-devol-badge');
+  if(expBadge) expBadge.textContent=(dev.total_dia??'0')+' devol. hoje';
+  // Ocorrências
+  const ocEl=document.getElementById('exp-ocorrencias');
+  if(ocEl){
+    const itens=[];
+    const atr=String(exp.atraso||'');
+    if(atr&&atr!=='Não'&&atr!=='') itens.push(`<div class="al al-a gap"><span class="al-ic">⏰</span><div><strong>Atraso &gt;10 min:</strong> ${atr}</div></div>`);
+    else itens.push('<div class="al al-g gap"><span class="al-ic">✓</span><div>Sem atrasos de colaboradores</div></div>');
+    const patrs=String(exp.pedidos_atrasados||'');
+    if(patrs&&patrs!=='') itens.push(`<div class="al al-r gap" style="margin-top:6px"><span class="al-ic">📦</span><div><strong>Pedidos atrasados:</strong> ${patrs}</div></div>`);
+    ocEl.innerHTML=itens.join('');
+  }
+  // Devoluções lista
+  const dvEl=document.getElementById('exp-devol-lista');
+  if(dvEl){
+    if(!dev.total_dia||dev.total_dia===0){
+      dvEl.innerHTML='<div class="al al-g gap"><span class="al-ic">✓</span><div>Nenhuma devolução hoje</div></div>';
+    } else {
+      const itens=(dev.itens||[]).slice(0,5).map(i=>`<div class="sr"><span class="srl">${i.produto||'—'}</span><span class="srv rd">${i.estado||''}</span></div>`).join('');
+      dvEl.innerHTML=`<div class="al al-r gap"><span class="al-ic">📦</span><div><strong>${dev.total_dia} devolução(ões)</strong></div></div>${itens?'<div style="margin-top:6px">'+itens+'</div>':''}`;
+    }
+  }
+
   // Devoluções
   if(dev.total_dia!==undefined){
     const badge=document.getElementById('dev-badge');
@@ -770,6 +839,28 @@ function aplicarGCDadosInline(gc){
   const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   const v=gc.vendas||{}, fin=gc.financeiro||{}, est=gc.estoque||{};
 
+  // ── Fábrica — Atacado do dia (vendas GC de hoje = atacado) ──
+  if(v.receita_hoje!=null){
+    s('kv-atac', fmt2(v.receita_hoje));
+    const kb=document.getElementById('kb-atac');
+    if(kb) kb.textContent=v.pedidos_hoje+' pedido(s) hoje';
+  }
+
+  // ── Saldo do dia ─────────────────────────────────────────────
+  const sd = gc.saldo_hoje || {};
+  if(sd.saldo != null) {
+    const el = document.getElementById('kv-saldo-dia');
+    if(el){ el.textContent = fmt2(sd.saldo); el.className='kv '+(sd.saldo>=0?'gn':'rd'); }
+    const kb = document.getElementById('kb-saldo-dia');
+    if(kb) kb.textContent = 'atacado+receb−pago';
+  }
+  // ── Financeiro hoje ───────────────────────────────────────────
+  // Recebido hoje = vendas GC do dia (atacado) + futuramente saques Shopee
+  if(sd.receita_atacado != null) s('kv-rec-hoje', fmt2(sd.receita_atacado));
+  if(sd.pago != null)            s('kv-pag-hoje', fmt2(sd.pago));
+  // ── Financeiro mês ────────────────────────────────────────────
+  if(fin.recebido_mes != null) s('kv-rec-mes-fin', fmt2(fin.recebido_mes));
+
   // ── Comercial ──────────────────────────────────────────────
   if(v.pedidos_mes!=null) s('kv-ped-mes', v.pedidos_mes);
   if(v.receita_mes!=null) s('kv-rec-mes', fmt2(v.receita_mes));
@@ -780,7 +871,7 @@ function aplicarGCDadosInline(gc){
   }
   if(gc.clientes?.novos_mes!=null) s('kv-cli-mes', gc.clientes.novos_mes);
 
-  // Financeiro
+  // Financeiro mês
   if(fin.recebimentos_mes!=null) s('kv-a-rec', fmt2(fin.recebimentos_mes));
   if(fin.pago_mes!=null)         s('kv-pago',  fmt2(fin.pago_mes));
   if(fin.saldo_mes!=null){
@@ -788,40 +879,21 @@ function aplicarGCDadosInline(gc){
     if(el){ el.textContent=fmt2(fin.saldo_mes); el.className='srv '+(fin.saldo_mes>=0?'gn':'rd'); }
   }
 
-  // ── Compras / Estoque ───────────────────────────────────────
+  // ── Estoque ───────────────────────────────────────────────────
   if(est.inventario_custo!=null) s('kv-inv',  fmt2(est.inventario_custo));
   if(est.zerados!=null)          s('kv-zer',  est.zerados);
   if(est.criticos!=null)         s('kv-crit', est.criticos);
   if(est.total_skus!=null)       s('kv-skus', est.total_skus);
 
-  // Card resumo inventário
-  const invEl=document.getElementById('gc-inv-list');
-  if(invEl && est.inventario_custo!=null){
-    invEl.innerHTML=`
-      <div class="ch"><div><div class="ct">Inventário a custo</div><div class="cs">Gestão Click · atualizado ${(gc.atualizado_em||'').slice(11,16)}</div></div>
-        <span class="bdg bp">${fmt2(est.inventario_custo)}</span></div>
-      <div class="cb">
-        <div class="sr"><span class="srl">Total SKUs cadastrados</span><span class="srv gn">${est.total_skus??'—'}</span></div>
-        <div class="sr"><span class="srl">Com estoque zerado</span><span class="srv ${est.zerados>0?'rd':'gn'}">${est.zerados??'—'}</span></div>
-        <div class="sr"><span class="srl">Estoque crítico (≤ 10)</span><span class="srv ${est.criticos>0?'am':'gn'}">${est.criticos??'—'}</span></div>
-      </div>`;
+  // Inventário por blocos (requer lista de produtos raw no cache)
+  if(est.produtos_raw) {
+    renderInventarioGC(est);
   }
-
-  // Alertas zerados / críticos
-  const alertEl=document.getElementById('gc-alerts-list');
-  if(alertEl){
-    const zerados=est.zerados_nomes||[], criticos=est.criticos_nomes||[];
-    if(zerados.length===0 && criticos.length===0){
-      alertEl.innerHTML='<div class="al al-g gap"><span class="al-ic">✓</span><div><strong>Estoque sem alertas críticos</strong></div></div>';
-    } else {
-      alertEl.innerHTML=
-        (zerados.length?`<div class="al al-r gap"><span class="al-ic">🚨</span><div><strong>${est.zerados} SKU(s) sem estoque</strong><br><span style="font-size:11px;color:var(--mu)">${zerados.slice(0,3).join(' · ')}</span></div></div>`:'')
-       +(criticos.length?`<div class="al al-a gap" style="margin-top:6px"><span class="al-ic">⚠️</span><div><strong>${est.criticos} SKU(s) críticos (≤ 10)</strong><br><span style="font-size:11px;color:var(--mu)">${criticos.slice(0,3).join(' · ')}</span></div></div>`:'');
-    }
-  }
+  _gcDataCache = est; // guardar para re-render dos gatilhos
 }
 
 // ═══ GESTÃO CLICK — dados locais via servidor 8765 ═══
+let _gcDataCache = null;
 const GC_URL = 'http://localhost:8765';
 const fmt2 = v => 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:0, maximumFractionDigits:0});
 
@@ -910,13 +982,129 @@ function aplicarGCDados(com, est) {
   }
 }
 
+// ═══ INVENTÁRIO GC ═══
+function renderInventarioGC(est) {
+  const produtos = est.produtos_raw || [];
+  if(!produtos.length) return;
+
+  function gcNum(v){ if(v==null)return 0; const n=parseFloat(String(v)); return isNaN(n)?0:n; }
+
+  function renderBloco(lista, containerId, custoId, totalId) {
+    const el = document.getElementById(containerId);
+    const custoEl = document.getElementById(custoId);
+    const totEl = document.getElementById(totalId);
+    if(!el) return;
+    if(!lista.length) {
+      el.innerHTML = '<div style="font-size:12px;color:var(--mu);text-align:center;padding:12px">Nenhum item nesta categoria</div>';
+      return;
+    }
+    const custoTotal = lista.reduce((s,p) => s + (gcNum(p.valor_custo)*gcNum(p.estoque)), 0);
+    const unTotal = lista.reduce((s,p) => s + gcNum(p.estoque), 0);
+    if(custoEl) custoEl.textContent = 'Custo total: ' + fmt2(custoTotal);
+    if(totEl)   totEl.textContent   = unTotal.toLocaleString('pt-BR') + ' un';
+    const gatilhos = DB.g('gatilhos', {});
+    el.innerHTML = lista.map((p,i) => {
+      const est_ = gcNum(p.estoque);
+      const custo = gcNum(p.valor_custo);
+      const g = gatilhos[p.id||p.nome] || {};
+      const abaixoGatilho = g.min && est_ <= g.min;
+      return `<div class="sr" style="${abaixoGatilho?'background:var(--r1);border-radius:8px;padding:4px 8px':''}">
+        <span class="srl" style="font-size:12px">${p.nome||'—'}${abaixoGatilho?' 🚨':''}</span>
+        <span class="srv" style="font-size:12px">
+          <span style="color:${est_<=0?'var(--rd)':est_<=10?'var(--am)':'var(--gn)'}">${est_.toLocaleString('pt-BR')} un</span>
+          <span style="color:var(--mu);font-size:10px;margin-left:4px">${custo>0?'· custo '+fmt2(custo*est_):''}</span>
+          <button onclick="abrirGatilho('${(p.id||p.nome).replace(/'/g,"\\'")}','${(p.nome||'').replace(/'/g,"\\'")}',${est_})" style="margin-left:6px;background:none;border:1px solid var(--bd);border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer;color:var(--mu)">⚡</button>
+        </span>
+      </div>`;
+    }).join('');
+  }
+
+  const garrafas  = produtos.filter(p => { const n=(p.nome||'').toLowerCase(); return n.includes('garrafa')||n.includes('fardo'); });
+  const preformas = produtos.filter(p => { const n=(p.nome||'').toLowerCase(); return n.includes('pré-forma')||n.includes('preforma')||n.includes('pre-forma')||n.includes('préforma')||n.includes('pré forma')||n.includes('pre forma'); });
+  const tampas    = produtos.filter(p => { const n=(p.nome||'').toLowerCase(); return n.includes('tampa'); });
+
+  renderBloco(garrafas,  'garrafas-lista',  'garrafas-custo-total',  'garrafas-total-un');
+  renderBloco(preformas, 'preformas-lista', 'preformas-custo-total', 'preformas-total-un');
+  renderBloco(tampas,    'tampas-lista',    'tampas-custo-total',    'tampas-total-un');
+
+  // Zerados lista
+  function gcNum2(v){ if(v==null)return 0; const n=parseFloat(String(v)); return isNaN(n)?0:n; }
+  const zerados = produtos.filter(p => gcNum2(p.estoque) <= 0);
+  const zeradosEl = document.getElementById('zerados-lista');
+  if(zeradosEl) {
+    if(!zerados.length) {
+      zeradosEl.innerHTML = '<div class="al al-g gap"><span class="al-ic">✓</span><div>Nenhum item zerado</div></div>';
+    } else {
+      zeradosEl.innerHTML = zerados.map(p => `<div class="sr"><span class="srl" style="font-size:12px">${p.nome||'—'}</span><span class="srv rd" style="font-size:11px">zerado</span></div>`).join('');
+    }
+  }
+
+  // Gatilhos lista
+  renderGatilhosList(produtos);
+}
+
+// ═══ GATILHOS DE REPOSIÇÃO ═══
+let _gatilhoAtual = null;
+
+function toggleZerados() {
+  const p = document.getElementById('zerados-panel');
+  if(p) p.style.display = p.style.display === 'none' ? 'block' : 'none';
+}
+
+function abrirGatilho(id, nome, estoqueAtual) {
+  _gatilhoAtual = { id, nome };
+  const t = document.getElementById('gatilho-title');
+  if(t) t.textContent = '⚡ Gatilho: ' + nome;
+  const gatilhos = DB.g('gatilhos', {});
+  const g = gatilhos[id] || {};
+  const minEl = document.getElementById('gatilho-min');
+  const waEl  = document.getElementById('gatilho-wa');
+  if(minEl) minEl.value = g.min || '';
+  if(waEl)  waEl.value  = g.wa  || DB.g('forn_wa_global','');
+  openModal('gatilho-modal');
+}
+
+function salvarGatilho() {
+  if(!_gatilhoAtual) return;
+  const gatilhos = DB.g('gatilhos', {});
+  const min = parseInt(document.getElementById('gatilho-min').value) || 0;
+  const wa  = document.getElementById('gatilho-wa').value || '';
+  gatilhos[_gatilhoAtual.id] = { min, wa, nome: _gatilhoAtual.nome };
+  DB.s('gatilhos', gatilhos);
+  DB.s('forn_wa_global', wa);
+  closeModal('gatilho-modal');
+  // Re-render
+  const cached = _gcDataCache;
+  if(cached) renderInventarioGC(cached);
+}
+
+function renderGatilhosList(produtos) {
+  const el = document.getElementById('gatilhos-lista');
+  if(!el) return;
+  const gatilhos = DB.g('gatilhos', {});
+  const ativos = Object.entries(gatilhos).filter(([id, g]) => g.min > 0);
+  if(!ativos.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--mu);text-align:center;padding:8px 0">Nenhum gatilho configurado. Clique em ⚡ em qualquer item para definir.</div>';
+    return;
+  }
+  function gcNum(v){ if(v==null)return 0; const n=parseFloat(String(v)); return isNaN(n)?0:n; }
+  el.innerHTML = ativos.map(([id, g]) => {
+    const prod = produtos.find(p => (p.id||p.nome) === id);
+    const estAtual = prod ? gcNum(prod.estoque) : null;
+    const abaixo = estAtual !== null && estAtual <= g.min;
+    const msg = encodeURIComponent(`Olá! Precisamos repor ${g.nome}. Estoque atual: ${estAtual||'?'} un (mínimo configurado: ${g.min} un). Qual prazo de entrega?`);
+    return `<div class="sr" style="margin-bottom:6px;${abaixo?'background:var(--r1);border-radius:8px;padding:6px 8px':''}">
+      <span class="srl" style="font-size:12px">${g.nome} ${abaixo?'🚨':''}<br><span style="font-size:10px;color:var(--mu)">Mínimo: ${g.min} un · Atual: ${estAtual!=null?estAtual+'un':'?'}</span></span>
+      <span class="srv" style="display:flex;gap:6px;align-items:center">
+        ${abaixo && g.wa ? `<a href="https://wa.me/${g.wa}?text=${msg}" target="_blank" class="btn bt-g" style="font-size:10px;padding:4px 8px;text-decoration:none">📱 WA</a>` : ''}
+        <button onclick="abrirGatilho('${id.replace(/'/g,"\\'")}','${g.nome.replace(/'/g,"\\'")}',${estAtual||0})" style="background:none;border:1px solid var(--bd);border-radius:6px;padding:3px 7px;font-size:10px;cursor:pointer">editar</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+
 // ═══ INIT ═══
-renderCamps('cmp-meta',META_CAMPS,5);
-renderCamps('cmp-shopee',SHOPEE_CAMPS,20,15);
-renderAllActions();
 renderTopProd();
-renderStock();
-renderAgents();
 renderWeek();
 fetchData();
 fetchGCData();

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Lançamento de Estoque — Montenegro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#f0f2f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;padding-bottom:40px}
+:root{--gn:#059669;--g1:#ecfdf5;--am:#d97706;--rd:#dc2626;--bl:#2563eb;--pu:#7c3aed;--bd:#e5e7eb;--mu:#6b7280;--tx:#111827;--card:#fff}
+
+/* HEADER */
+.hd{background:#111827;color:#fff;padding:16px 18px;display:flex;align-items:center;gap:12px}
+.hd-logo{width:36px;height:36px;background:var(--am);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hd-title{font-size:15px;font-weight:700;line-height:1.2}
+.hd-sub{font-size:11px;color:#9ca3af;margin-top:2px}
+
+/* STEPS */
+.steps{display:flex;padding:14px 18px 0;gap:6px}
+.step{flex:1;height:4px;border-radius:2px;background:#e5e7eb;transition:background .3s}
+.step.done{background:var(--gn)}
+.step.active{background:var(--am)}
+
+/* CARDS */
+.card{background:var(--card);border-radius:14px;margin:14px 14px 0;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
+.card-title{font-size:13px;font-weight:700;color:var(--mu);letter-spacing:.04em;text-transform:uppercase;margin-bottom:14px}
+
+/* CATEGORY GRID */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cat-btn{background:#f9fafb;border:2px solid var(--bd);border-radius:12px;padding:18px 12px;text-align:center;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:6px}
+.cat-btn:active{transform:scale(.97)}
+.cat-btn.sel{border-color:var(--am);background:#fffbeb}
+.cat-icon{font-size:28px;line-height:1}
+.cat-label{font-size:12px;font-weight:700;color:var(--tx)}
+
+/* SELECT */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--mu);margin-bottom:6px;letter-spacing:.03em}
+select,input{width:100%;padding:13px 14px;border:1.5px solid var(--bd);border-radius:10px;font-size:15px;color:var(--tx);background:#fff;appearance:none;-webkit-appearance:none;outline:none;transition:border .15s}
+select:focus,input:focus{border-color:var(--am)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+
+/* CALC PREVIEW */
+.calc{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:16px;margin:4px 0 14px;display:none}
+.calc.show{display:block}
+.calc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.calc-row:last-child{margin-bottom:0;padding-top:8px;border-top:1px solid #bbf7d0}
+.calc-label{font-size:12px;color:var(--mu)}
+.calc-val{font-size:14px;font-weight:700;color:var(--tx)}
+.calc-total{font-size:20px;font-weight:800;color:var(--gn)}
+
+/* FATOR ALERT */
+.fator-alert{background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;padding:12px;font-size:12px;color:var(--am);display:none;margin-bottom:14px}
+.fator-alert.show{display:block}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;margin-top:6px}
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;padding:15px 20px;border-radius:12px;font-size:15px;font-weight:700;border:none;cursor:pointer;transition:all .15s;flex:1}
+.btn:active{transform:scale(.97)}
+.btn-back{background:#f3f4f6;color:var(--mu)}
+.btn-next{background:var(--am);color:#fff}
+.btn-submit{background:var(--gn);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* RESULT */
+.result{display:none;padding:30px 18px;text-align:center}
+.result.show{display:block}
+.result-icon{font-size:56px;margin-bottom:16px}
+.result-title{font-size:20px;font-weight:800;margin-bottom:8px}
+.result-msg{font-size:14px;color:var(--mu);line-height:1.5;margin-bottom:8px}
+.result-gc{font-size:12px;padding:10px 14px;border-radius:8px;margin:12px 0;text-align:left}
+.result-gc.ok{background:var(--g1);color:var(--gn)}
+.result-gc.fail{background:#fef2f2;color:var(--rd)}
+.btn-novo{background:var(--am);color:#fff;margin-top:16px;width:100%}
+
+/* LOADING */
+.loading{display:none;text-align:center;padding:20px}
+.loading.show{display:block}
+.spinner{width:36px;height:36px;border:3px solid #e5e7eb;border-top-color:var(--am);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* HISTORY */
+.hist-item{border-bottom:1px solid var(--bd);padding:10px 0;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.hist-item:last-child{border-bottom:none}
+.hist-label{font-size:12px;font-weight:600;color:var(--tx);line-height:1.4}
+.hist-meta{font-size:10px;color:var(--mu);margin-top:2px}
+.hist-qty{font-size:13px;font-weight:800;color:var(--gn);white-space:nowrap;text-align:right}
+.hist-qty-sub{font-size:10px;color:var(--mu);text-align:right;margin-top:2px}
+
+/* FATOR CONFIG */
+.fator-cfg{background:#f9fafb;border:1.5px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:8px}
+.fator-cfg-row{display:flex;align-items:center;gap:10px}
+.fator-cfg-label{flex:1;font-size:12px;font-weight:600;color:var(--tx)}
+.fator-cfg-input{width:80px;padding:8px 10px;border:1.5px solid var(--bd);border-radius:8px;font-size:14px;font-weight:700;text-align:center}
+.fator-cfg-badge{font-size:10px;color:var(--mu);margin-top:3px}
+
+/* TABS */
+.tabs{display:flex;gap:0;background:#f3f4f6;border-radius:10px;padding:4px;margin:14px 14px 0}
+.tab{flex:1;padding:9px;font-size:12px;font-weight:600;text-align:center;border-radius:8px;cursor:pointer;color:var(--mu);transition:all .15s}
+.tab.on{background:#fff;color:var(--tx);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div class="hd-logo">📦</div>
+  <div>
+    <div class="hd-title">Lançamento de Estoque</div>
+    <div class="hd-sub">Montenegro Industria LTDA</div>
+  </div>
+</div>
+
+<div class="tabs" id="nav-tabs">
+  <div class="tab on" onclick="showTab('lancar')">Lançar</div>
+  <div class="tab" onclick="showTab('historico')">Histórico</div>
+  <div class="tab" onclick="showTab('config')">Config</div>
+</div>
+
+<!-- ── ABA LANÇAR ─────────────────────────────── -->
+<div id="tab-lancar">
+
+  <div class="steps" id="steps">
+    <div class="step active" id="s1"></div>
+    <div class="step" id="s2"></div>
+    <div class="step" id="s3"></div>
+  </div>
+
+  <!-- STEP 1: Categoria -->
+  <div id="step1">
+    <div class="card">
+      <div class="card-title">Passo 1 — O que você está contando?</div>
+      <div class="cat-grid">
+        <div class="cat-btn" id="cat-fardos" onclick="selectCat('fardos')">
+          <div class="cat-icon">📦</div>
+          <div class="cat-label">Fardos</div>
+        </div>
+        <div class="cat-btn" id="cat-garrafas" onclick="selectCat('garrafas')">
+          <div class="cat-icon">🍶</div>
+          <div class="cat-label">Garrafas</div>
+        </div>
+        <div class="cat-btn" id="cat-preformas" onclick="selectCat('preformas')">
+          <div class="cat-icon">🔵</div>
+          <div class="cat-label">Pré-formas</div>
+        </div>
+        <div class="cat-btn" id="cat-tampas" onclick="selectCat('tampas')">
+          <div class="cat-icon">🔴</div>
+          <div class="cat-label">Tampas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: Item + Quantidade -->
+  <div id="step2" style="display:none">
+    <div class="card">
+      <div class="card-title">Passo 2 — Qual item e quantidade?</div>
+
+      <div class="field">
+        <label>ITEM</label>
+        <select id="sel-item" onchange="onItemChange()">
+          <option value="">Selecione o item...</option>
+        </select>
+      </div>
+
+      <div class="fator-alert" id="fator-alert">
+        ⚠️ Fator de conversão não definido para este item. Acesse a aba <strong>Config</strong> para configurar antes de lançar.
+      </div>
+
+      <div class="field" id="field-qtd" style="display:none">
+        <label id="qtd-label">QUANTIDADE</label>
+        <input type="number" id="inp-qtd" inputmode="numeric" min="1" placeholder="0" onchange="calcPreview()" oninput="calcPreview()">
+      </div>
+
+      <div class="calc" id="calc-preview">
+        <div class="calc-row">
+          <span class="calc-label">Quantidade informada</span>
+          <span class="calc-val" id="cv-qtd">—</span>
+        </div>
+        <div class="calc-row" id="cv-fator-row">
+          <span class="calc-label">Fator de conversão</span>
+          <span class="calc-val" id="cv-fator">—</span>
+        </div>
+        <div class="calc-row">
+          <span class="calc-label">Total em unidades</span>
+          <span class="calc-total" id="cv-total">—</span>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="goStep(1)">← Voltar</button>
+        <button class="btn btn-next" id="btn-to-step3" onclick="goStep(3)" disabled>Continuar →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Confirmação -->
+  <div id="step3" style="display:none">
+    <div class="card">
+      <div class="card-title">Passo 3 — Confirmar lançamento</div>
+
+      <div style="background:#f9fafb;border-radius:10px;padding:14px;margin-bottom:14px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--tx)" id="conf-item">—</div>
+        <div style="font-size:13px;color:var(--gn);font-weight:800;margin-bottom:10px" id="conf-total">—</div>
+        <div style="font-size:11px;color:var(--mu)" id="conf-fator">—</div>
+      </div>
+
+      <div class="field">
+        <label>SEU NOME</label>
+        <input type="text" id="inp-resp" placeholder="Nome do responsável" autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label>DATA</label>
+        <input type="date" id="inp-data">
+      </div>
+
+      <div class="field">
+        <label>OBSERVAÇÃO <span style="font-weight:400;color:var(--mu)">(opcional)</span></label>
+        <input type="text" id="inp-obs" placeholder="Ex: carga do fornecedor X">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="goStep(2)">← Voltar</button>
+        <button class="btn btn-submit" id="btn-submit" onclick="submitLancamento()">✓ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div style="font-size:13px;color:var(--mu)">Registrando lançamento...</div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result" id="result">
+    <div class="result-icon" id="r-icon">✅</div>
+    <div class="result-title" id="r-title">Lançamento registrado!</div>
+    <div class="result-msg" id="r-msg">—</div>
+    <div class="result-gc" id="r-gc">—</div>
+    <button class="btn btn-novo" onclick="resetForm()">+ Novo lançamento</button>
+  </div>
+
+</div>
+
+<!-- ── ABA HISTÓRICO ────────────────────────────── -->
+<div id="tab-historico" style="display:none">
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">Últimos lançamentos</div>
+    <div id="hist-lista"><div style="font-size:12px;color:var(--mu);text-align:center;padding:20px">Carregando...</div></div>
+  </div>
+</div>
+
+<!-- ── ABA CONFIG ──────────────────────────────── -->
+<div id="tab-config" style="display:none">
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">Fatores de conversão pendentes</div>
+    <div style="font-size:12px;color:var(--mu);margin-bottom:14px">Estes itens precisam ter o fator configurado antes do primeiro lançamento.</div>
+    <div id="fator-pendentes"></div>
+    <button class="btn btn-next" style="margin-top:12px" onclick="salvarFatores()">Salvar fatores</button>
+  </div>
+
+  <div class="card" style="margin-top:10px">
+    <div class="card-title">URL do Apps Script</div>
+    <div class="field">
+      <label>APPS_URL (backend)</label>
+      <input type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/...">
+    </div>
+    <button class="btn btn-next" onclick="salvarUrl()">Salvar URL</button>
+  </div>
+</div>
+
+<script>
+// ══ CONFIGURAÇÃO ══════════════════════════════════════════════
+// A URL do Apps Script — pode ser editada na aba Config ou diretamente aqui
+let APPS_URL = localStorage.getItem('est_apps_url') ||
+  'https://script.google.com/macros/s/AKfycbx0_ilpbYiDvj_u-LPrbtJ8HzTKpWvG198HmCWurcPO9x4edAy2MoWB9-GDv7YHvTV5RQ/exec';
+
+// ══ CATÁLOGO ═════════════════════════════════════════════════
+const CATALOGO = {
+  fardos: [
+    { sku:'FAR-38-120-450', label:'FARDO 38MM | 120ML | 450UN',          fator:450 },
+    { sku:'FAR-38-200-300', label:'FARDO 38MM | 200ML | 300UN',          fator:300 },
+    { sku:'FAR-38-300-240', label:'FARDO 38MM | 300ML | 240UN',          fator:240 },
+    { sku:'FAR-38-500-BL',  label:'FARDO 38MM | 500ML | BOCA LARGA',    fator:null },
+    { sku:'FAR-28-500-BOR', label:'FARDO 28MM | 500ML | BORRIFADOR',    fator:null },
+    { sku:'FAR-28-500-KOM', label:'FARDO 28MM | 500ML | KOMBUCHA | 300UN', fator:300 }
+  ],
+  garrafas: [
+    { sku:'GAR-38-120-CRI', label:'GARRAFA 38MM | 120ML | CRISTAL',          fator:1 },
+    { sku:'GAR-38-200-CRI', label:'GARRAFA 38MM | 200ML | CRISTAL',          fator:1 },
+    { sku:'GAR-38-300-CRI', label:'GARRAFA 38MM | 300ML | CRISTAL',          fator:1 },
+    { sku:'GAR-38-500-CRI', label:'GARRAFA 38MM | 500ML | CRISTAL',          fator:1 },
+    { sku:'GAR-28-300-KOM', label:'GARRAFA 28MM | 300ML | CRISTAL | KOMBUCHA', fator:1 },
+    { sku:'GAR-28-500-CRI', label:'GARRAFA 28MM | 500ML | CRISTAL',          fator:1 },
+    { sku:'GAR-28-500-AMB', label:'GARRAFA 28MM | 500ML | AMBAR',            fator:1 }
+  ],
+  preformas: [
+    { sku:'PRE-38-18-CRI', label:'PRE-FORMA 38MM | 18G | CRISTAL | 120-200ML', fator:1 },
+    { sku:'PRE-38-19-CRI', label:'PRE-FORMA 38MM | 19G | CRISTAL | 300ML',    fator:1 },
+    { sku:'PRE-28-24-CRI', label:'PRE-FORMA 28MM | 24G | CRISTAL | KOM-500ML',fator:1 },
+    { sku:'PRE-28-33-AMB', label:'PRE-FORMA 28MM | 33G | AMBAR | 500ML',     fator:1 }
+  ],
+  tampas: [
+    { sku:'TAM-38-SUC-PT', label:'TAMPA 38MM | SUCO | PRETA | COM LACRE',    fator:1 },
+    { sku:'TAM-38-SUC-AZ', label:'TAMPA 38MM | SUCO | AZUL | COM LACRE',     fator:1 },
+    { sku:'TAM-38-SUC-RS', label:'TAMPA 38MM | SUCO | ROSA | COM LACRE',     fator:1 },
+    { sku:'TAM-38-SUC-RX', label:'TAMPA 38MM | SUCO | ROXA | COM LACRE',     fator:1 },
+    { sku:'TAM-38-SUC-VM', label:'TAMPA 38MM | SUCO | VERMELHA | COM LACRE', fator:1 },
+    { sku:'TAM-38-TMP-PT', label:'TAMPA 38MM | TEMPERO | PRETA',             fator:1 },
+    { sku:'TAM-38-TMP-VM', label:'TAMPA 38MM | TEMPERO | VERMELHA',          fator:1 },
+    { sku:'TAM-28-TRI-PT', label:'TAMPA 28MM | TRIGGER | PRETA',             fator:1 },
+    { sku:'TAM-28-PUM-PT', label:'TAMPA 28MM | PUMP | PRETA',               fator:1 },
+    { sku:'TAM-28-KOM-BR', label:'TAMPA 28MM | KOMBUCHA | BRANCA',           fator:1 }
+  ]
+};
+
+// Lê fatores customizados do localStorage
+function getFator(sku) {
+  const overrides = JSON.parse(localStorage.getItem('fator_overrides') || '{}');
+  if (overrides[sku] != null) return Number(overrides[sku]);
+  const todos = [...CATALOGO.fardos,...CATALOGO.garrafas,...CATALOGO.preformas,...CATALOGO.tampas];
+  const item = todos.find(i => i.sku === sku);
+  return item ? item.fator : null;
+}
+
+// ══ ESTADO ═══════════════════════════════════════════════════
+let state = { cat: null, sku: null, label: null, fator: null, qtd: null };
+
+// ══ TABS ═════════════════════════════════════════════════════
+function showTab(tab) {
+  ['lancar','historico','config'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===tab ? '' : 'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('on', ['lancar','historico','config'][i] === tab);
+  });
+  if (tab === 'historico') loadHistorico();
+  if (tab === 'config')    renderConfig();
+}
+
+// ══ STEP NAVIGATION ══════════════════════════════════════════
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).style.display = i===n ? '' : 'none';
+    const s = document.getElementById('s'+i);
+    s.className = 'step ' + (i<n ? 'done' : i===n ? 'active' : '');
+  });
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('result').classList.remove('show');
+}
+
+function selectCat(cat) {
+  state.cat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('sel'));
+  document.getElementById('cat-'+cat).classList.add('sel');
+
+  // Popula select de itens
+  const sel = document.getElementById('sel-item');
+  sel.innerHTML = '<option value="">Selecione o item...</option>';
+  CATALOGO[cat].forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.sku;
+    opt.textContent = item.label;
+    sel.appendChild(opt);
+  });
+
+  // Labels
+  const isQtd = cat === 'fardos';
+  document.getElementById('qtd-label').textContent = isQtd ? 'QUANTIDADE DE FARDOS' : 'QUANTIDADE (unidades)';
+
+  state.sku = null;
+  state.fator = null;
+  document.getElementById('field-qtd').style.display = 'none';
+  document.getElementById('calc-preview').classList.remove('show');
+  document.getElementById('fator-alert').classList.remove('show');
+  document.getElementById('btn-to-step3').disabled = true;
+
+  setTimeout(() => goStep(2), 120);
+}
+
+function onItemChange() {
+  const sku = document.getElementById('sel-item').value;
+  if (!sku) {
+    document.getElementById('field-qtd').style.display = 'none';
+    document.getElementById('fator-alert').classList.remove('show');
+    state.sku = null;
+    document.getElementById('btn-to-step3').disabled = true;
+    return;
+  }
+
+  const todos = [...CATALOGO.fardos,...CATALOGO.garrafas,...CATALOGO.preformas,...CATALOGO.tampas];
+  const item = todos.find(i => i.sku === sku);
+  state.sku   = sku;
+  state.label = item ? item.label : sku;
+  state.fator = getFator(sku);
+
+  if (state.fator === null) {
+    document.getElementById('fator-alert').classList.add('show');
+    document.getElementById('field-qtd').style.display = 'none';
+    document.getElementById('btn-to-step3').disabled = true;
+    return;
+  }
+
+  document.getElementById('fator-alert').classList.remove('show');
+  document.getElementById('field-qtd').style.display = 'block';
+  document.getElementById('inp-qtd').value = '';
+  document.getElementById('calc-preview').classList.remove('show');
+  document.getElementById('btn-to-step3').disabled = true;
+  document.getElementById('inp-qtd').focus();
+
+  // Esconde linha fator se fator=1 (garrafas unitárias, pré-formas, tampas)
+  document.getElementById('cv-fator-row').style.display = state.fator === 1 ? 'none' : '';
+}
+
+function calcPreview() {
+  const qtd = Number(document.getElementById('inp-qtd').value);
+  if (!qtd || qtd <= 0 || !state.fator) {
+    document.getElementById('calc-preview').classList.remove('show');
+    document.getElementById('btn-to-step3').disabled = true;
+    return;
+  }
+
+  state.qtd = qtd;
+  const total = Math.round(qtd * state.fator);
+
+  document.getElementById('cv-qtd').textContent   = qtd.toLocaleString('pt-BR') + (state.cat==='fardos' ? ' fardo(s)' : ' un');
+  document.getElementById('cv-fator').textContent = '× ' + state.fator + ' un/fardo';
+  document.getElementById('cv-total').textContent = total.toLocaleString('pt-BR') + ' unidades';
+  document.getElementById('calc-preview').classList.add('show');
+  document.getElementById('btn-to-step3').disabled = false;
+
+  // Preenche step 3
+  document.getElementById('conf-item').textContent  = state.label;
+  document.getElementById('conf-total').textContent = '→ ' + total.toLocaleString('pt-BR') + ' unidades no total';
+  document.getElementById('conf-fator').textContent = state.fator > 1
+    ? `${qtd} fardo(s) × ${state.fator} un/fardo`
+    : `${qtd} unidade(s) informadas`;
+}
+
+// ══ SUBMIT ═══════════════════════════════════════════════════
+async function submitLancamento() {
+  const resp = document.getElementById('inp-resp').value.trim();
+  const data  = document.getElementById('inp-data').value;
+  const obs   = document.getElementById('inp-obs').value.trim();
+
+  if (!resp) { document.getElementById('inp-resp').focus(); return; }
+
+  goStep(0); // esconde todos os steps
+  document.getElementById('loading').classList.add('show');
+
+  const payload = {
+    action:     'lancar',
+    sku:        state.sku,
+    categoria:  state.cat,
+    label:      state.label,
+    qtd:        state.qtd,
+    responsavel: resp,
+    data:       data ? new Date(data).toLocaleDateString('pt-BR') : '',
+    obs
+  };
+
+  try {
+    const res = await fetch(APPS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+    showResult(json);
+    // Salva localmente também
+    salvarLocal(payload, json);
+  } catch(err) {
+    // Se CORS bloquear, salva apenas localmente
+    const localOnly = {
+      ok: true,
+      label: state.label,
+      qtd_informada: state.qtd,
+      fator: state.fator,
+      total_unidades: Math.round(state.qtd * state.fator),
+      gc_atualizado: false,
+      gc_msg: 'Salvo localmente. Verifique a conexão com o servidor.',
+      mensagem: `${state.label}: ${state.qtd} → ${Math.round(state.qtd * state.fator).toLocaleString('pt-BR')} un`
+    };
+    salvarLocal(payload, localOnly);
+    showResult(localOnly);
+  }
+}
+
+function showResult(json) {
+  document.getElementById('loading').classList.remove('show');
+  const r = document.getElementById('result');
+
+  if (!json.ok) {
+    document.getElementById('r-icon').textContent  = '❌';
+    document.getElementById('r-title').textContent = 'Erro no lançamento';
+    document.getElementById('r-msg').textContent   = json.erro || 'Erro desconhecido';
+    document.getElementById('r-gc').className = 'result-gc fail';
+    document.getElementById('r-gc').textContent = '';
+  } else {
+    document.getElementById('r-icon').textContent  = '✅';
+    document.getElementById('r-title').textContent = 'Lançamento registrado!';
+    document.getElementById('r-msg').textContent   = json.mensagem || '';
+    const gcEl = document.getElementById('r-gc');
+    gcEl.className = 'result-gc ' + (json.gc_atualizado ? 'ok' : 'fail');
+    gcEl.textContent = json.gc_atualizado
+      ? '✓ Gestão Click atualizado automaticamente'
+      : '⚠ ' + (json.gc_msg || 'GC não atualizado — atualize manualmente');
+  }
+
+  r.classList.add('show');
+}
+
+function resetForm() {
+  state = { cat:null, sku:null, label:null, fator:null, qtd:null };
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('inp-resp').value = '';
+  document.getElementById('inp-obs').value  = '';
+  document.getElementById('sel-item').value = '';
+  document.getElementById('inp-qtd').value  = '';
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('sel'));
+  goStep(1);
+}
+
+// ══ HISTÓRICO ════════════════════════════════════════════════
+function salvarLocal(payload, resultado) {
+  const key   = 'est_historico';
+  const lista = JSON.parse(localStorage.getItem(key) || '[]');
+  lista.unshift({
+    ...payload,
+    total_unidades: resultado.total_unidades,
+    gc_ok: resultado.gc_atualizado,
+    criado_em: new Date().toISOString()
+  });
+  if (lista.length > 100) lista.splice(100);
+  localStorage.setItem(key, JSON.stringify(lista));
+}
+
+async function loadHistorico() {
+  const el = document.getElementById('hist-lista');
+
+  // Primeiro mostra histórico local
+  const local = JSON.parse(localStorage.getItem('est_historico') || '[]');
+  renderHistorico(el, local);
+
+  // Tenta buscar do servidor
+  try {
+    const res  = await fetch(APPS_URL + '?action=lancamentos');
+    const json = await res.json();
+    if (json.lancamentos && json.lancamentos.length) renderHistorico(el, json.lancamentos);
+  } catch(e) { /* usa local */ }
+}
+
+function renderHistorico(el, lista) {
+  if (!lista.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--mu);text-align:center;padding:20px">Nenhum lançamento ainda.</div>';
+    return;
+  }
+  el.innerHTML = lista.slice(0,30).map(item => `
+    <div class="hist-item">
+      <div>
+        <div class="hist-label">${item.label||item.nome_item||'—'}</div>
+        <div class="hist-meta">${item.data||''} · ${item.responsavel||''} ${item.gc_ok?'· ✓ GC':''}</div>
+      </div>
+      <div>
+        <div class="hist-qty">${(item.total_unidades||0).toLocaleString('pt-BR')} un</div>
+        <div class="hist-qty-sub">${item.qtd_informada||item.qtd||'?'} × ${item.fator||1}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══ CONFIG ═══════════════════════════════════════════════════
+function renderConfig() {
+  // Fatores pendentes
+  const pendentes = [...CATALOGO.fardos].filter(i => i.fator === null);
+  const overrides = JSON.parse(localStorage.getItem('fator_overrides') || '{}');
+  const el = document.getElementById('fator-pendentes');
+
+  if (!pendentes.length) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--gn);padding:8px 0">✓ Todos os fatores configurados.</div>';
+  } else {
+    el.innerHTML = pendentes.map(item => `
+      <div class="fator-cfg">
+        <div class="fator-cfg-row">
+          <div>
+            <div class="fator-cfg-label">${item.label}</div>
+            <div class="fator-cfg-badge">${overrides[item.sku] ? 'Configurado: '+overrides[item.sku]+' un/fardo' : 'Pendente'}</div>
+          </div>
+          <input class="fator-cfg-input" type="number" id="fator-${item.sku.replace(/-/g,'_')}"
+            placeholder="un" value="${overrides[item.sku]||''}" min="1">
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // URL
+  document.getElementById('cfg-url').value = APPS_URL;
+}
+
+function salvarFatores() {
+  const pendentes = [...CATALOGO.fardos].filter(i => i.fator === null);
+  const overrides = JSON.parse(localStorage.getItem('fator_overrides') || '{}');
+
+  pendentes.forEach(item => {
+    const inputId = 'fator-'+item.sku.replace(/-/g,'_');
+    const val = Number(document.getElementById(inputId)?.value);
+    if (val > 0) overrides[item.sku] = val;
+  });
+
+  localStorage.setItem('fator_overrides', JSON.stringify(overrides));
+
+  // Sincroniza com o servidor
+  pendentes.forEach(item => {
+    const val = overrides[item.sku];
+    if (!val) return;
+    fetch(APPS_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({ action:'set_fator', sku:item.sku, fator:val })
+    }).catch(()=>{});
+  });
+
+  alert('Fatores salvos!');
+  renderConfig();
+}
+
+function salvarUrl() {
+  APPS_URL = document.getElementById('cfg-url').value.trim();
+  localStorage.setItem('est_apps_url', APPS_URL);
+  alert('URL salva!');
+}
+
+// ══ INIT ═════════════════════════════════════════════════════
+// Data padrão = hoje
+document.getElementById('inp-data').value = new Date().toISOString().slice(0,10);
+// Carrega nome salvo
+document.getElementById('inp-resp').value = localStorage.getItem('est_resp') || '';
+document.getElementById('inp-resp').addEventListener('blur', e => {
+  localStorage.setItem('est_resp', e.target.value);
+});
+goStep(1);
+</script>
+</body>
+</html>

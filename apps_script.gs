@@ -73,6 +73,17 @@ function syncGestaoClick() {
     const receitaMes  = vendas.reduce((s, v) => s + gcNum(v.valor_total), 0);
     const ticketMedio = pedidosMes > 0 ? receitaMes / pedidosMes : 0;
 
+    // ── Vendas de hoje (atacado do dia) ──────────────────────
+    const resVendasHoje = UrlFetchApp.fetch(
+      `${GC.url}/vendas?data_inicio=${hoje}&data_fim=${hoje}&limite=500`,
+      { headers, muteHttpExceptions: true }
+    );
+    const vendasHoje  = resVendasHoje.getResponseCode() === 200
+      ? (JSON.parse(resVendasHoje.getContentText()).data || [])
+      : [];
+    const pedidosHoje = vendasHoje.length;
+    const receitaHoje = vendasHoje.reduce((s, v) => s + gcNum(v.valor_total), 0);
+
     // ── Produtos / Estoque ───────────────────────────────────
     const resProd = UrlFetchApp.fetch(
       `${GC.url}/produtos?limite=500`,
@@ -116,13 +127,39 @@ function syncGestaoClick() {
     const pagamentosMes = pagamentos.reduce((s, p) => s + gcNum(p.valor_total || p.valor), 0);
     const pagoMes       = pagamentos.filter(p => String(p.liquidado) === '1').reduce((s, p) => s + gcNum(p.valor_total || p.valor), 0);
 
+    // ── Recebimentos de hoje ──────────────────────────────────────
+    const resRecHoje = UrlFetchApp.fetch(
+      `${GC.url}/recebimentos?data_inicio=${hoje}&data_fim=${hoje}&limite=500`,
+      { headers, muteHttpExceptions: true }
+    );
+    const recebimentosHoje = resRecHoje.getResponseCode() === 200
+      ? (JSON.parse(resRecHoje.getContentText()).data || [])
+      : [];
+    const recebidoHoje = recebimentosHoje
+      .filter(r => String(r.liquidado) === '1')
+      .reduce((s, r) => s + gcNum(r.valor_total || r.valor), 0);
+
+    // ── Pagamentos de hoje ────────────────────────────────────────
+    const resPagHoje = UrlFetchApp.fetch(
+      `${GC.url}/pagamentos?data_inicio=${hoje}&data_fim=${hoje}&limite=500`,
+      { headers, muteHttpExceptions: true }
+    );
+    const pagamentosHoje = resPagHoje.getResponseCode() === 200
+      ? (JSON.parse(resPagHoje.getContentText()).data || [])
+      : [];
+    const pagoHoje = pagamentosHoje
+      .filter(p => String(p.liquidado) === '1')
+      .reduce((s, p) => s + gcNum(p.valor_total || p.valor), 0);
+
     // ── Monta objeto final ───────────────────────────────────
     const gcData = {
       atualizado_em: Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
       vendas: {
-        pedidos_mes:  pedidosMes,
-        receita_mes:  Math.round(receitaMes * 100) / 100,
-        ticket_medio: Math.round(ticketMedio * 100) / 100
+        pedidos_mes:   pedidosMes,
+        receita_mes:   Math.round(receitaMes * 100) / 100,
+        ticket_medio:  Math.round(ticketMedio * 100) / 100,
+        pedidos_hoje:  pedidosHoje,
+        receita_hoje:  Math.round(receitaHoje * 100) / 100
       },
       estoque: {
         total_skus:       totalSkus,
@@ -130,7 +167,13 @@ function syncGestaoClick() {
         criticos:         criticos.length,
         inventario_custo: Math.round(inventarioCusto * 100) / 100,
         zerados_nomes:    zeradosNomes,
-        criticos_nomes:   criticosNomes
+        criticos_nomes:   criticosNomes,
+        produtos_raw:     produtos.slice(0, 200).map(p => ({
+          id:          String(p.id||p.codigo||p.nome||''),
+          nome:        p.nome||'',
+          estoque:     gcNum(p.estoque),
+          valor_custo: gcNum(p.valor_custo)
+        }))
       },
       financeiro: {
         recebimentos_mes: Math.round(recebimentosMes * 100) / 100,
@@ -138,6 +181,12 @@ function syncGestaoClick() {
         pagamentos_mes:   Math.round(pagamentosMes * 100) / 100,
         pago_mes:         Math.round(pagoMes * 100) / 100,
         saldo_mes:        Math.round((recebidoMes - pagoMes) * 100) / 100
+      },
+      saldo_hoje: {
+        receita_atacado: Math.round(receitaHoje * 100) / 100,
+        recebido:        Math.round(recebidoHoje * 100) / 100,
+        pago:            Math.round(pagoHoje * 100) / 100,
+        saldo:           Math.round((receitaHoje + recebidoHoje - pagoHoje) * 100) / 100
       }
     };
 
@@ -320,6 +369,214 @@ function onFormSubmitHandler(e) {
   enviarTodos(`✅ *${setor}* atualizado às ${now} — dashboard disponível`);
 }
 
+// ══════════════════════════════════════════════════════════════
+// CATÁLOGO DE ESTOQUE — itens, fardos e fatores de conversão
+// ══════════════════════════════════════════════════════════════
+const CATALOGO_EST = {
+  fardos: [
+    { sku:'FAR-38-120-450', label:'FARDO 38MM | 120ML | 450UN',   fator:450, gc_nome:'Fardo 120ML (450un)' },
+    { sku:'FAR-38-200-300', label:'FARDO 38MM | 200ML | 300UN',   fator:300, gc_nome:'Fardo 200ML (300un)' },
+    { sku:'FAR-38-300-240', label:'FARDO 38MM | 300ML | 240UN',   fator:240, gc_nome:'Fardo 300ML (240un)' },
+    { sku:'FAR-38-500-BL',  label:'FARDO 38MM | 500ML | BOCA LARGA', fator:null, gc_nome:'Fardo 500ML boca larga' },
+    { sku:'FAR-28-500-BOR', label:'FARDO 28MM | 500ML | BORRIFADOR', fator:null, gc_nome:'Fardo 500ML borrifador' },
+    { sku:'FAR-28-500-KOM', label:'FARDO 28MM | 500ML | KOMBUCHA | 300UN', fator:300, gc_nome:'Fardo kombucha 500ML (300un)' }
+  ],
+  garrafas: [
+    { sku:'GAR-38-120-CRI', label:'GARRAFA 38MM | 120ML | CRISTAL',          fator:1, gc_nome:'Garrafa 120 ML' },
+    { sku:'GAR-38-200-CRI', label:'GARRAFA 38MM | 200ML | CRISTAL',          fator:1, gc_nome:'Garrafa 200 ML' },
+    { sku:'GAR-38-300-CRI', label:'GARRAFA 38MM | 300ML | CRISTAL',          fator:1, gc_nome:'Garrafa 300 ML' },
+    { sku:'GAR-38-500-CRI', label:'GARRAFA 38MM | 500ML | CRISTAL',          fator:1, gc_nome:'Garrafa 500 ML' },
+    { sku:'GAR-28-300-KOM', label:'GARRAFA 28MM | 300ML | CRISTAL | KOMBUCHA', fator:1, gc_nome:'Garrafa kombucha' },
+    { sku:'GAR-28-500-CRI', label:'GARRAFA 28MM | 500ML | CRISTAL',          fator:1, gc_nome:'Garrafa borrifador' },
+    { sku:'GAR-28-500-AMB', label:'GARRAFA 28MM | 500ML | AMBAR',            fator:1, gc_nome:'Garrafa 500ML ambar' }
+  ],
+  preformas: [
+    { sku:'PRE-38-18-CRI', label:'PRE-FORMA 38MM | 18G | CRISTAL | 120-200ML', fator:1, gc_nome:'Pré forma 17.7g (120/200ML)' },
+    { sku:'PRE-38-19-CRI', label:'PRE-FORMA 38MM | 19G | CRISTAL | 300ML',    fator:1, gc_nome:'Pré forma 19g (300ML)' },
+    { sku:'PRE-28-24-CRI', label:'PRE-FORMA 28MM | 24G | CRISTAL | KOM-500ML',fator:1, gc_nome:'Pré forma 33g (500ML)' },
+    { sku:'PRE-28-33-AMB', label:'PRE-FORMA 28MM | 33G | AMBAR | 500ML',     fator:1, gc_nome:'Preforma 33 grs 1810 ambar 10.080' }
+  ],
+  tampas: [
+    { sku:'TAM-38-SUC-PT', label:'TAMPA 38MM | SUCO | PRETA | COM LACRE',    fator:1, gc_nome:'Tampa suco preta lacre' },
+    { sku:'TAM-38-SUC-AZ', label:'TAMPA 38MM | SUCO | AZUL | COM LACRE',     fator:1, gc_nome:'Tampa suco azul' },
+    { sku:'TAM-38-SUC-RS', label:'TAMPA 38MM | SUCO | ROSA | COM LACRE',     fator:1, gc_nome:'Tampa suco rosa' },
+    { sku:'TAM-38-SUC-RX', label:'TAMPA 38MM | SUCO | ROXA | COM LACRE',     fator:1, gc_nome:'Tampa suco roxa' },
+    { sku:'TAM-38-SUC-VM', label:'TAMPA 38MM | SUCO | VERMELHA | COM LACRE', fator:1, gc_nome:'Tampa suco vermelha' },
+    { sku:'TAM-38-TMP-PT', label:'TAMPA 38MM | TEMPERO | PRETA',             fator:1, gc_nome:'Tampa tempero preta' },
+    { sku:'TAM-38-TMP-VM', label:'TAMPA 38MM | TEMPERO | VERMELHA',          fator:1, gc_nome:'Tampa tempero vermelha' },
+    { sku:'TAM-28-TRI-PT', label:'TAMPA 28MM | TRIGGER | PRETA',             fator:1, gc_nome:'Tampa trigger preta' },
+    { sku:'TAM-28-PUM-PT', label:'TAMPA 28MM | PUMP | PRETA',               fator:1, gc_nome:'Tampa pump preta' },
+    { sku:'TAM-28-KOM-BR', label:'TAMPA 28MM | KOMBUCHA | BRANCA',           fator:1, gc_nome:'Tampa kombucha branca' }
+  ]
+};
+
+function getTodosItens_() {
+  return [
+    ...CATALOGO_EST.fardos,
+    ...CATALOGO_EST.garrafas,
+    ...CATALOGO_EST.preformas,
+    ...CATALOGO_EST.tampas
+  ];
+}
+
+function getFatorItem_(sku) {
+  const overrides = JSON.parse(
+    PropertiesService.getScriptProperties().getProperty('fator_overrides') || '{}'
+  );
+  if (overrides[sku] != null) return Number(overrides[sku]);
+  const item = getTodosItens_().find(i => i.sku === sku);
+  return item ? item.fator : null;
+}
+
+// ── doPost — recebe lançamentos de estoque do formulário ──────
+function doPost(e) {
+  try {
+    const body  = JSON.parse(e.postData.contents);
+    const acao  = body.action || 'lancar';
+
+    if (acao === 'catalogo') {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok:true, catalogo: CATALOGO_EST }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (acao === 'set_fator') {
+      // Permite configurar fatores pendentes via POST
+      const { sku, fator } = body;
+      const prop = PropertiesService.getScriptProperties();
+      const overrides = JSON.parse(prop.getProperty('fator_overrides') || '{}');
+      overrides[sku] = Number(fator);
+      prop.setProperty('fator_overrides', JSON.stringify(overrides));
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok:true, msg:'Fator salvo: '+sku+' = '+fator }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // ação padrão: lancar estoque
+    const resultado = processarLancamento_(body);
+    return ContentService
+      .createTextOutput(JSON.stringify(resultado))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok:false, erro: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function processarLancamento_(dados) {
+  const { sku, categoria, label, qtd, responsavel, data, obs } = dados;
+  const fator = getFatorItem_(sku);
+
+  if (fator === null) {
+    return {
+      ok: false,
+      erro: 'Fator de conversão não definido para este item. Configure-o no painel de fatores.'
+    };
+  }
+
+  const qtd_num  = Number(qtd);
+  const total_un = Math.round(qtd_num * fator);
+
+  const lancamento = {
+    sku, categoria, label,
+    qtd_informada: qtd_num,
+    fator,
+    total_unidades: total_un,
+    responsavel: responsavel || '',
+    data: data || Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy'),
+    obs: obs || '',
+    criado_em: new Date().toISOString()
+  };
+
+  // Salva histórico em Script Properties (últimos 300 lançamentos)
+  const prop  = PropertiesService.getScriptProperties();
+  const lista = JSON.parse(prop.getProperty('lancamentos_estoque') || '[]');
+  lista.unshift(lancamento);
+  if (lista.length > 300) lista.splice(300);
+  prop.setProperty('lancamentos_estoque', JSON.stringify(lista));
+
+  // Tenta atualizar no Gestão Click
+  let gc_ok  = false;
+  let gc_msg = 'Não tentado';
+  try {
+    const r = atualizarEstoqueGC_(label, sku, total_un);
+    gc_ok  = r.ok;
+    gc_msg = r.msg;
+  } catch(err) {
+    gc_msg = 'Erro: ' + err.message;
+  }
+
+  Logger.log(`Lançamento: ${label} | ${qtd_num} × ${fator} = ${total_un} un | GC: ${gc_msg}`);
+
+  return {
+    ok: true,
+    label,
+    qtd_informada: qtd_num,
+    fator,
+    total_unidades: total_un,
+    gc_atualizado: gc_ok,
+    gc_msg,
+    mensagem: `${label}: ${qtd_num} un/fardo(s) → ${total_un.toLocaleString('pt-BR')} unidades totais`
+  };
+}
+
+function atualizarEstoqueGC_(label, sku, novaQuantidade) {
+  const headers = {
+    'access_token':        GC.token,
+    'secret_access_token': GC.secret,
+    'Content-Type':        'application/json'
+  };
+
+  // Busca todos os produtos
+  const resList = UrlFetchApp.fetch(`${GC.url}/produtos?limite=500`, {
+    headers, muteHttpExceptions: true
+  });
+  if (resList.getResponseCode() !== 200) {
+    return { ok:false, msg:'Falha ao listar produtos GC ('+resList.getResponseCode()+')' };
+  }
+
+  const produtos = JSON.parse(resList.getContentText()).data || [];
+
+  // Tenta encontrar por código/SKU, depois por nome aproximado
+  const catalogoItem = getTodosItens_().find(i => i.sku === sku);
+  let produto = null;
+
+  if (catalogoItem) {
+    // 1. Por código exato
+    produto = produtos.find(p => p.codigo && p.codigo.toUpperCase() === sku.toUpperCase());
+    // 2. Por gc_nome aproximado
+    if (!produto) {
+      const gcNomeLower = catalogoItem.gc_nome.toLowerCase();
+      produto = produtos.find(p => p.nome && p.nome.toLowerCase().includes(gcNomeLower.split(' ').slice(0,2).join(' ')));
+    }
+    // 3. Por primeiras palavras do label
+    if (!produto) {
+      const primPalavras = label.toLowerCase().split('|')[0].trim();
+      produto = produtos.find(p => p.nome && p.nome.toLowerCase().includes(primPalavras.split(' ')[0]));
+    }
+  }
+
+  if (!produto || !produto.id) {
+    return { ok:false, msg:`Produto não encontrado no GC — atualize manualmente. (sku: ${sku})` };
+  }
+
+  // Atualiza estoque via PUT
+  const resUp = UrlFetchApp.fetch(`${GC.url}/produtos/${produto.id}`, {
+    method: 'PUT',
+    headers,
+    payload: JSON.stringify({ estoque: novaQuantidade }),
+    muteHttpExceptions: true
+  });
+
+  const code = resUp.getResponseCode();
+  if (code === 200 || code === 201) {
+    return { ok:true, msg:`GC atualizado — produto id:${produto.id}, novo estoque: ${novaQuantidade}` };
+  }
+  return { ok:false, msg:`GC retornou HTTP ${code}: ${resUp.getContentText().slice(0,120)}` };
+}
+
 // ── doGet — endpoint principal do dashboard ───────────────────
 function doGet(e) {
   const action = e && e.parameter && e.parameter.action;
@@ -328,6 +585,21 @@ function doGet(e) {
     const ts = PropertiesService.getScriptProperties().getProperty('last_form_submit') || '';
     return ContentService
       .createTextOutput(JSON.stringify({ last_submit: ts }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'lancamentos') {
+    const lista = JSON.parse(
+      PropertiesService.getScriptProperties().getProperty('lancamentos_estoque') || '[]'
+    );
+    return ContentService
+      .createTextOutput(JSON.stringify({ lancamentos: lista.slice(0, 50) }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'catalogo') {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok:true, catalogo: CATALOGO_EST }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
