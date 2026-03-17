@@ -1071,7 +1071,12 @@ def pesquisa_google():
 
 
 if __name__ == "__main__":
-    import webbrowser
-    print("✓ Rodando em http://127.0.0.1:8080")
-    webbrowser.open("http://127.0.0.1:8080")
-    app.run(debug=False, host="127.0.0.1", port=8080, threaded=True)
+    import os
+    port = int(os.environ.get("PORT", 8080))
+    is_local = os.environ.get("RAILWAY_ENVIRONMENT") is None
+    host = "127.0.0.1" if is_local else "0.0.0.0"
+    if is_local:
+        import webbrowser
+        print(f"✓ Rodando em http://127.0.0.1:{port}")
+        webbrowser.open(f"http://127.0.0.1:{port}")
+    app.run(debug=False, host=host, port=port, threaded=True)
