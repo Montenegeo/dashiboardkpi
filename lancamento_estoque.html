@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Lançamento de Estoque — Montenegro</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F0F2F5;--card:#fff;--bd:#E5E7EB;
+  --tx:#111827;--mu:#6B7280;--sm:#9CA3AF;
+  --am:#D97706;--a1:#FFFBEB;--a2:#FDE68A;
+  --gn:#059669;--g1:#ECFDF5;--g2:#D1FAE5;
+  --rd:#DC2626;--r1:#FEF2F2;--r2:#FECACA;
+  --bl:#2563EB;--b1:#EFF6FF;--b2:#BFDBFE;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --r:12px;--hdr:#111827
+}
+body{background:var(--bg);color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:15px;padding-bottom:72px;min-height:100vh}
+
+/* ── HEADER ─────────────────────────────────────────────── */
+.hdr{position:sticky;top:0;z-index:100;background:var(--hdr);padding:0 16px;height:58px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.hdr-logo{width:36px;height:36px;border-radius:10px;background:var(--am);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-logo svg{width:20px;height:20px}
+.hdr-title{color:#fff;font-size:15px;font-weight:700;letter-spacing:-.02em}
+.hdr-sub{color:#9CA3AF;font-size:11px;margin-top:1px}
+.hdr-resp{display:flex;align-items:center;gap:6px}
+.resp-label{color:#9CA3AF;font-size:11px}
+.resp-input{background:#1F2937;border:1px solid #374151;border-radius:8px;color:#fff;font-size:12px;font-weight:600;padding:5px 10px;width:110px;outline:none}
+.resp-input::placeholder{color:#6B7280}
+
+/* ── BOTTOM TABS ─────────────────────────────────────────── */
+.btab{position:fixed;bottom:0;left:0;right:0;z-index:100;background:#fff;border-top:1px solid var(--bd);display:grid;grid-template-columns:repeat(3,1fr);height:64px;box-shadow:0 -2px 12px rgba(0,0,0,.08)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:transparent;color:var(--mu);cursor:pointer;font-size:11px;font-weight:600;padding:6px 4px;transition:color .15s;letter-spacing:.01em}
+.tab.on{color:var(--am)}
+.tab-ic{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:1px;transition:background .15s}
+.tab.on .tab-ic{background:var(--a1)}
+
+/* ── VIEWS ───────────────────────────────────────────────── */
+.view{display:none;padding:16px 14px;animation:fi .18s ease}
+.view.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ── SECTION TITLE ───────────────────────────────────────── */
+.sec{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);margin:20px 0 8px;padding-left:2px}
+.sec:first-child{margin-top:0}
+
+/* ── ITEM SELECTOR ───────────────────────────────────────── */
+.item-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.item-btn{background:#fff;border:2px solid var(--bd);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .15s;min-height:62px;box-shadow:var(--sh)}
+.item-btn:active{transform:scale(.98)}
+.item-btn.sel{border-color:var(--am);background:var(--a1)}
+.item-btn-left{display:flex;align-items:center;gap:12px}
+.item-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.item-name{font-size:14px;font-weight:700;color:var(--tx);line-height:1.2}
+.item-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.item-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.item-btn.sel .item-check{background:var(--am);border-color:var(--am)}
+.item-btn.sel .item-check::after{content:'';width:6px;height:10px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(45deg);margin-bottom:2px}
+
+/* ── TAMPA COLOR CIRCLE ──────────────────────────────────── */
+.color-dot{width:28px;height:28px;border-radius:50%;flex-shrink:0}
+
+/* ── GRUPO HEADER ────────────────────────────────────────── */
+.grupo-hdr{display:flex;align-items:center;gap:8px;padding:10px 2px 6px}
+.grupo-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}
+.grupo-line{flex:1;height:1px;background:var(--bd)}
+
+/* ── BOCAL SEPARATOR ─────────────────────────────────────── */
+.bocal-hdr{background:var(--hdr);border-radius:10px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.bocal-label{color:#fff;font-size:13px;font-weight:700}
+.bocal-sub{color:#9CA3AF;font-size:11px}
+
+/* ── QUANTITY FORM ───────────────────────────────────────── */
+.qform{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:18px 16px;box-shadow:var(--sh);animation:fi .15s ease}
+.qform-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.qform-tag{font-size:10px;font-weight:700;color:var(--am);background:var(--a1);border:1px solid var(--a2);padding:3px 8px;border-radius:20px;letter-spacing:.03em}
+.field-row{display:grid;gap:10px;margin-bottom:12px}
+.field-row.two{grid-template-columns:1fr 1fr}
+.field-row.three{grid-template-columns:1fr 1fr 1fr}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld label{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mu)}
+.fld input{height:52px;border:2px solid var(--bd);border-radius:10px;font-size:22px;font-weight:700;color:var(--tx);text-align:center;background:#fff;outline:none;transition:border .15s;width:100%}
+.fld input:focus{border-color:var(--am)}
+.fld input.sm{font-size:17px}
+
+/* ── CONVERSION DISPLAY ──────────────────────────────────── */
+.conv{background:var(--g1);border:1px solid var(--g2);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.conv-label{font-size:11px;color:var(--gn);font-weight:600}
+.conv-val{font-size:22px;font-weight:800;color:var(--gn)}
+.conv-unit{font-size:11px;color:var(--gn);font-weight:600}
+.conv.pending{background:#F9FAFB;border-color:var(--bd)}
+.conv.pending .conv-label,.conv.pending .conv-val,.conv.pending .conv-unit{color:var(--mu)}
+
+/* ── FATOR CONFIG ────────────────────────────────────────── */
+.fator-cfg{background:var(--a1);border:1px solid var(--a2);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.fator-cfg-label{font-size:11px;color:var(--am);font-weight:700;margin-bottom:6px}
+.fator-cfg-row{display:flex;align-items:center;gap:8px}
+.fator-cfg-input{flex:1;height:42px;border:2px solid var(--a2);border-radius:8px;font-size:16px;font-weight:700;text-align:center;background:#fff;color:var(--tx);outline:none}
+.fator-cfg-input:focus{border-color:var(--am)}
+.fator-cfg-save{height:42px;padding:0 14px;background:var(--am);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+
+/* ── LAUNCH BUTTON ───────────────────────────────────────── */
+.btn-launch{width:100%;height:56px;background:var(--gn);border:none;border-radius:12px;color:#fff;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;letter-spacing:.01em}
+.btn-launch:active{transform:scale(.97);background:#047857}
+.btn-launch:disabled{background:var(--sm);cursor:not-allowed}
+.btn-launch svg{width:20px;height:20px}
+
+/* ── CLEAR BUTTON ────────────────────────────────────────── */
+.btn-clear{width:100%;height:42px;background:#F3F4F6;border:1px solid var(--bd);border-radius:10px;color:var(--mu);font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .15s}
+.btn-clear:active{background:#E5E7EB}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#111827;color:#fff;border-radius:12px;padding:13px 20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast.ok{background:#065F46}
+.toast.err{background:#991B1B}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── SPINNER ─────────────────────────────────────────────── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </div>
+    <div>
+      <div class="hdr-title">Lançamento de Estoque</div>
+      <div class="hdr-sub">Montenegro Industria LTDA</div>
+    </div>
+  </div>
+  <div class="hdr-resp">
+    <span class="resp-label">Responsável</span>
+    <input class="resp-input" id="responsavel" placeholder="Seu nome" autocomplete="off">
+  </div>
+</header>
+
+<!-- VIEW: FARDOS -->
+<div id="v-fardos" class="view on">
+  <div class="sec">Selecione o modelo de fardo</div>
+  <div class="item-grid" id="fardos-lista"></div>
+  <div id="fardos-form"></div>
+</div>
+
+<!-- VIEW: TAMPAS -->
+<div id="v-tampas" class="view">
+  <div id="tampas-lista"></div>
+  <div id="tampas-form"></div>
+</div>
+
+<!-- VIEW: PREFORMAS -->
+<div id="v-preformas" class="view">
+  <div id="preformas-lista"></div>
+  <div id="preformas-form"></div>
+</div>
+
+<!-- BOTTOM TABS -->
+<nav class="btab">
+  <button class="tab on" onclick="go('fardos',this)">
+    <div class="tab-ic">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+    </div>
+    Fardos
+  </button>
+  <button class="tab" onclick="go('tampas',this)">
+    <div class="tab-ic">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+    </div>
+    Tampas
+  </button>
+  <button class="tab" onclick="go('preformas',this)">
+    <div class="tab-ic">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9l-6-6z"/><path d="M9 3v6h6"/></svg>
+    </div>
+    Pré-formas
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────
+const APPS_URL = 'https://script.google.com/macros/s/AKfycbx0_ilpbYiDvj_u-LPrbtJ8HzTKpWvG198HmCWurcPO9x4edAy2MoWB9-GDv7YHvTV5RQ/exec';
+
+// ── CATÁLOGO ─────────────────────────────────────────────────
+const FARDOS = [
+  { id:'FAR-38-120-450',   nome:'Fardo 120 ML',          sub:'38MM · 450 un/fardo',           fator:450,  icon:'📦', cor:'#D97706' },
+  { id:'FAR-38-200-300',   nome:'Fardo 200 ML',          sub:'38MM · 300 un/fardo',           fator:300,  icon:'📦', cor:'#D97706' },
+  { id:'FAR-38-300-240',   nome:'Fardo 300 ML',          sub:'38MM · 240 un/fardo',           fator:240,  icon:'📦', cor:'#D97706' },
+  { id:'FAR-28-500-KOM-300',nome:'Fardo 500 ML Kombucha',sub:'28MM · 300 un/fardo',           fator:300,  icon:'📦', cor:'#059669' },
+  { id:'FAR-38-500-BL',   nome:'Fardo 500 ML Boca Larga',sub:'38MM · fator a configurar',    fator:null, icon:'📦', cor:'#6B7280' },
+  { id:'FAR-28-500-BOR',  nome:'Fardo 500 ML Borrifador',sub:'28MM · fator a configurar',    fator:null, icon:'📦', cor:'#6B7280' },
+];
+
+const TAMPAS = [
+  { grupo:'SUCO', itens:[
+    { id:'TAM-38-SUC-PT-CL', nome:'Preta',    cor:'#111827', borda:'#374151' },
+    { id:'TAM-38-SUC-AZ-CL', nome:'Azul',     cor:'#2563EB', borda:'#2563EB' },
+    { id:'TAM-38-SUC-RS-CL', nome:'Rosa',     cor:'#EC4899', borda:'#EC4899' },
+    { id:'TAM-38-SUC-RX-CL', nome:'Roxa',     cor:'#7C3AED', borda:'#7C3AED' },
+    { id:'TAM-38-SUC-VM-CL', nome:'Vermelha', cor:'#DC2626', borda:'#DC2626' },
+  ]},
+  { grupo:'TEMPERO', itens:[
+    { id:'TAM-38-TMP-PT', nome:'Preta',    cor:'#111827', borda:'#374151' },
+    { id:'TAM-38-TMP-VM', nome:'Vermelha', cor:'#DC2626', borda:'#DC2626' },
+  ]},
+  { grupo:'KOMBUCHA', itens:[
+    { id:'TAM-28-KOM-BR', nome:'Branca', cor:'#F9FAFB', borda:'#9CA3AF' },
+  ]},
+  { grupo:'PUMP', itens:[
+    { id:'TAM-28-PUM-PT', nome:'Preta', cor:'#111827', borda:'#374151' },
+  ]},
+  { grupo:'TRIGGER', itens:[
+    { id:'TAM-28-TRI-PT', nome:'Preta', cor:'#111827', borda:'#374151' },
+  ]},
+];
+
+const PREFORMAS = [
+  { bocal:'38mm', itens:[
+    { id:'PRE-38-18-CRI-120200', nome:'18g Cristal',  sub:'120ML / 200ML' },
+    { id:'PRE-38-19-CRI-300',   nome:'19g Cristal',  sub:'300ML' },
+  ]},
+  { bocal:'28mm', itens:[
+    { id:'PRE-28-24-CRI-KOM500',nome:'24g Cristal',  sub:'Kombucha / 500ML' },
+    { id:'PRE-28-33-AMB-500',   nome:'33g Âmbar',    sub:'500ML' },
+  ]},
+];
+
+// ── STATE ─────────────────────────────────────────────────────
+let selFardo = null, selTampa = null, selPreforma = null;
+
+// ── NAVIGATION ────────────────────────────────────────────────
+function go(id, el) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('v-'+id).classList.add('on');
+  el.classList.add('on');
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function toast(msg, type='ok', dur=3000) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast '+type+' show';
+  setTimeout(()=>t.className='toast '+type, dur);
+}
+
+function getFator(item) {
+  if (item.fator) return item.fator;
+  const stored = localStorage.getItem('fator_'+item.id);
+  return stored ? parseInt(stored) : null;
+}
+
+function n(id){ return parseInt(document.getElementById(id)?.value)||0; }
+
+// ── FARDOS ───────────────────────────────────────────────────
+function renderFardos() {
+  const lista = document.getElementById('fardos-lista');
+  lista.innerHTML = FARDOS.map((f,i) => `
+    <button class="item-btn${selFardo===i?' sel':''}" onclick="selecionarFardo(${i})">
+      <div class="item-btn-left">
+        <div class="item-icon" style="background:#F9FAFB;font-size:22px">📦</div>
+        <div>
+          <div class="item-name">${f.nome}</div>
+          <div class="item-sub">${f.sub}</div>
+        </div>
+      </div>
+      <div class="item-check"></div>
+    </button>`).join('');
+}
+
+function selecionarFardo(i) {
+  selFardo = i;
+  renderFardos();
+  renderFardoForm(FARDOS[i]);
+  setTimeout(()=>document.getElementById('fardos-form').scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+
+function renderFardoForm(f) {
+  const fator = getFator(f);
+  const formEl = document.getElementById('fardos-form');
+
+  const fatorCfg = f.fator === null ? `
+    <div class="fator-cfg">
+      <div class="fator-cfg-label">Configurar: quantas unidades por fardo?</div>
+      <div class="fator-cfg-row">
+        <input class="fator-cfg-input" type="number" id="fator-input" inputmode="numeric" placeholder="Ex: 240" value="${fator||''}">
+        <button class="fator-cfg-save" onclick="salvarFator('${f.id}')">Salvar</button>
+      </div>
+    </div>` : '';
+
+  const totalCalc = fator ? `
+    <div class="conv" id="conv-box">
+      <div><div class="conv-label">Total calculado</div><div class="conv-unit">unidades</div></div>
+      <div class="conv-val" id="conv-val">0</div>
+    </div>` : `
+    <div class="conv pending">
+      <div><div class="conv-label">Configure o fator primeiro</div></div>
+      <div class="conv-val">—</div>
+    </div>`;
+
+  formEl.innerHTML = `
+    <div class="sec">Quantidade de fardos</div>
+    <div class="qform">
+      <div class="qform-title">
+        ${f.nome}
+        <span class="qform-tag">${fator ? fator+' un/fardo' : 'fator pendente'}</span>
+      </div>
+      ${fatorCfg}
+      <div class="field-row">
+        <div class="fld">
+          <label>Fardos</label>
+          <input type="number" id="qtd-fardos" inputmode="numeric" placeholder="0" min="0"
+            oninput="atualizarConv(${fator||0})" onfocus="this.select()">
+        </div>
+      </div>
+      ${totalCalc}
+      <button class="btn-launch" onclick="lancarFardo('${f.id}','${f.nome}',${fator||0})" ${!fator?'disabled':''}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Lançar Fardos
+      </button>
+      <button class="btn-clear" onclick="limparFardo()">Cancelar</button>
+    </div>`;
+}
+
+function salvarFator(id) {
+  const v = parseInt(document.getElementById('fator-input').value);
+  if (!v || v < 1) { toast('Informe um fator válido','err'); return; }
+  localStorage.setItem('fator_'+id, v);
+  const f = FARDOS.find(x=>x.id===id);
+  f.fatorSalvo = v;
+  toast('Fator salvo: '+v+' un/fardo');
+  selecionarFardo(selFardo);
+}
+
+function atualizarConv(fator) {
+  if (!fator) return;
+  const qtd = n('qtd-fardos');
+  const total = qtd * fator;
+  const el = document.getElementById('conv-val');
+  if (el) el.textContent = total.toLocaleString('pt-BR');
+}
+
+function limparFardo() {
+  selFardo = null;
+  document.getElementById('fardos-form').innerHTML = '';
+  renderFardos();
+}
+
+async function lancarFardo(id, nome, fator) {
+  if (!fator) { toast('Configure o fator primeiro','err'); return; }
+  const qtdFardos = n('qtd-fardos');
+  if (qtdFardos < 1) { toast('Informe a quantidade de fardos','err'); return; }
+  const responsavel = document.getElementById('responsavel').value.trim();
+  if (!responsavel) { toast('Informe seu nome no campo Responsável','err'); return; }
+
+  const fatorReal = fator || parseInt(localStorage.getItem('fator_'+id)) || 0;
+  const total = qtdFardos * fatorReal;
+
+  const btn = document.querySelector('.btn-launch');
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
+
+  try {
+    const url = `${APPS_URL}?action=lancarEstoque&itemId=${encodeURIComponent(id)}&itemNome=${encodeURIComponent(nome)}&qtdFardos=${qtdFardos}&totalUnidades=${total}&responsavel=${encodeURIComponent(responsavel)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      toast(`✓ ${nome} — ${total.toLocaleString('pt-BR')} un lançadas`,'ok',4000);
+      limparFardo();
+    } else {
+      toast(data.erro || 'Erro ao lançar','err',5000);
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Lançar Fardos';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Erro de conexão — tente novamente','err');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Lançar Fardos';
+    btn.disabled = false;
+  }
+}
+
+// ── TAMPAS ────────────────────────────────────────────────────
+function renderTampas() {
+  const lista = document.getElementById('tampas-lista');
+  lista.innerHTML = TAMPAS.map(grupo => `
+    <div class="grupo-hdr">
+      <span class="grupo-label">${grupo.grupo}</span>
+      <div class="grupo-line"></div>
+    </div>
+    <div class="item-grid" style="margin-bottom:4px">
+      ${grupo.itens.map((t,ri) => {
+        const key = grupo.grupo+'_'+ri;
+        const sel = selTampa && selTampa.key === key;
+        return `<button class="item-btn${sel?' sel':''}" onclick="selecionarTampa('${grupo.grupo}',${ri},'${key}')">
+          <div class="item-btn-left">
+            <div class="color-dot" style="background:${t.cor};border:2px solid ${t.borda};box-shadow:0 1px 4px rgba(0,0,0,.15)"></div>
+            <div>
+              <div class="item-name">${grupo.grupo} — ${t.nome}</div>
+              <div class="item-sub">${t.id}</div>
+            </div>
+          </div>
+          <div class="item-check"></div>
+        </button>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function selecionarTampa(grupo, ri, key) {
+  const grp = TAMPAS.find(g=>g.grupo===grupo);
+  const item = grp.itens[ri];
+  selTampa = { key, grupo, item };
+  renderTampas();
+  renderTampaForm(grupo, item);
+  setTimeout(()=>document.getElementById('tampas-form').scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+
+function renderTampaForm(grupo, item) {
+  const formEl = document.getElementById('tampas-form');
+  formEl.innerHTML = `
+    <div class="sec">Quantidade de caixas</div>
+    <div class="qform">
+      <div class="qform-title" style="align-items:center">
+        <div class="color-dot" style="background:${item.cor};border:2px solid ${item.borda};width:20px;height:20px;flex-shrink:0"></div>
+        ${grupo} ${item.nome}
+        <span class="qform-tag">TAMPA</span>
+      </div>
+      <div class="field-row two">
+        <div class="fld">
+          <label>Caixas Fechadas</label>
+          <input type="number" id="cx-fechadas" inputmode="numeric" placeholder="0" min="0" oninput="atualizarTotalTampa()" onfocus="this.select()">
+        </div>
+        <div class="fld">
+          <label>Caixas Abertas</label>
+          <input type="number" id="cx-abertas" inputmode="numeric" placeholder="0" min="0" oninput="atualizarTotalTampa()" onfocus="this.select()">
+        </div>
+      </div>
+      <div class="conv" id="conv-tampa">
+        <div>
+          <div class="conv-label">Total estimado</div>
+          <div class="conv-unit">a configurar fator/caixa</div>
+        </div>
+        <div class="conv-val" id="conv-val-tampa">—</div>
+      </div>
+      <button class="btn-launch" onclick="lancarTampa('${item.id}','${grupo} ${item.nome}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Lançar Tampas
+      </button>
+      <button class="btn-clear" onclick="limparTampa()">Cancelar</button>
+    </div>`;
+}
+
+function atualizarTotalTampa() {
+  const fechadas = n('cx-fechadas');
+  const abertas = n('cx-abertas');
+  const totalCx = fechadas + abertas;
+  const el = document.getElementById('conv-val-tampa');
+  if (el) el.textContent = totalCx > 0 ? totalCx + ' cx' : '—';
+}
+
+function limparTampa() {
+  selTampa = null;
+  document.getElementById('tampas-form').innerHTML = '';
+  renderTampas();
+}
+
+async function lancarTampa(id, nome) {
+  const cxFechadas = n('cx-fechadas');
+  const cxAbertas = n('cx-abertas');
+  if (cxFechadas < 1 && cxAbertas < 1) { toast('Informe ao menos 1 caixa','err'); return; }
+  const responsavel = document.getElementById('responsavel').value.trim();
+  if (!responsavel) { toast('Informe seu nome no campo Responsável','err'); return; }
+
+  const btn = document.querySelector('.btn-launch');
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
+
+  const totalCx = cxFechadas + cxAbertas;
+
+  try {
+    const url = `${APPS_URL}?action=lancarEstoque&itemId=${encodeURIComponent(id)}&itemNome=${encodeURIComponent(nome)}&cxFechadas=${cxFechadas}&cxAbertas=${cxAbertas}&totalCaixas=${totalCx}&tipo=tampa&responsavel=${encodeURIComponent(responsavel)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      toast(`✓ ${nome} — ${totalCx} cx lançadas`,'ok',4000);
+      limparTampa();
+    } else {
+      toast(data.erro || 'Erro ao lançar','err',5000);
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Lançar Tampas';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Erro de conexão','err');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Lançar Tampas';
+    btn.disabled = false;
+  }
+}
+
+// ── PRÉ-FORMAS ────────────────────────────────────────────────
+function renderPreformas() {
+  const lista = document.getElementById('preformas-lista');
+  lista.innerHTML = PREFORMAS.map(bloco => `
+    <div class="bocal-hdr">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      <div>
+        <div class="bocal-label">Bocal ${bloco.bocal}</div>
+        <div class="bocal-sub">${bloco.itens.length} tipo(s)</div>
+      </div>
+    </div>
+    <div class="item-grid" style="margin-bottom:12px">
+      ${bloco.itens.map((p,ri) => {
+        const key = bloco.bocal+'_'+ri;
+        const sel = selPreforma && selPreforma.key === key;
+        return `<button class="item-btn${sel?' sel':''}" onclick="selecionarPreforma('${bloco.bocal}',${ri},'${key}')">
+          <div class="item-btn-left">
+            <div class="item-icon" style="background:${bloco.bocal==='38mm'?'#EFF6FF':'#F0FDF4'};font-size:20px">${bloco.bocal==='38mm'?'🔵':'🟢'}</div>
+            <div>
+              <div class="item-name">${p.nome}</div>
+              <div class="item-sub">${p.sub}</div>
+            </div>
+          </div>
+          <div class="item-check"></div>
+        </button>`;
+      }).join('')}
+    </div>`).join('');
+}
+
+function selecionarPreforma(bocal, ri, key) {
+  const bloco = PREFORMAS.find(b=>b.bocal===bocal);
+  const item = bloco.itens[ri];
+  selPreforma = { key, bocal, item };
+  renderPreformas();
+  renderPreformaForm(bocal, item);
+  setTimeout(()=>document.getElementById('preformas-form').scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+
+function renderPreformaForm(bocal, item) {
+  const formEl = document.getElementById('preformas-form');
+  formEl.innerHTML = `
+    <div class="sec">Quantidade de caixas</div>
+    <div class="qform">
+      <div class="qform-title">
+        ${item.nome}
+        <span class="qform-tag">${bocal}</span>
+      </div>
+      <div class="field-row two">
+        <div class="fld">
+          <label>Caixas Fechadas</label>
+          <input type="number" id="pf-fechadas" inputmode="numeric" placeholder="0" min="0" oninput="atualizarTotalPf()" onfocus="this.select()">
+        </div>
+        <div class="fld">
+          <label>Caixas Abertas</label>
+          <input type="number" id="pf-abertas" inputmode="numeric" placeholder="0" min="0" oninput="atualizarTotalPf()" onfocus="this.select()">
+        </div>
+      </div>
+      <!-- % da caixa aberta -->
+      <div id="pf-pct-wrap" style="display:none;margin-bottom:12px">
+        <div class="grupo-hdr" style="padding:6px 2px 8px">
+          <span style="font-size:11px;font-weight:700;color:var(--bl)">Caixa aberta — % preenchida</span>
+          <div class="grupo-line" style="background:var(--b2)"></div>
+        </div>
+        <div class="field-row">
+          <div class="fld">
+            <label>Percentual da caixa (0–100%)</label>
+            <input type="number" id="pf-pct" inputmode="numeric" placeholder="50" min="0" max="100" class="sm" oninput="atualizarTotalPf()" onfocus="this.select()">
+          </div>
+        </div>
+      </div>
+      <div class="conv pending" id="conv-pf">
+        <div><div class="conv-label">Total estimado</div><div class="conv-unit">caixas equivalentes</div></div>
+        <div class="conv-val" id="conv-val-pf">—</div>
+      </div>
+      <button class="btn-launch" onclick="lancarPreforma('${item.id}','${item.nome}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Lançar Pré-formas
+      </button>
+      <button class="btn-clear" onclick="limparPreforma()">Cancelar</button>
+    </div>`;
+
+  document.getElementById('pf-abertas').addEventListener('input', function(){
+    document.getElementById('pf-pct-wrap').style.display = parseInt(this.value) > 0 ? 'block' : 'none';
+  });
+}
+
+function atualizarTotalPf() {
+  const fechadas = n('pf-fechadas');
+  const abertas = n('pf-abertas');
+  const pct = n('pf-pct') || 100;
+  const totalEquiv = fechadas + (abertas > 0 ? (pct / 100) : 0);
+  const el = document.getElementById('conv-val-pf');
+  const box = document.getElementById('conv-pf');
+  if (el) {
+    el.textContent = totalEquiv > 0 ? totalEquiv.toFixed(1) + ' cx' : '—';
+    if (totalEquiv > 0) box.className='conv';
+    else box.className='conv pending';
+  }
+}
+
+function limparPreforma() {
+  selPreforma = null;
+  document.getElementById('preformas-form').innerHTML = '';
+  renderPreformas();
+}
+
+async function lancarPreforma(id, nome) {
+  const fechadas = n('pf-fechadas');
+  const abertas = n('pf-abertas');
+  if (fechadas < 1 && abertas < 1) { toast('Informe ao menos 1 caixa','err'); return; }
+  const responsavel = document.getElementById('responsavel').value.trim();
+  if (!responsavel) { toast('Informe seu nome no campo Responsável','err'); return; }
+
+  const pct = abertas > 0 ? (n('pf-pct') || 100) : 100;
+  const totalEquiv = fechadas + (abertas > 0 ? (pct / 100) : 0);
+
+  const btn = document.querySelector('.btn-launch');
+  btn.innerHTML = '<div class="spinner"></div>';
+  btn.disabled = true;
+
+  try {
+    const url = `${APPS_URL}?action=lancarEstoque&itemId=${encodeURIComponent(id)}&itemNome=${encodeURIComponent(nome)}&cxFechadas=${fechadas}&cxAbertas=${abertas}&pctAberta=${pct}&totalEquiv=${totalEquiv.toFixed(2)}&tipo=preforma&responsavel=${encodeURIComponent(responsavel)}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.ok) {
+      toast(`✓ ${nome} — ${totalEquiv.toFixed(1)} cx lançadas`,'ok',4000);
+      limparPreforma();
+    } else {
+      toast(data.erro || 'Erro ao lançar','err',5000);
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Lançar Pré-formas';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    toast('Erro de conexão','err');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg> Lançar Pré-formas';
+    btn.disabled = false;
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+renderFardos();
+renderTampas();
+renderPreformas();
+
+// Restaura nome salvo
+const nomeSalvo = localStorage.getItem('mnt_responsavel');
+if (nomeSalvo) document.getElementById('responsavel').value = nomeSalvo;
+document.getElementById('responsavel').addEventListener('blur', function(){
+  localStorage.setItem('mnt_responsavel', this.value);
+});
+</script>
+</body>
+</html>

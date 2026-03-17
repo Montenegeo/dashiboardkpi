@@ -603,10 +603,109 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  if (action === 'lancarEstoque') {
+    return lancarEstoqueGC_(e.parameter);
+  }
+
   // Retorna todos os dados: planilhas + Gestão Click
   return ContentService
     .createTextOutput(JSON.stringify(buildJSON()))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ── Lançamento de estoque via formulário → Gestão Click ───────
+function lancarEstoqueGC_(params) {
+  const resp = (msg, ok) => ContentService
+    .createTextOutput(JSON.stringify(ok ? {ok:true,...msg} : {ok:false,erro:msg}))
+    .setMimeType(ContentService.MimeType.JSON);
+
+  try {
+    const itemId       = params.itemId   || '';
+    const itemNome     = params.itemNome || '';
+    const tipo         = params.tipo     || 'fardo'; // fardo | tampa | preforma
+    const responsavel  = params.responsavel || '';
+
+    // Calcula total de unidades conforme tipo
+    let totalUnidades = 0;
+    if (tipo === 'fardo') {
+      totalUnidades = parseInt(params.totalUnidades) || 0;
+    } else if (tipo === 'tampa') {
+      // tampas: caixas × fator/caixa (fator ainda não configurado → salva caixas)
+      totalUnidades = (parseInt(params.cxFechadas)||0) + (parseInt(params.cxAbertas)||0);
+    } else if (tipo === 'preforma') {
+      // pré-formas: caixas fechadas + (abertas × % / 100)
+      const fechadas = parseInt(params.cxFechadas) || 0;
+      const abertas  = parseInt(params.cxAbertas)  || 0;
+      const pct      = parseFloat(params.pctAberta) || 100;
+      totalUnidades  = Math.round(fechadas + abertas * (pct / 100));
+    }
+
+    if (!itemNome) return resp('itemNome obrigatório', false);
+    if (totalUnidades < 1) return resp('Quantidade inválida', false);
+
+    const headers = {
+      'access_token':        GC.token,
+      'secret_access_token': GC.secret,
+      'Content-Type':        'application/json'
+    };
+
+    // Busca lista de produtos do GC
+    const resProd = UrlFetchApp.fetch(`${GC.url}/produtos?limite=500`, { headers, muteHttpExceptions:true });
+    if (resProd.getResponseCode() !== 200) return resp('Erro ao buscar produtos do GC: HTTP '+resProd.getResponseCode(), false);
+
+    const produtos = JSON.parse(resProd.getContentText()).data || [];
+
+    // Encontra produto por itemId (SKU) ou por correspondência de nome
+    const idLower   = itemId.toLowerCase();
+    const nomeLower = itemNome.toLowerCase().slice(0, 20);
+    let produto = produtos.find(p =>
+      (p.codigo || '').toLowerCase() === idLower ||
+      (p.nome   || '').toLowerCase().includes(nomeLower)
+    );
+
+    if (!produto) return resp('Produto não encontrado no GC: ' + itemNome, false);
+
+    // Atualiza estoque: soma ao atual
+    const estoqueAtual = gcNum(produto.estoque);
+    const novoEstoque  = estoqueAtual + totalUnidades;
+
+    const putRes = UrlFetchApp.fetch(`${GC.url}/produtos/${produto.id}`, {
+      method: 'PUT',
+      headers,
+      payload: JSON.stringify({ estoque: String(novoEstoque) }),
+      muteHttpExceptions: true
+    });
+
+    const code = putRes.getResponseCode();
+    if (code < 200 || code > 299) {
+      return resp('GC PUT falhou: HTTP '+code+' — '+putRes.getContentText().slice(0,200), false);
+    }
+
+    // Salva log do lançamento (últimos 100)
+    const logKey = 'lancamentos_estoque';
+    let logs = [];
+    try { logs = JSON.parse(PropertiesService.getScriptProperties().getProperty(logKey) || '[]'); } catch(_){}
+    logs.unshift({
+      data:        Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
+      responsavel,
+      tipo,
+      item:        produto.nome,
+      quantidade:  totalUnidades,
+      estoque_ant: estoqueAtual,
+      estoque_novo: novoEstoque
+    });
+    PropertiesService.getScriptProperties().setProperty(logKey, JSON.stringify(logs.slice(0, 100)));
+
+    // Invalida cache do GC para forçar atualização
+    PropertiesService.getScriptProperties().deleteProperty('gc_cache');
+
+    Logger.log('✅ Lançamento: '+produto.nome+' | +'+totalUnidades+' un | novo: '+novoEstoque);
+    return resp({ produto: produto.nome, estoque_anterior: estoqueAtual, estoque_novo: novoEstoque, quantidade_lancada: totalUnidades }, true);
+
+  } catch(e) {
+    Logger.log('❌ lancarEstoqueGC_: '+e.message);
+    return resp(e.message, false);
+  }
 }
 
 // ── Alertas ───────────────────────────────────────────────────
