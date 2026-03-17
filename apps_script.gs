@@ -798,8 +798,8 @@ function ultimaLinha(sheetId, gid) {
   return Array(20).fill('');
 }
 
-// Retorna TODOS os registros da data mais recente (manhã + tarde + etc.)
-// Usa coluna 2 da produção (Data de hoje) para agrupar turnos do mesmo dia
+// Retorna última linha, ou as 2 últimas se houve troca de molde no mesmo dia
+// Regra: só soma manhã + tarde quando col[9] (troca de molde) indica troca
 function linhasDoDia(sheetId, gid) {
   const ss    = SpreadsheetApp.openById(sheetId);
   const sheet = gid != null
@@ -807,24 +807,40 @@ function linhasDoDia(sheetId, gid) {
     : ss.getSheets()[0];
   const data  = sheet.getDataRange().getValues();
 
-  // Acha a data do último registro real (coluna 2 = "Data de hoje" dd/MM/yyyy)
-  let dataReferencia = '';
+  // Acha índice da última linha real
+  let ultimaIdx = -1;
   for (let i = data.length - 1; i >= 1; i--) {
-    if (_linhaReal(data[i])) {
-      dataReferencia = String(data[i][2]).trim();
-      break;
-    }
+    if (_linhaReal(data[i])) { ultimaIdx = i; break; }
   }
-  if (!dataReferencia) return [];
+  if (ultimaIdx === -1) return [];
 
-  // Coleta todas as linhas com essa mesma data
-  const registros = [];
-  for (let i = 1; i < data.length; i++) {
-    if (_linhaReal(data[i]) && String(data[i][2]).trim() === dataReferencia) {
-      registros.push(data[i]);
-    }
+  const ultima     = data[ultimaIdx];
+  const dataRef    = String(ultima[2]).trim();
+
+  // Acha índice da penúltima linha real
+  let penultimaIdx = -1;
+  for (let i = ultimaIdx - 1; i >= 1; i--) {
+    if (_linhaReal(data[i])) { penultimaIdx = i; break; }
   }
-  return registros;
+
+  // Verifica se houve troca de molde (col 9) em qualquer uma das 2 últimas
+  function houveTroca(row) {
+    const v = String(row[9] || '').toLowerCase().trim();
+    return v !== '' && v !== 'não' && v !== 'nao';
+  }
+
+  const mesmoDia = penultimaIdx !== -1 &&
+    String(data[penultimaIdx][2]).trim() === dataRef;
+
+  const trocaDetectada = houveTroca(ultima) ||
+    (mesmoDia && houveTroca(data[penultimaIdx]));
+
+  // Inclui as 2 se mesmo dia E houve troca de molde
+  if (mesmoDia && trocaDetectada) {
+    return [data[penultimaIdx], ultima];
+  }
+
+  return [ultima];
 }
 
 function toNum(val) {
