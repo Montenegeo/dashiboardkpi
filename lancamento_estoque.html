@@ -223,12 +223,12 @@ const TAMPAS = [
 
 const PREFORMAS = [
   { bocal:'38mm', itens:[
-    { id:'PRE-38-18-CRI-120200', nome:'18g Cristal',  sub:'120ML / 200ML' },
-    { id:'PRE-38-19-CRI-300',   nome:'19g Cristal',  sub:'300ML' },
+    { id:'PRE-38-18-CRI-120200', nome:'18g Cristal', sub:'120ML / 200ML', cor:'#F9FAFB', borda:'#D1D5DB' },
+    { id:'PRE-38-19-CRI-300',   nome:'19g Cristal', sub:'300ML',         cor:'#F9FAFB', borda:'#D1D5DB' },
   ]},
   { bocal:'28mm', itens:[
-    { id:'PRE-28-24-CRI-KOM500',nome:'24g Cristal',  sub:'Kombucha / 500ML' },
-    { id:'PRE-28-33-AMB-500',   nome:'33g Âmbar',    sub:'500ML' },
+    { id:'PRE-28-24-CRI-KOM500',nome:'24g Cristal', sub:'Kombucha / 500ML', cor:'#F9FAFB', borda:'#D1D5DB' },
+    { id:'PRE-28-33-AMB-500',   nome:'33g Âmbar',   sub:'500ML',            cor:'#92400E', borda:'#78350F' },
   ]},
 ];
 
@@ -520,7 +520,7 @@ function renderPreformas() {
         const sel = selPreforma && selPreforma.key === key;
         return `<button class="item-btn${sel?' sel':''}" onclick="selecionarPreforma('${bloco.bocal}',${ri},'${key}')">
           <div class="item-btn-left">
-            <div class="item-icon" style="background:${bloco.bocal==='38mm'?'#EFF6FF':'#F0FDF4'};font-size:20px">${bloco.bocal==='38mm'?'🔵':'🟢'}</div>
+            <div class="color-dot" style="background:${p.cor};border:2px solid ${p.borda};box-shadow:0 1px 4px rgba(0,0,0,.15);width:42px;height:42px;border-radius:10px;flex-shrink:0"></div>
             <div>
               <div class="item-name">${p.nome}</div>
               <div class="item-sub">${p.sub}</div>
