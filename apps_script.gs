@@ -10,6 +10,9 @@
 // 5. Execute configurarTriggers() UMA VEZ para ativar automações
 // ════════════════════════════════════════════════════════════════
 
+// ── Versão do script (muda a cada deploy para confirmar) ──────
+const SCRIPT_VERSION = '2026-03-20-v3-fullput';
+
 // ── IDs das planilhas ─────────────────────────────────────────
 const IDS = {
   producao:   '1fgNeGLEf2fcg_X-loxkVHAmjxyjLECofK18DUMkWskk',
@@ -603,6 +606,12 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  if (action === 'version') {
+    return ContentService
+      .createTextOutput(JSON.stringify({ version: SCRIPT_VERSION, ok: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action === 'lancarEstoque') {
     return lancarEstoqueGC_(e.parameter);
   }
@@ -625,19 +634,17 @@ function lancarEstoqueGC_(params) {
     const tipo         = params.tipo     || 'fardo'; // fardo | tampa | preforma
     const responsavel  = params.responsavel || '';
 
-    // Calcula total de unidades conforme tipo
-    let totalUnidades = 0;
-    if (tipo === 'fardo') {
-      totalUnidades = parseInt(params.totalUnidades) || 0;
-    } else if (tipo === 'tampa') {
-      // tampas: caixas × fator/caixa (fator ainda não configurado → salva caixas)
-      totalUnidades = (parseInt(params.cxFechadas)||0) + (parseInt(params.cxAbertas)||0);
-    } else if (tipo === 'preforma') {
-      // pré-formas: caixas fechadas + (abertas × % / 100)
-      const fechadas = parseInt(params.cxFechadas) || 0;
-      const abertas  = parseInt(params.cxAbertas)  || 0;
-      const pct      = parseFloat(params.pctAberta) || 100;
-      totalUnidades  = Math.round(fechadas + abertas * (pct / 100));
+    // Novo frontend sempre envia totalUnidades pré-calculado; fallback para lógica legada
+    let totalUnidades = parseInt(params.totalUnidades) || 0;
+    if (!totalUnidades) {
+      if (tipo === 'tampa') {
+        totalUnidades = (parseInt(params.cxFechadas)||0) + (parseInt(params.cxAbertas)||0);
+      } else if (tipo === 'preforma') {
+        const fechadas = parseInt(params.cxFechadas) || 0;
+        const abertas  = parseInt(params.cxAbertas)  || 0;
+        const pct      = parseFloat(params.pctAberta) || 100;
+        totalUnidades  = Math.round(fechadas + abertas * (pct / 100));
+      }
     }
 
     if (!itemNome) return resp('itemNome obrigatório', false);
@@ -693,20 +700,62 @@ function lancarEstoqueGC_(params) {
       return resp('Produto não encontrado no GC: "' + itemNome + '" — verifique o log do Apps Script para ver os nomes cadastrados', false);
     }
 
-    // Atualiza estoque: substitui pelo valor contado (Modelo A — contagem)
+    // Calcula novo estoque conforme modo da operação
     const estoqueAtual = gcNum(produto.estoque);
-    const novoEstoque  = totalUnidades;
+    const modo = (params.modo || 'conferencia').toLowerCase().trim();
+    if (!['entrada','saida','conferencia'].includes(modo)) {
+      return resp('Modo inválido: "' + modo + '". Válidos: entrada, saida, conferencia', false);
+    }
+
+    let novoEstoque;
+    if (modo === 'entrada') {
+      novoEstoque = estoqueAtual + totalUnidades;
+    } else if (modo === 'saida') {
+      if (totalUnidades > estoqueAtual) {
+        return resp('Estoque insuficiente: atual=' + estoqueAtual + ' un, saída solicitada=' + totalUnidades + ' un', false);
+      }
+      novoEstoque = estoqueAtual - totalUnidades;
+    } else {
+      // conferencia: substitui (Modelo A)
+      novoEstoque = totalUnidades;
+    }
+
+    // GC exige objeto completo no PUT — busca produto individual primeiro
+    const getIndRes = UrlFetchApp.fetch(`${GC.url}/produtos/${produto.id}`, { headers, muteHttpExceptions:true });
+    const getIndCode = getIndRes.getResponseCode();
+    if (getIndCode !== 200) {
+      return resp('GC GET individual falhou: HTTP '+getIndCode, false);
+    }
+    const produtoCompleto = JSON.parse(getIndRes.getContentText()).data || {};
+
+    // Remove todos os campos read-only / calculados que GC rejeita no PUT
+    const camposRemover = [
+      'cadastrado_em','modificado_em','nome_grupo','grupo',
+      'estoque_disponivel','imagens','variantes','tributacao',
+      'preco_custo_medio','lucro','margem_lucro'
+    ];
+    camposRemover.forEach(c => delete produtoCompleto[c]);
+
+    // Atualiza o estoque (número puro — GC rejeita string)
+    produtoCompleto.estoque = novoEstoque;
+
+    const putBody = JSON.stringify(produtoCompleto);
+    Logger.log('PUT body (primeiros 500 chars): ' + putBody.slice(0, 500));
 
     const putRes = UrlFetchApp.fetch(`${GC.url}/produtos/${produto.id}`, {
       method: 'PUT',
       headers,
-      payload: JSON.stringify({ estoque: String(novoEstoque) }),
+      contentType: 'application/json',
+      payload: putBody,
       muteHttpExceptions: true
     });
 
     const code = putRes.getResponseCode();
+    const putRespText = putRes.getContentText();
+    Logger.log('PUT response HTTP '+code+': '+putRespText.slice(0, 300));
+
     if (code < 200 || code > 299) {
-      return resp('GC PUT falhou: HTTP '+code+' — '+putRes.getContentText().slice(0,200), false);
+      return resp('GC PUT falhou: HTTP '+code+' — '+putRespText.slice(0,300), false);
     }
 
     // Salva log do lançamento (últimos 100)
@@ -714,12 +763,13 @@ function lancarEstoqueGC_(params) {
     let logs = [];
     try { logs = JSON.parse(PropertiesService.getScriptProperties().getProperty(logKey) || '[]'); } catch(_){}
     logs.unshift({
-      data:        Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
+      data:         Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
       responsavel,
+      modo,
       tipo,
-      item:        produto.nome,
-      quantidade:  totalUnidades,
-      estoque_ant: estoqueAtual,
+      item:         produto.nome,
+      quantidade:   totalUnidades,
+      estoque_ant:  estoqueAtual,
       estoque_novo: novoEstoque
     });
     PropertiesService.getScriptProperties().setProperty(logKey, JSON.stringify(logs.slice(0, 100)));
@@ -727,8 +777,9 @@ function lancarEstoqueGC_(params) {
     // Invalida cache do GC para forçar atualização
     PropertiesService.getScriptProperties().deleteProperty('gc_cache');
 
-    Logger.log('✅ Lançamento: '+produto.nome+' | +'+totalUnidades+' un | novo: '+novoEstoque);
-    return resp({ produto: produto.nome, estoque_anterior: estoqueAtual, estoque_novo: novoEstoque, quantidade_lancada: totalUnidades }, true);
+    const modoLog = { entrada:'+', saida:'-', conferencia:'=' }[modo] || '=';
+    Logger.log(`✅ Lançamento [${modo}]: ${produto.nome} | ${modoLog}${totalUnidades} un | ${estoqueAtual} → ${novoEstoque}`);
+    return resp({ produto: produto.nome, modo, estoque_anterior: estoqueAtual, estoque_novo: novoEstoque, quantidade_lancada: totalUnidades }, true);
 
   } catch(e) {
     Logger.log('❌ lancarEstoqueGC_: '+e.message);

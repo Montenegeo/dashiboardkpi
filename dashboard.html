@@ -269,12 +269,12 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
     <div class="cb">
       <div class="pg">
         <div class="pgh"><span class="pgn">Varejo mês (R$ 210.000)</span><span class="pgv am">37% — R$ 78.540</span></div>
-        <div class="pgt"><div class="pgf fa" style="width:37%"></div></div>
+        <div class="pgt"><div id="pm-var" class="pgf fa" style="width:37%"></div></div>
         <div style="font-size:11px;color:var(--rd);margin-top:4px">Faltam R$ 131.460 · 14 dias úteis · precisam R$ 9.390/dia</div>
       </div>
       <div class="pg" style="margin-top:10px">
         <div class="pgh"><span class="pgn">Atacado mês (R$ 50.000)</span><span class="pgv bl">44% — R$ 22.180</span></div>
-        <div class="pgt"><div class="pgf fb" style="width:44%"></div></div>
+        <div class="pgt"><div id="pm-atac" class="pgf fb" style="width:44%"></div></div>
         <div style="font-size:11px;color:var(--am);margin-top:4px">Faltam R$ 27.820 · precisam R$ 1.987/dia</div>
       </div>
     </div>
@@ -517,6 +517,7 @@ function renderCamps(elId,camps,meta,min=null){
 
 function renderAllActions(){
   const el=document.getElementById('actions-ads');
+  if(!el) return; // elemento ainda não renderizado (Ads pendente de integração)
   const all=[
     ...META_CAMPS.map(c=>rcAction(c.roas,5,null,c.name+' (Meta)')),
     ...SHOPEE_CAMPS.map(c=>rcAction(c.roas,20,15,c.name+' (Shopee)'))
