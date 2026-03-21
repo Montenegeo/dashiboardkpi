@@ -330,10 +330,9 @@ function buildJSON() {
 
 // ── Shopee API ────────────────────────────────────────────────
 const SHOPEE = {
+  partner_id:  '1227628',
   partner_key: 'shpk556c4951437248494c5756587a415650454e796e5256724278724e4d7853',
   base_url:    'https://partner.shopeemobile.com/api/v2'
-  // PENDENTE: partner_id, shop_id e access_token (OAuth)
-  // Para gerar o access_token acesse: https://open.shopee.com/
 };
 
 // Busca vendas Shopee do dia — retorna receita_hoje e pedidos_hoje
@@ -757,6 +756,44 @@ function atualizarEstoqueGC_(label, sku, novaQuantidade) {
 // ── doGet — endpoint principal do dashboard ───────────────────
 function doGet(e) {
   const action = e && e.parameter && e.parameter.action;
+
+  // ── OAuth callback da Shopee ─────────────────────────────────
+  // Quando o usuário autoriza o app, a Shopee redireciona aqui com ?code=XXX&shop_id=YYY
+  if (e && e.parameter && e.parameter.code) {
+    try {
+      const code   = e.parameter.code;
+      const shopId = e.parameter.shop_id || PropertiesService.getScriptProperties().getProperty('SHOPEE_SHOP_ID') || '';
+      const ts     = Math.floor(Date.now() / 1000);
+      const path   = '/auth/token/get';
+      const base   = SHOPEE.partner_id + path + ts;
+      const sign   = Utilities.computeHmacSha256Signature(base, SHOPEE.partner_key)
+                       .map(b => ('0' + (b & 0xff).toString(16)).slice(-2)).join('');
+
+      const payload = JSON.stringify({ code, shop_id: Number(shopId), partner_id: Number(SHOPEE.partner_id) });
+      const url     = `${SHOPEE.base_url}${path}?partner_id=${SHOPEE.partner_id}&timestamp=${ts}&sign=${sign}`;
+      const res     = UrlFetchApp.fetch(url, {
+        method: 'post',
+        contentType: 'application/json',
+        payload,
+        muteHttpExceptions: true
+      });
+
+      const data = JSON.parse(res.getContentText());
+      if (data && data.access_token) {
+        const props = PropertiesService.getScriptProperties();
+        props.setProperty('SHOPEE_ACCESS_TOKEN', data.access_token);
+        props.setProperty('SHOPEE_REFRESH_TOKEN', data.refresh_token || '');
+        props.setProperty('SHOPEE_SHOP_ID', String(shopId));
+        Logger.log('✅ Shopee OAuth OK — access_token salvo!');
+        return HtmlService.createHtmlOutput('<h2 style="font-family:sans-serif;color:green">✅ Shopee autorizada com sucesso!<br>Token salvo. Pode fechar esta aba.</h2>');
+      } else {
+        Logger.log('❌ Shopee OAuth erro: ' + JSON.stringify(data));
+        return HtmlService.createHtmlOutput('<h2 style="font-family:sans-serif;color:red">❌ Erro ao obter token:<br>' + JSON.stringify(data) + '</h2>');
+      }
+    } catch(err) {
+      return HtmlService.createHtmlOutput('<h2 style="font-family:sans-serif;color:red">❌ Exceção: ' + err.message + '</h2>');
+    }
+  }
 
   if (action === 'lastSubmit') {
     const ts = PropertiesService.getScriptProperties().getProperty('last_form_submit') || '';
