@@ -11,7 +11,17 @@
 // ════════════════════════════════════════════════════════════════
 
 // ── Versão do script (muda a cada deploy para confirmar) ──────
-const SCRIPT_VERSION = '2026-03-20-v3-fullput';
+const SCRIPT_VERSION = '2026-03-20-v5-brand';
+
+// ── Chave admin para gerenciar estoquistas ─────────────────────
+const ADMIN_KEY = 'mnt@admin2026';
+
+// ── Inicializar estoquistas padrão (rodar UMA vez no editor) ───
+function initEstoquistas() {
+  const pins = { 'Lucas Montenegro': '1234' }; // altere aqui
+  PropertiesService.getScriptProperties().setProperty('estoquistas_pins', JSON.stringify(pins));
+  Logger.log('Estoquistas salvos: ' + Object.keys(pins).join(', '));
+}
 
 // ── IDs das planilhas ─────────────────────────────────────────
 const IDS = {
@@ -164,6 +174,13 @@ function syncGestaoClick() {
         pedidos_hoje:  pedidosHoje,
         receita_hoje:  Math.round(receitaHoje * 100) / 100
       },
+      clientes: {
+        // Clientes únicos no mês: contagem de cliente_id distintos nas vendas
+        novos_mes: (function() {
+          const ids = new Set(vendas.map(v => String(v.cliente_id || v.cliente || '')).filter(Boolean));
+          return ids.size;
+        })()
+      },
       estoque: {
         total_skus:       totalSkus,
         zerados:          zerados.length,
@@ -275,12 +292,14 @@ function buildJSON() {
       total_perda_kg:  totalPerdaKg,
       total_perda_un:  totalPerdaUn,
       troca_molde:     houveTroca,
+      obs_geral:       turnos.map(t => t.obs).filter(Boolean).join(' | '),
       turnos,           // array: [{turno, realizado, perda_kg, molde, troca, obs}, ...]
       // campos legados para compatibilidade
       realizado: totalRealizado,
       perda_kg:  totalPerdaKg,
       perda_un:  totalPerdaUn,
       turno:     turnos.map(t => t.turno).join(' + ')
+      // FUTURO: meta_producao (integração manual/config), projecao_mensal
     },
     expedicao: {
       pedidos_1impressao: toNum(exp[2]), pedidos_3impressao: toNum(exp[3]),
@@ -288,8 +307,11 @@ function buildJSON() {
       atraso: String(exp[6]||'Não'), pedidos_atrasados: exp[11]||''
     },
     reuniao: {
-      status: reu[1]||'', coleta_15h: reu[2]||'', pct_17h: reu[3]||'',
-      ameaca: String(reu[4]||'Não'), solucao: reu[5]||'', horas_extras: String(reu[6]||'Não')
+      // Campos usados: pct_17h, ameaca, horas_extras
+      // Removidos (não usados no dashboard): status, coleta_15h, solucao
+      pct_17h:      reu[3]||'',
+      ameaca:       String(reu[4]||'Não'),
+      horas_extras: String(reu[6]||'Não')
     },
     devolucoes: {
       total_dia: devHoje.length,
@@ -612,8 +634,53 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  if (action === 'listarEstoquistas') {
+    const pins = JSON.parse(PropertiesService.getScriptProperties().getProperty('estoquistas_pins') || '{}');
+    const nomes = Object.keys(pins);
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true, nomes }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'login') {
+    const nome = (e.parameter.nome || '').trim();
+    const pin  = (e.parameter.pin  || '').trim();
+    const pins = JSON.parse(PropertiesService.getScriptProperties().getProperty('estoquistas_pins') || '{}');
+    if (!pins[nome])       return ContentService.createTextOutput(JSON.stringify({ ok:false, erro:'Usuário não encontrado' })).setMimeType(ContentService.MimeType.JSON);
+    if (pins[nome] !== pin) return ContentService.createTextOutput(JSON.stringify({ ok:false, erro:'PIN incorreto' })).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ ok:true, nome })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (action === 'gerenciarEstoquistas') {
+    // Uso: ?action=gerenciarEstoquistas&adminKey=mnt@admin2026&op=add&nome=João&pin=5678
+    // ou: &op=remove&nome=João | &op=list
+    const adminKey = e.parameter.adminKey || '';
+    if (adminKey !== ADMIN_KEY) return ContentService.createTextOutput(JSON.stringify({ ok:false, erro:'Acesso negado' })).setMimeType(ContentService.MimeType.JSON);
+    const pins = JSON.parse(PropertiesService.getScriptProperties().getProperty('estoquistas_pins') || '{}');
+    const op   = e.parameter.op || 'list';
+    const nome = (e.parameter.nome || '').trim();
+    const pin  = (e.parameter.pin  || '').trim();
+    if (op === 'add' && nome && pin) {
+      pins[nome] = pin;
+      PropertiesService.getScriptProperties().setProperty('estoquistas_pins', JSON.stringify(pins));
+      return ContentService.createTextOutput(JSON.stringify({ ok:true, msg:`${nome} adicionado`, estoquistas: Object.keys(pins) })).setMimeType(ContentService.MimeType.JSON);
+    }
+    if (op === 'remove' && nome) {
+      delete pins[nome];
+      PropertiesService.getScriptProperties().setProperty('estoquistas_pins', JSON.stringify(pins));
+      return ContentService.createTextOutput(JSON.stringify({ ok:true, msg:`${nome} removido`, estoquistas: Object.keys(pins) })).setMimeType(ContentService.MimeType.JSON);
+    }
+    return ContentService.createTextOutput(JSON.stringify({ ok:true, estoquistas: Object.keys(pins) })).setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action === 'lancarEstoque') {
     return lancarEstoqueGC_(e.parameter);
+  }
+
+  if (action === 'app' || (e && e.parameter && e.parameter.page === 'estoque')) {
+    return HtmlService.createHtmlOutputFromFile('estoque')
+      .setTitle('Controle de Estoque — Montenegro')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
   }
 
   // Retorna todos os dados: planilhas + Gestão Click
@@ -736,16 +803,17 @@ function lancarEstoqueGC_(params) {
     ];
     camposRemover.forEach(c => delete produtoCompleto[c]);
 
-    // Atualiza o estoque (número puro — GC rejeita string)
-    produtoCompleto.estoque = novoEstoque;
+    // GC retorna estoque como string no GET — mantemos string no PUT
+    produtoCompleto.estoque = String(novoEstoque);
 
     const putBody = JSON.stringify(produtoCompleto);
     Logger.log('PUT body (primeiros 500 chars): ' + putBody.slice(0, 500));
 
+    // IMPORTANTE: não usar contentType aqui — Content-Type já está em headers
+    // Duplicar causa conflito no UrlFetchApp e pode corromper o request
     const putRes = UrlFetchApp.fetch(`${GC.url}/produtos/${produto.id}`, {
       method: 'PUT',
       headers,
-      contentType: 'application/json',
       payload: putBody,
       muteHttpExceptions: true
     });

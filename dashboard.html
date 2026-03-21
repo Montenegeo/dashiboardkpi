@@ -175,7 +175,7 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
 <!-- ═══ FÁBRICA ═══ -->
 <div id="v-fab" class="view on">
   <div class="kg k2">
-    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Varejo hoje</div><div class="kv" id="kv-var" style="font-size:13px;color:var(--mu)">Em breve</div><div class="kf"><span class="bdg" style="background:#f3f4f6;color:var(--mu)">Shopee API</span></div></div>
+    <div class="kpi"><div class="ka" style="background:var(--am)"></div><div class="kl">Varejo hoje</div><div class="kv" id="kv-var" style="font-size:22px">⏳</div><div class="kf"><span class="bdg" style="background:#f3f4f6;color:#9CA3AF;border:1px solid #e5e7eb">Aguardando Shopee</span></div></div>
     <div class="kpi"><div class="ka" style="background:var(--bl)"></div><div class="kl">Atacado hoje</div><div class="kv bl" id="kv-atac">—</div><div class="kf"><span class="bdg bb" id="kb-atac">Gestão Click</span></div></div>
     <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Produção hoje</div><div class="kv gn" id="kv-prod">—</div><div class="kf"><span class="bdg bg" id="kb-prod">meta 6.800</span></div></div>
     <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Saldo do dia</div><div class="kv gn" id="kv-saldo-dia">—</div><div class="kf"><span class="bdg bg" id="kb-saldo-dia">calculando...</span></div></div>
@@ -228,29 +228,13 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
 
 <!-- ═══ ADS ═══ -->
 <div id="v-ads" class="view">
-  <div class="al al-b gap">
-    <span class="al-ic">⏳</span>
-    <div><strong>Integração em desenvolvimento</strong><br>Os dados de Ads (Shopee e Meta) serão integrados em breve. Os campos estão reservados aguardando as APIs.</div>
-  </div>
-
-  <div class="stl">Meta Ads (Facebook)</div>
-  <div class="card">
-    <div class="ch"><div><div class="ct">Meta Ads</div><div class="cs">Aguardando integração</div></div><span class="bdg" style="background:#f3f4f6;color:var(--mu)">em breve</span></div>
-    <div class="cb">
-      <div class="sr"><span class="srl">Gasto do dia</span><span class="srv" style="color:var(--mu)">—</span></div>
-      <div class="sr"><span class="srl">Receita gerada</span><span class="srv" style="color:var(--mu)">—</span></div>
-      <div class="sr"><span class="srl">ROAS</span><span class="srv" style="color:var(--mu)">—</span></div>
-    </div>
-  </div>
-
-  <div class="stl">Shopee Ads</div>
-  <div class="card">
-    <div class="ch"><div><div class="ct">Shopee Ads</div><div class="cs">Aguardando integração API Shopee</div></div><span class="bdg" style="background:#f3f4f6;color:var(--mu)">em breve</span></div>
-    <div class="cb">
-      <div class="sr"><span class="srl">Gasto do dia</span><span class="srv" style="color:var(--mu)">—</span></div>
-      <div class="sr"><span class="srl">Receita gerada</span><span class="srv" style="color:var(--mu)">—</span></div>
-      <div class="sr"><span class="srl">ROAS</span><span class="srv" style="color:var(--mu)">—</span></div>
-      <div class="sr"><span class="srl">Saldo ADS</span><span class="srv" style="color:var(--mu)">—</span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;text-align:center;gap:16px">
+    <div style="font-size:40px">📢</div>
+    <div style="font-size:17px;font-weight:700;color:#e0e0e0">Integração de Ads em breve</div>
+    <div style="font-size:13px;color:#6B7280;line-height:1.6">Meta Ads e Shopee Ads serão integrados aqui.<br>Os dados aparecerão automaticamente após a conexão.</div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <span style="background:#1e1e2e;border:1px solid #333;border-radius:20px;padding:4px 12px;font-size:12px;color:#6B7280">⏳ Meta Ads</span>
+      <span style="background:#1e1e2e;border:1px solid #333;border-radius:20px;padding:4px 12px;font-size:12px;color:#6B7280">⏳ Shopee Ads</span>
     </div>
   </div>
 </div>
@@ -268,14 +252,14 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
   <div class="card">
     <div class="cb">
       <div class="pg">
-        <div class="pgh"><span class="pgn">Varejo mês (R$ 210.000)</span><span class="pgv am">37% — R$ 78.540</span></div>
-        <div class="pgt"><div id="pm-var" class="pgf fa" style="width:37%"></div></div>
-        <div style="font-size:11px;color:var(--rd);margin-top:4px">Faltam R$ 131.460 · 14 dias úteis · precisam R$ 9.390/dia</div>
+        <div class="pgh"><span class="pgn">Varejo mês — meta diária R$ 7.000</span><span class="pgv" id="pm-var-label" style="color:var(--mu)">⏳ Aguardando Shopee</span></div>
+        <div class="pgt"><div id="pm-var" class="pgf fa" style="width:0%"></div></div>
+        <div style="font-size:11px;color:var(--mu);margin-top:4px">Integração Shopee pendente</div>
       </div>
       <div class="pg" style="margin-top:10px">
-        <div class="pgh"><span class="pgn">Atacado mês (R$ 50.000)</span><span class="pgv bl">44% — R$ 22.180</span></div>
-        <div class="pgt"><div id="pm-atac" class="pgf fb" style="width:44%"></div></div>
-        <div style="font-size:11px;color:var(--am);margin-top:4px">Faltam R$ 27.820 · precisam R$ 1.987/dia</div>
+        <div class="pgh"><span class="pgn">Atacado hoje — meta R$ 5.000</span><span class="pgv bl" id="pm-atac-label">—</span></div>
+        <div class="pgt"><div id="pm-atac" class="pgf fb" style="width:0%"></div></div>
+        <div style="font-size:11px;color:var(--mu);margin-top:4px" id="pm-atac-sub">Aguardando dados do Gestão Click</div>
       </div>
     </div>
   </div>
@@ -283,12 +267,39 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
   <div class="stl">Top produtos — contribuição & garrafas</div>
   <div class="card">
     <div class="ch"><div><div class="ct">Produtos mais vendidos</div><div class="cs">Hoje · % do total · garrafas consumidas</div></div></div>
-    <div class="cb" id="top-prod"></div>
+    <div class="cb" id="top-prod">
+      <div style="text-align:center;padding:24px 16px;color:#6B7280;font-size:13px">
+        <div style="font-size:24px;margin-bottom:8px">📊</div>
+        <div style="font-weight:600;color:#9CA3AF;margin-bottom:4px">Top Produtos</div>
+        <div>⏳ Aguardando integração Shopee / Gestão Click</div>
+      </div>
+    </div>
   </div>
 
   <div class="stl">Fechamento semanal — Comercial</div>
   <div class="card">
     <div class="cb" id="week-com"><div style="font-size:12px;color:var(--mu);text-align:center;padding:16px 0">Acumulando dados do dia a dia...</div></div>
+  </div>
+
+  <div class="stl">PROSPECÇÃO DO DIA</div>
+  <div class="card">
+    <div class="cb">
+      <div class="row2" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+        <div class="kvc" style="text-align:center">
+          <div class="kln" style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-bottom:6px">Prospecções</div>
+          <div class="kv gn" id="kv-prosp-pros" style="font-size:22px;font-weight:800">—</div>
+        </div>
+        <div class="kvc" style="text-align:center">
+          <div class="kln" style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-bottom:6px">Orçamentos</div>
+          <div class="kv am" id="kv-prosp-orc" style="font-size:22px;font-weight:800">—</div>
+        </div>
+        <div class="kvc" style="text-align:center">
+          <div class="kln" style="font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--mu);margin-bottom:6px">Fechado hoje</div>
+          <div class="kv bl" id="kv-prosp-val" style="font-size:22px;font-weight:800">—</div>
+        </div>
+      </div>
+      <div class="sr" id="kv-prosp-vend" style="margin-top:8px;font-size:12px;color:#888"></div>
+    </div>
   </div>
 </div>
 
@@ -324,6 +335,9 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
     <div class="kpi"><div class="ka" style="background:var(--rd)"></div><div class="kl">Estoque crítico</div><div class="kv rd" id="kv-crit">—</div><div class="kf"><span class="bdg br">≤ 10 unid.</span></div></div>
     <div class="kpi"><div class="ka" style="background:var(--gn)"></div><div class="kl">Total SKUs</div><div class="kv gn" id="kv-skus">—</div><div class="kf"><span class="bdg bg">cadastrados</span></div></div>
   </div>
+
+  <!-- Indicador de atualização GC -->
+  <div id="gc-atualizado-em" style="font-size:11px;color:#6B7280;text-align:right;padding:4px 0;margin-top:-6px;margin-bottom:6px"></div>
 
   <!-- Zerados lista colapsável -->
   <div id="zerados-panel" style="display:none;margin-bottom:10px">
@@ -461,7 +475,8 @@ function go(id,btn){
 }
 
 // ═══ PROGRESS BARS ═══
-const BARS={'pm-var':37,'pm-atac':44};
+// Valores iniciais zerados — barras serão atualizadas dinamicamente via GC
+const BARS={'pm-var':0,'pm-atac':0};
 function animBars(){
   Object.entries(BARS).forEach(([id,w])=>{
     const el=document.getElementById(id);
@@ -479,15 +494,9 @@ function checkAlerts(){
 }
 
 // ═══ ADS ═══
-const META_CAMPS=[
-  {name:'Site Montenegro',plat:'f',roas:2.78,pedidos:40,receita:2976,gasto:1070,ctr:2.82,imp:'56,2k'}
-];
-const SHOPEE_CAMPS=[
-  {name:'Nemesis',plat:'s',roas:5.24,pedidos:5,receita:1195,gasto:228,ctr:3.1,imp:'12,1k'},
-  {name:'Garrafast',plat:'s',roas:3.99,pedidos:13,receita:639,gasto:160,ctr:2.8,imp:'11,4k'},
-  {name:'Montenegro Ind.',plat:'s',roas:3.81,pedidos:8,receita:881,gasto:231,ctr:2.6,imp:'13,2k'},
-  {name:'Temperarte',plat:'s',roas:2.19,pedidos:19,receita:434,gasto:198,ctr:1.9,imp:'11,8k'}
-];
+// Dados fake removidos — aguardando integração Meta Ads e Shopee Ads
+const META_CAMPS=[];
+const SHOPEE_CAMPS=[];
 
 function rcColor(r,meta,min){return r>=meta?'var(--gn)':(!min||r>=min)?'var(--am)':'var(--rd)'}
 function rcAction(r,meta,min,name){
@@ -526,70 +535,24 @@ function renderAllActions(){
 }
 
 // ═══ TOP PRODUTOS ═══
-const PRODS=[
-  {name:'300ml Tempero',un:842,rev:5894,garrafas:842},
-  {name:'200ml Suco',un:514,rev:3084,garrafas:514},
-  {name:'Borrifador 500ml',un:374,rev:3366,garrafas:374},
-  {name:'120ml Tempero',un:318,rev:1908,garrafas:318},
-  {name:'Pump 500ml',un:236,rev:2124,garrafas:236}
-];
-
+// Dados fake removidos — aguardando integração Shopee / Gestão Click
 function renderTopProd(){
+  // Placeholder — dados reais virão via API
   const el=document.getElementById('top-prod');
-  const totalUn=PRODS.reduce((s,p)=>s+p.un,0);
-  const totalRev=PRODS.reduce((s,p)=>s+p.rev,0);
-  el.innerHTML=PRODS.map((p,i)=>{
-    const pctUn=Math.round(p.un/totalUn*100);
-    const pctRev=Math.round(p.rev/totalRev*100);
-    return`<div class="rkr"><span class="rkn">${i===0?'🥇 ':''}<strong>${p.name}</strong></span><div class="rkt"><div class="rkf fa" style="width:${pctUn}%"></div></div><span class="rkv">${pctUn}%</span></div>
-    <div style="font-size:10px;color:var(--mu);padding:0 0 8px;border-bottom:1px solid var(--bd);margin-bottom:8px">${p.un} un · <strong>${p.garrafas} garrafas</strong> · R$ ${p.rev.toLocaleString('pt-BR')} · ${pctRev}% faturamento</div>`;
-  }).join('');
+  if(!el) return;
+  // Mantém o placeholder HTML definido no markup
 }
 
 // ═══ ESTOQUE ═══
-const STOCK=[
-  {name:'Resina PET virgem',sup:'Petroquímica Sul',stock:420,consume:180,lead:3,unit:'kg',buyDate:'17/03'},
-  {name:'Masterbatch preto',sup:'Colorfix SP',stock:38,consume:12,lead:2,unit:'kg',buyDate:'16/03'},
-  {name:'Tampas rosca 28mm',sup:'Tampas Brasil',stock:12400,consume:6800,lead:4,unit:'un',buyDate:'18/03'},
-  {name:'Rótulos 300ml',sup:'Gráfica Vitória',stock:48000,consume:5500,lead:5,unit:'un',buyDate:null},
-  {name:'Rótulos 200ml',sup:'Gráfica Vitória',stock:22000,consume:2800,lead:5,unit:'un',buyDate:null},
-  {name:'Caixas papelão',sup:'Caixas Sul',stock:420,consume:160,lead:3,unit:'un',buyDate:'19/03'},
-  {name:'Fita adesiva',sup:'Embalagens ES',stock:84,consume:8,lead:2,unit:'rl',buyDate:null},
-  {name:'Etiquetas envio',sup:'Gráfica Vitória',stock:8500,consume:700,lead:3,unit:'un',buyDate:null}
-];
+// STOCK fake removido — aguardando configuração de gatilhos reais
+const STOCK=[];
 
 const WA_SVG=`<svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#fff"/></svg>`;
 
 function renderStock(){
   const el=document.getElementById('stk-list');
   if(!el) return;
-  const savedWa=DB.g('sup_wa',{});
-  el.innerHTML=STOCK.map((it,i)=>{
-    const ideal=it.consume*10;
-    const days=(it.stock/it.consume).toFixed(1);
-    const pct=Math.min(Math.round(it.stock/ideal*100),100);
-    const toBuy=Math.max(ideal-it.stock+it.consume*3,0);
-    const isCtrl=it.stock>=ideal;
-    const barColor=isCtrl?'var(--gn)':parseFloat(days)<5?'var(--rd)':'var(--am)';
-    const wa=savedWa[i]||'';
-    const msg=encodeURIComponent(`Olá! Precisamos repor ${toBuy.toLocaleString('pt-BR')} ${it.unit} de ${it.name}. Qual prazo de entrega?`);
-    return`<div class="skc">
-      <div class="skh"><div><div class="skn">${it.name}</div><div class="sksup">${it.sup}</div></div><span class="${isCtrl?'sc-ctrl':'sc-soon'}">${isCtrl?'Controlado':'Comprar em breve'}</span></div>
-      <div class="skb">
-        <div class="skbc"><div class="skbl">Estoque</div><div class="skbv" style="color:${barColor}">${it.stock.toLocaleString('pt-BR')} ${it.unit}</div></div>
-        <div class="skbc"><div class="skbl">Dias rest.</div><div class="skbv" style="color:${barColor}">${days}d</div></div>
-        <div class="skbc"><div class="skbl">A comprar</div><div class="skbv am">${toBuy>0?toBuy.toLocaleString('pt-BR')+' '+it.unit:'—'}</div></div>
-      </div>
-      <div style="margin-bottom:8px"><div style="font-size:9px;color:var(--mu);margin-bottom:3px">${pct}% do ideal (${ideal.toLocaleString('pt-BR')} ${it.unit})</div><div style="height:5px;background:#f3f4f6;border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;background:${barColor};width:${pct}%"></div></div></div>
-      <div class="skf">
-        <div>${it.buyDate?`<div class="skft">📅 Comprar até: <strong>${it.buyDate}</strong></div>`:'<div class="skft gn">✓ Estoque adequado</div>'}<div class="skft">Lead: ${it.lead} dias úteis</div></div>
-        <div class="flex">
-          <button class="btn bt-b" style="font-size:11px;padding:6px 10px" onclick="openSupplier(${i},'${it.name}')">📅 Agendar</button>
-          ${wa?`<a href="https://wa.me/${wa}?text=${msg}" target="_blank" class="wab" title="WhatsApp ${it.sup}">${WA_SVG}</a>`:`<button class="btn bt-a" style="font-size:11px;padding:6px 10px" onclick="openSupplier(${i},'${it.name}')">+ WA</button>`}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  el.innerHTML='<div style="text-align:center;padding:20px 16px;color:#6B7280;font-size:13px">⏳ Dados de fornecedores serão carregados após configuração de gatilhos</div>';
 }
 
 // ═══ AGENTS ═══
@@ -679,7 +642,9 @@ function openSupplier(idx,name){
   document.getElementById('sup-title').textContent='📅 '+name;
   const wa=DB.g('sup_wa',{})[idx]||'';
   document.getElementById('sup-wa').value=wa;
-  const d=new Date();d.setDate(d.getDate()+STOCK[idx].lead+1);
+  const d=new Date();
+  const lead=(STOCK[idx]&&STOCK[idx].lead)||3;
+  d.setDate(d.getDate()+lead+1);
   document.getElementById('sup-date').value=d.toISOString().slice(0,10);
   document.getElementById('supplier-modal').classList.add('show');
 }
@@ -687,7 +652,7 @@ function scheduleCompra(){
   const wa=document.getElementById('sup-wa').value.trim();
   const date=document.getElementById('sup-date').value;
   if(wa){const all=DB.g('sup_wa',{});all[_supIdx]=wa;DB.s('sup_wa',all);}
-  const it=STOCK[_supIdx];
+  const it=STOCK[_supIdx]||{name:name||'item',unit:'un'};
   const email=DB.g('user_email','');
   alert(`✅ Compra agendada!\n\n📦 ${it.name}\n📅 Data: ${date}\n📧 Google Agenda: ${email||'(configure seu e-mail)'}\n📱 WhatsApp fornecedor: ${wa||'(não configurado)'}`);
   closeModal('supplier-modal');
@@ -753,6 +718,9 @@ function aplicarDadosReais(d){
         ${t.perda_un>0?`<div class="sr"><span class="srl" style="color:var(--mu)">Perdas</span><span class="srv am">${t.perda_un} un · ${t.perda_kg} kg</span></div>`:''}
         ${t.molde?`<div class="sr"><span class="srl" style="color:var(--mu)">Molde</span><span class="srv">${t.molde}</span></div>`:''}
         ${t.troca&&t.troca!=='Não'?`<div class="al al-a gap" style="margin-top:8px"><span class="al-ic">🔄</span><div><strong>Troca de molde</strong></div></div>`:''}`;
+      if (prod.obs_geral) {
+        ptEl.innerHTML += '<div style="margin-top:10px;padding:8px 10px;background:#1e1e2e;border-radius:6px;font-size:12px;color:#9CA3AF;border-left:3px solid #374151">📝 ' + prod.obs_geral + '</div>';
+      }
     } else {
       const totalUn=turnos.reduce((s,t)=>s+(t.realizado||0),0);
       const totalPU=turnos.reduce((s,t)=>s+(t.perda_un||0),0);
@@ -768,6 +736,9 @@ function aplicarDadosReais(d){
            <div class="sr"><span class="srl"><strong>Total do dia</strong></span><span class="srv gn" style="font-size:16px;font-weight:800">${totalUn.toLocaleString('pt-BR')} un</span></div>
            ${totalPU>0?`<div class="sr"><span class="srl" style="color:var(--mu)">Total perdas</span><span class="srv am">${totalPU} un · ${totalPK} kg</span></div>`:''}
            ${houveTroca?`<div class="al al-a gap" style="margin-top:8px"><span class="al-ic">🔄</span><div><strong>Houve troca de molde hoje</strong></div></div>`:''}`;
+      if (prod.obs_geral) {
+        ptEl.innerHTML += '<div style="margin-top:10px;padding:8px 10px;background:#1e1e2e;border-radius:6px;font-size:12px;color:#9CA3AF;border-left:3px solid #374151">📝 ' + prod.obs_geral + '</div>';
+      }
     }
   }
 
@@ -813,7 +784,15 @@ function aplicarDadosReais(d){
     DB.saveDay({devol:dev.total_dia});
   }
 
-  // Prospecção
+  // Prospecção do dia
+  if(d.prospeccao) {
+    const pr = d.prospeccao;
+    const el = (id) => document.getElementById(id);
+    if(el('kv-prosp-pros')) el('kv-prosp-pros').textContent = pr.prospeccoes || '0';
+    if(el('kv-prosp-orc'))  el('kv-prosp-orc').textContent  = pr.orcamentos  || '0';
+    if(el('kv-prosp-val'))  el('kv-prosp-val').textContent  = pr.valor_fechado > 0 ? 'R$ ' + pr.valor_fechado.toLocaleString('pt-BR') : '—';
+    if(el('kv-prosp-vend') && pr.vendedor) el('kv-prosp-vend').textContent = '👤 ' + pr.vendedor;
+  }
   DB.saveDay({prospeccoes:pro.prospeccoes??0,valor_fechado:pro.valor_fechado??0});
 
   // Reunião status
@@ -870,7 +849,7 @@ function aplicarGCDadosInline(gc){
     const kb=document.getElementById('kb-tic');
     if(kb) kb.className='bdg '+(v.ticket_medio>=1500?'bg':'ba');
   }
-  if(gc.clientes?.novos_mes!=null) s('kv-cli-mes', gc.clientes.novos_mes);
+  {const _e=document.getElementById('kv-cli-mes');if(_e) _e.textContent = (gc.clientes && gc.clientes.novos_mes) ? gc.clientes.novos_mes : '—';}
 
   // Financeiro mês
   if(fin.recebimentos_mes!=null) s('kv-a-rec', fmt2(fin.recebimentos_mes));
@@ -879,6 +858,20 @@ function aplicarGCDadosInline(gc){
     const el=document.getElementById('kv-saldo-mes');
     if(el){ el.textContent=fmt2(fin.saldo_mes); el.className='srv '+(fin.saldo_mes>=0?'gn':'rd'); }
   }
+
+  // Progress bars dinâmicas baseadas em metas configuráveis
+  const META_VAREJO  = 7000;   // R$ 7.000/dia meta varejo
+  const META_ATACADO = 5000;   // R$ 5.000/dia meta atacado
+  const pctAtac = Math.min(Math.round((v.receita_hoje / META_ATACADO) * 100), 100);
+  const pmAtac = document.getElementById('pm-atac');
+  if (pmAtac) { pmAtac.style.width = pctAtac + '%'; }
+  const pmAtacLabel = document.getElementById('pm-atac-label');
+  if (pmAtacLabel && v.receita_hoje != null) pmAtacLabel.textContent = pctAtac + '% — ' + fmt2(v.receita_hoje);
+  const pmAtacSub = document.getElementById('pm-atac-sub');
+  if (pmAtacSub && v.receita_hoje != null) pmAtacSub.textContent = 'Faltam ' + fmt2(Math.max(META_ATACADO - v.receita_hoje, 0)) + ' para meta';
+  // Varejo: aguarda Shopee — mantém barra zerada
+  const pmVar = document.getElementById('pm-var');
+  if (pmVar) pmVar.style.width = '0%';
 
   // ── Estoque ───────────────────────────────────────────────────
   if(est.inventario_custo!=null) s('kv-inv',  fmt2(est.inventario_custo));
@@ -891,6 +884,12 @@ function aplicarGCDadosInline(gc){
     renderInventarioGC(est);
   }
   _gcDataCache = est; // guardar para re-render dos gatilhos
+
+  // Indicador de atualização GC na aba Estoque
+  if(gc.atualizado_em) {
+    const gcTs = document.getElementById('gc-atualizado-em');
+    if(gcTs) gcTs.textContent = '🔄 GC: ' + gc.atualizado_em;
+  }
 }
 
 // ═══ GESTÃO CLICK — dados locais via servidor 8765 ═══
@@ -1001,7 +1000,13 @@ function renderInventarioGC(est) {
     }
     const custoTotal = lista.reduce((s,p) => s + (gcNum(p.valor_custo)*gcNum(p.estoque)), 0);
     const unTotal = lista.reduce((s,p) => s + gcNum(p.estoque), 0);
-    if(custoEl) custoEl.textContent = 'Custo total: ' + fmt2(custoTotal);
+    const qtdZerados  = lista.filter(p => gcNum(p.estoque) <= 0).length;
+    const qtdCriticos = lista.filter(p => gcNum(p.estoque) > 0 && gcNum(p.estoque) <= 10).length;
+    const contadores = [
+      qtdZerados  > 0 ? `<span style="font-size:10px;font-weight:700;color:#EF4444;background:#fef2f2;border:1px solid #fecaca;padding:2px 7px;border-radius:20px;margin-left:6px">${qtdZerados} zerado${qtdZerados>1?'s':''}</span>` : '',
+      qtdCriticos > 0 ? `<span style="font-size:10px;font-weight:700;color:#F59E0B;background:#fffbeb;border:1px solid #fde68a;padding:2px 7px;border-radius:20px;margin-left:6px">${qtdCriticos} crítico${qtdCriticos>1?'s':''}</span>` : ''
+    ].join('');
+    if(custoEl) custoEl.innerHTML = 'Custo total: ' + fmt2(custoTotal) + contadores;
     if(totEl)   totEl.textContent   = unTotal.toLocaleString('pt-BR') + ' un';
     const gatilhos = DB.g('gatilhos', {});
     el.innerHTML = lista.map((p,i) => {
