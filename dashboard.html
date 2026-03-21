@@ -203,6 +203,7 @@ body{background:#f0f2f5;color:#111827;font-family:-apple-system,BlinkMacSystemFo
       </div>
       <div class="sr"><span class="srl">Total pedidos expedidos</span><span class="srv bl" style="font-weight:800" id="exp-total">—</span></div>
       <div class="sr"><span class="srl">Etiquetas sobrando</span><span class="srv" id="exp-etiq">—</span></div>
+      <div class="sr"><span class="srl">Sacos kits (20un)</span><span class="srv" id="exp-sacos">—</span></div>
       <div class="divd"></div>
       <div class="stl">Ocorrências do dia</div>
       <div id="exp-ocorrencias"><div style="font-size:12px;color:var(--mu);text-align:center;padding:8px 0">Carregando...</div></div>
@@ -753,6 +754,9 @@ function aplicarDadosReais(d){
   set('exp-ped3', exp.pedidos_3impressao??'—');
   set('exp-total', totalPed || '—');
   set('exp-etiq', exp.etiquetas_sobra!=null ? exp.etiquetas_sobra+' un' : '—');
+  // Sacos kits — campo anteriormente ignorado
+  const sacosEl = document.getElementById('exp-sacos');
+  if(sacosEl) sacosEl.textContent = exp.sacos_kits || '—';
   const expBadge=document.getElementById('exp-devol-badge');
   if(expBadge) expBadge.textContent=(dev.total_dia??'0')+' devol. hoje';
   // Ocorrências
@@ -810,12 +814,21 @@ function aplicarDadosReais(d){
   DB.saveDay({producao:realizado,perda_kg:prod.perda_kg??0,perda_un:prod.perda_un??0,expedicao:totalPed});
 
   // Gestão Click — dados vindos direto do Apps Script (prioridade sobre localhost)
-  if(d.gestaoclick) aplicarGCDadosInline(d.gestaoclick);
+  if(d.gestaoclick) aplicarGCDadosInline(d.gestaoclick, d.shopee);
+
+  // Shopee — varejo hoje
+  if(d.shopee){
+    const kvVar=document.getElementById('kv-var');
+    const kbVar=document.querySelector('#kv-var ~ .kf .bdg, .kf .bdg');
+    if(kvVar){ kvVar.textContent=fmt2(d.shopee.receita_hoje); kvVar.style.fontSize=''; }
+    const badgeVar=document.getElementById('kb-var');
+    if(badgeVar) badgeVar.textContent=d.shopee.pedidos_hoje+' pedido(s) hoje';
+  }
 
   renderWeek();checkAlerts();
 }
 
-function aplicarGCDadosInline(gc){
+function aplicarGCDadosInline(gc, shopee){
   const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   const v=gc.vendas||{}, fin=gc.financeiro||{}, est=gc.estoque||{};
 
@@ -826,17 +839,21 @@ function aplicarGCDadosInline(gc){
     if(kb) kb.textContent=v.pedidos_hoje+' pedido(s) hoje';
   }
 
-  // ── Saldo do dia ─────────────────────────────────────────────
+  // ── Saldo do dia (atacado GC + varejo Shopee − pagamentos) ───
   const sd = gc.saldo_hoje || {};
+  const recVarejo = (shopee && shopee.receita_hoje) || 0;
   if(sd.saldo != null) {
+    const saldoTotal = sd.saldo + recVarejo; // inclui Shopee se disponível
     const el = document.getElementById('kv-saldo-dia');
-    if(el){ el.textContent = fmt2(sd.saldo); el.className='kv '+(sd.saldo>=0?'gn':'rd'); }
+    if(el){ el.textContent = fmt2(saldoTotal); el.className='kv '+(saldoTotal>=0?'gn':'rd'); }
     const kb = document.getElementById('kb-saldo-dia');
-    if(kb) kb.textContent = 'atacado+receb−pago';
+    if(kb) kb.textContent = recVarejo > 0 ? 'atacado+varejo−pago' : 'atacado+receb−pago';
   }
   // ── Financeiro hoje ───────────────────────────────────────────
-  // Recebido hoje = vendas GC do dia (atacado) + futuramente saques Shopee
-  if(sd.receita_atacado != null) s('kv-rec-hoje', fmt2(sd.receita_atacado));
+  // Recebido hoje = vendas GC (atacado) + saques Shopee (varejo)
+  const recHoje = (sd.receita_atacado||0) + recVarejo;
+  if(recHoje > 0) s('kv-rec-hoje', fmt2(recHoje));
+  else if(sd.receita_atacado != null) s('kv-rec-hoje', fmt2(sd.receita_atacado));
   if(sd.pago != null)            s('kv-pag-hoje', fmt2(sd.pago));
   // ── Financeiro mês ────────────────────────────────────────────
   if(fin.recebido_mes != null) s('kv-rec-mes-fin', fmt2(fin.recebido_mes));

@@ -318,8 +318,89 @@ function buildJSON() {
       itens: devHoje.map(r => ({ rastreio:r[0]||'', produto:r[1]||'', pedido:r[2]||'', estado:r[3]||'' }))
     },
     prospeccao,
-    gestaoclick  // null se cache vazio, objeto completo se já sincronizado
+    gestaoclick,  // null se cache vazio, objeto completo se já sincronizado
+    shopee: (function() {
+      try {
+        const sc = PropertiesService.getScriptProperties().getProperty('shopee_cache');
+        return sc ? JSON.parse(sc) : null;
+      } catch(_) { return null; }
+    })()
   };
+}
+
+// ── Shopee API ────────────────────────────────────────────────
+const SHOPEE = {
+  partner_key: 'shpk556c4951437248494c5756587a415650454e796e5256724278724e4d7853',
+  base_url:    'https://partner.shopeemobile.com/api/v2'
+  // PENDENTE: partner_id, shop_id e access_token (OAuth)
+  // Para gerar o access_token acesse: https://open.shopee.com/
+};
+
+// Busca vendas Shopee do dia — retorna receita_hoje e pedidos_hoje
+function syncShopee() {
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const partnerId   = props.getProperty('SHOPEE_PARTNER_ID');
+    const shopId      = props.getProperty('SHOPEE_SHOP_ID');
+    const accessToken = props.getProperty('SHOPEE_ACCESS_TOKEN');
+
+    if (!partnerId || !shopId || !accessToken) {
+      Logger.log('⚠️ Shopee: credenciais incompletas — configure SHOPEE_PARTNER_ID, SHOPEE_SHOP_ID e SHOPEE_ACCESS_TOKEN nas Script Properties');
+      return null;
+    }
+
+    const agora    = Math.floor(Date.now() / 1000);
+    const hojeIni  = new Date(); hojeIni.setHours(0,0,0,0);
+    const timeFrom = Math.floor(hojeIni.getTime() / 1000);
+
+    // Assina requisição (HMAC-SHA256)
+    const path      = '/order/get_order_list';
+    const baseStr   = partnerId + path + agora + accessToken + shopId;
+    const sign      = Utilities.computeHmacSha256Signature(baseStr, SHOPEE.partner_key)
+                        .map(b => ('0' + (b & 0xff).toString(16)).slice(-2)).join('');
+
+    const url = `${SHOPEE.base_url}${path}?partner_id=${partnerId}&shop_id=${shopId}&access_token=${accessToken}&timestamp=${agora}&sign=${sign}&time_range_field=create_time&time_from=${timeFrom}&time_to=${agora}&page_size=100&response_optional_fields=item_list`;
+
+    const res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) {
+      Logger.log('❌ Shopee API erro: ' + res.getResponseCode() + ' — ' + res.getContentText().slice(0,200));
+      return null;
+    }
+
+    const json   = JSON.parse(res.getContentText());
+    const orders = (json.response && json.response.order_list) || [];
+
+    const pedidosHoje = orders.length;
+    // Receita: busca detalhes dos pedidos para somar valores
+    let receitaHoje = 0;
+    if (orders.length > 0) {
+      const orderNos = orders.slice(0, 50).map(o => o.order_sn).join(',');
+      const pathDet  = '/order/get_order_detail';
+      const baseD    = partnerId + pathDet + agora + accessToken + shopId;
+      const signD    = Utilities.computeHmacSha256Signature(baseD, SHOPEE.partner_key)
+                         .map(b => ('0' + (b & 0xff).toString(16)).slice(-2)).join('');
+      const urlDet = `${SHOPEE.base_url}${pathDet}?partner_id=${partnerId}&shop_id=${shopId}&access_token=${accessToken}&timestamp=${agora}&sign=${signD}&order_sn_list=${orderNos}&response_optional_fields=item_list,total_amount`;
+      const resDet = UrlFetchApp.fetch(urlDet, { muteHttpExceptions: true });
+      if (resDet.getResponseCode() === 200) {
+        const detJson = JSON.parse(resDet.getContentText());
+        const detOrders = (detJson.response && detJson.response.order_list) || [];
+        receitaHoje = detOrders.reduce((s, o) => s + (parseFloat(o.total_amount) || 0), 0);
+      }
+    }
+
+    const shopeeData = {
+      pedidos_hoje: pedidosHoje,
+      receita_hoje: Math.round(receitaHoje * 100) / 100
+    };
+
+    PropertiesService.getScriptProperties().setProperty('shopee_cache', JSON.stringify(shopeeData));
+    Logger.log('✅ Shopee sync OK — pedidos hoje: ' + pedidosHoje + ' | receita: R$' + receitaHoje.toFixed(2));
+    return shopeeData;
+
+  } catch(e) {
+    Logger.log('❌ Shopee sync erro: ' + e.message);
+    return null;
+  }
 }
 
 // ── Resumo diário 18h — enviado via WhatsApp ──────────────────
@@ -372,6 +453,77 @@ ${blocoGC}
 _Enviado automaticamente — Sistema Montenegro_`;
 
   enviarTodos(msg);
+}
+
+// ── Fechamento Semanal — sábado 8h ───────────────────────────
+function fechamentoSemanal() {
+  const d   = buildJSON();
+  const gc  = d.gestaoclick;
+  const pro = d.prospeccao;
+
+  // Shopee cache
+  let shopee = null;
+  try {
+    const sc = PropertiesService.getScriptProperties().getProperty('shopee_cache');
+    if (sc) shopee = JSON.parse(sc);
+  } catch(_) {}
+
+  const semana = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy');
+  const iniSem = new Date(); iniSem.setDate(iniSem.getDate() - 6);
+  const iniStr = Utilities.formatDate(iniSem, 'America/Sao_Paulo', 'dd/MM');
+
+  // Bloco vendas
+  const recAtacado = gc ? gc.vendas.receita_mes : 0;
+  const recVarejo  = shopee ? shopee.receita_hoje : 0; // acúmulo futuro
+  const blocoVendas = `
+💼 *VENDAS*
+▸ Atacado (mês GC): R$ ${recAtacado.toLocaleString('pt-BR')}
+▸ Pedidos mês: ${gc ? gc.vendas.pedidos_mes : '—'}
+▸ Ticket médio: R$ ${gc ? gc.vendas.ticket_medio.toLocaleString('pt-BR') : '—'}
+▸ Varejo (Shopee): ${shopee ? 'R$ ' + shopee.receita_hoje.toLocaleString('pt-BR') : '⏳ aguardando integração'}`;
+
+  // Bloco produção
+  const prod = d.producao;
+  const blocoProd = `
+📦 *PRODUÇÃO*
+▸ Último registro: ${prod.total_realizado.toLocaleString('pt-BR')} un
+▸ Responsável: ${prod.quem || '—'}
+▸ Perdas: ${prod.total_perda_un} un / ${prod.total_perda_kg} kg
+${prod.troca_molde ? '▸ 🔄 Houve troca de molde' : ''}`;
+
+  // Bloco financeiro
+  const blocoFin = gc ? `
+💰 *FINANCEIRO*
+▸ Recebido no mês: R$ ${gc.financeiro.recebido_mes.toLocaleString('pt-BR')}
+▸ Pago no mês: R$ ${gc.financeiro.pago_mes.toLocaleString('pt-BR')}
+▸ Saldo líquido: R$ ${gc.financeiro.saldo_mes.toLocaleString('pt-BR')}
+▸ Inventário atual: R$ ${gc.estoque.inventario_custo.toLocaleString('pt-BR')}
+▸ SKUs zerados: ${gc.estoque.zerados} | Críticos: ${gc.estoque.criticos}` : '\n💰 *FINANCEIRO*\n▸ GC indisponível';
+
+  // Bloco expedição
+  const exp = d.expedicao;
+  const dev = d.devolucoes;
+  const totalPed = (exp.pedidos_1impressao||0) + (exp.pedidos_3impressao||0);
+  const blocoExp = `
+📤 *EXPEDIÇÃO*
+▸ Pedidos último dia: ${totalPed}
+▸ Devoluções: ${dev.total_dia}
+${exp.atraso !== 'Não' ? '⚠️ Atraso identificado no último dia' : '✅ Sem atrasos no último dia'}`;
+
+  const msg =
+`🏭 *Montenegro Industria LTDA*
+📊 *FECHAMENTO SEMANAL*
+📅 Semana ${iniStr} – ${semana}
+━━━━━━━━━━━━━━━━━━━━
+${blocoVendas}
+${blocoProd}
+${blocoFin}
+${blocoExp}
+
+_Relatório automático de sábado — Sistema Montenegro_`;
+
+  enviarTodos(msg);
+  Logger.log('✅ Fechamento semanal enviado — ' + semana);
 }
 
 // ── Dispara ao receber envio de formulário ────────────────────
@@ -971,14 +1123,23 @@ function toNum(val) {
 function configurarTriggers() {
   ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
 
-  // Resumo diário às 18h
+  // Resumo diário às 18h (seg–sex)
   ScriptApp.newTrigger('resumoDiario18h')
     .timeBased().atHour(18).everyDays(1)
+    .inTimezone('America/Sao_Paulo').create();
+
+  // Fechamento semanal — sábado às 8h
+  ScriptApp.newTrigger('fechamentoSemanal')
+    .timeBased().onWeekDay(ScriptApp.WeekDay.SATURDAY).atHour(8)
     .inTimezone('America/Sao_Paulo').create();
 
   // Sync Gestão Click a cada 10 minutos
   ScriptApp.newTrigger('syncGestaoClick')
     .timeBased().everyMinutes(10).create();
+
+  // Sync Shopee a cada 30 minutos
+  ScriptApp.newTrigger('syncShopee')
+    .timeBased().everyMinutes(30).create();
 
   // onFormSubmit para cada planilha
   Object.values(IDS).forEach(id => {
