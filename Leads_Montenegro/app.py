@@ -390,9 +390,9 @@ a{text-decoration:none}
   <div id="cards-container"></div>
 
   <!-- Load more -->
-  <button id="btn-load-more" onclick="loadMore()" style="display:none;width:100%;margin:12px 0 4px;padding:14px;background:#fff;color:var(--primary);border:2px solid var(--primary);border-radius:12px;font-size:.95rem;font-weight:700;font-family:inherit;cursor:pointer;align-items:center;justify-content:center;gap:8px;transition:all .2s">
+  <button id="btn-load-more" onclick="loadMore()" style="display:none;width:100%;margin:16px 0 4px;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;align-items:center;justify-content:center;gap:8px;transition:all .2s;box-shadow:0 4px 12px rgba(37,99,235,.3)">
     <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
-    Carregar mais resultados
+    ⬇ Carregar mais resultados
   </button>
   <div class="pb"></div>
 </div>
@@ -736,7 +736,7 @@ async function startSearch(){
   document.getElementById('results-section').style.display  = 'none';
   document.getElementById('filter-input').value = '';
   document.getElementById('prog-bar').style.width = '10%';
-  document.getElementById('progress-text').textContent = 'Buscando no Google Maps…';
+  document.getElementById('progress-text').textContent = uf === 'BR' ? 'Buscando em todo o Brasil… (pode levar 60–120s)' : 'Buscando no Google Maps…';
 
   await _doSearch({uf, keywords: selectedCnae.kw||[], cnae_name: selectedCnae.name}, true);
   document.getElementById('btn-buscar').disabled = false;
@@ -879,7 +879,8 @@ function exportExcel(){
 
 @app.route("/")
 def index():
-    opts = "\n".join(
+    brasil = '<option value="BR">🇧🇷 Brasil inteiro</option>'
+    opts = brasil + "\n" + "\n".join(
         f'<option value="{uf}"{"  selected" if uf=="ES" else ""}>{uf} — {n}</option>'
         for uf, n in BRAZIL_STATES
     )
@@ -1035,6 +1036,15 @@ def pesquisa_google():
     # Cada task = (query_text, page_token, coords)
     if page_tokens:
         tasks = [(None, pt, None) for pt in page_tokens if pt]
+    elif uf == "BR":
+        # Brasil inteiro: top cidade de cada estado
+        kw_list = keywords if keywords else [cnae_name]
+        tasks = [
+            (f"{kw} {cities[0]}", None, CITY_COORDS.get(cities[0]))
+            for kw in kw_list
+            for state_uf, cities in TOP_CITIES.items()
+            if cities
+        ]
     else:
         kw_list = keywords if keywords else [cnae_name]
         cities  = TOP_CITIES.get(uf, [state_name])[:5]
@@ -1046,7 +1056,7 @@ def pesquisa_google():
         ]
 
     seen_phones, seen_names, places, next_tokens_map = set(), set(), [], {}
-    max_w = min(len(tasks), 8)
+    max_w = min(len(tasks), 16)
 
     with ThreadPoolExecutor(max_workers=max_w or 1) as ex:
         futures = {ex.submit(_fetch_places, qt, pt, coords): i for i, (qt, pt, coords) in enumerate(tasks)}
