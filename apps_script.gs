@@ -11,16 +11,21 @@
 // ════════════════════════════════════════════════════════════════
 
 // ── Versão do script (muda a cada deploy para confirmar) ──────
-const SCRIPT_VERSION = '2026-03-20-v5-brand';
+const SCRIPT_VERSION = '2026-03-23-v9-pwa';
 
 // ── Chave admin para gerenciar estoquistas ─────────────────────
 const ADMIN_KEY = 'mnt@admin2026';
 
-// ── Inicializar estoquistas padrão (rodar UMA vez no editor) ───
+// ── Inicializar usuários (rodar UMA vez no editor do GAS) ────
+// Formato: { 'Nome do Usuário': 'senha123' }
 function initEstoquistas() {
-  const pins = { 'Lucas Montenegro': '1234' }; // altere aqui
-  PropertiesService.getScriptProperties().setProperty('estoquistas_pins', JSON.stringify(pins));
-  Logger.log('Estoquistas salvos: ' + Object.keys(pins).join(', '));
+  const usuarios = {
+    'Lucas Montenegro': 'ADM333@',
+    'Operador':         'MDAA22!',
+    'Gestor':           'DM166H1'
+  };
+  PropertiesService.getScriptProperties().setProperty('usuarios', JSON.stringify(usuarios));
+  Logger.log('Usuários configurados: ' + Object.keys(usuarios).join(', '));
 }
 
 // ── IDs das planilhas ─────────────────────────────────────────
@@ -246,23 +251,35 @@ function buildJSON() {
 
   // Produção — agrupa todos os registros do dia (manhã + tarde + troca de molde)
   const registrosProd = linhasDoDia(IDS.producao, GIDS.producao);
-  const turnos = registrosProd.map(r => ({
-    turno:     String(r[3]||'').replace('da ','').trim(),
-    realizado: toNum(r[5]),
-    perda_kg:  toNum(r[6]),
-    perda_un:  toNum(r[7]),
-    molde:     String(r[8]||''),
-    troca:     String(r[9]||'Não'),
-    obs:       String(r[10]||'')
-  }));
+  const turnos = registrosProd.map(r => {
+    const gramatura = toNum(r[4]); // col[4] = gramatura em gramas por unidade
+    const perdaKg   = toNum(r[6]);
+    // Calcula perda_un automaticamente: (perda_kg * 1000) / gramatura
+    // Se col[7] tiver valor manual, usa ele; caso contrário calcula
+    const perdaUnManual = toNum(r[7]);
+    const perdaUn = perdaUnManual > 0
+      ? perdaUnManual
+      : (gramatura > 0 ? Math.round(perdaKg * 1000 / gramatura) : 0);
+    return {
+      turno:     String(r[3]||'').replace('da ','').trim(),
+      gramatura,
+      realizado: toNum(r[5]),
+      perda_kg:  perdaKg,
+      perda_un:  perdaUn,
+      molde:     String(r[8]||''),
+      troca:     String(r[9]||'Não'),
+      obs:       String(r[10]||'')
+    };
+  });
   const totalRealizado = turnos.reduce((s, t) => s + t.realizado, 0);
   const totalPerdaKg   = turnos.reduce((s, t) => s + t.perda_kg, 0);
   const totalPerdaUn   = turnos.reduce((s, t) => s + t.perda_un, 0);
   const houveTroca     = turnos.some(t => String(t.troca).toLowerCase() !== 'não' && t.troca !== '');
   const quem           = registrosProd.length > 0 ? String(registrosProd[0][1]||'') : '';
 
-  const exp  = ultimaLinha(IDS.expedicao, GIDS.expedicao);
-  const reu  = ultimaLinha(IDS.reuniao);
+  const expRaw = ultimaLinhaDoDia(IDS.expedicao, GIDS.expedicao);
+  const exp    = expRaw || Array(20).fill(''); // vazio se sem preenchimento hoje
+  const reu    = ultimaLinha(IDS.reuniao);
 
   const devSheet = SpreadsheetApp.openById(IDS.devolucoes).getSheets()[0];
   const devRows  = devSheet.getDataRange().getValues().slice(1);
@@ -287,11 +304,14 @@ function buildJSON() {
   return {
     atualizado_em: Utilities.formatDate(now, 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
     producao: {
+      preenchido_hoje: registrosProd.length > 0,
       quem,
       total_realizado: totalRealizado,
       total_perda_kg:  totalPerdaKg,
       total_perda_un:  totalPerdaUn,
       troca_molde:     houveTroca,
+      molde_atual:     turnos.length > 0 ? turnos[0].molde : '',
+      gramatura:       turnos.length > 0 ? turnos[0].gramatura : 0,
       obs_geral:       turnos.map(t => t.obs).filter(Boolean).join(' | '),
       turnos,           // array: [{turno, realizado, perda_kg, molde, troca, obs}, ...]
       // campos legados para compatibilidade
@@ -299,9 +319,9 @@ function buildJSON() {
       perda_kg:  totalPerdaKg,
       perda_un:  totalPerdaUn,
       turno:     turnos.map(t => t.turno).join(' + ')
-      // FUTURO: meta_producao (integração manual/config), projecao_mensal
     },
     expedicao: {
+      preenchido_hoje:    expRaw !== null,
       pedidos_1impressao: toNum(exp[2]), pedidos_3impressao: toNum(exp[3]),
       sacos_kits: exp[4]||'', etiquetas_sobra: toNum(exp[5]),
       atraso: String(exp[6]||'Não'), pedidos_atrasados: exp[11]||''
@@ -435,6 +455,7 @@ function resumoDiario18h() {
 
 📦 *PRODUÇÃO* ${prod.troca_molde ? '🔄' : ''}
 ${blocoProd}
+${prod.molde_atual ? `▸ Modelo: ${prod.molde_atual}` : ''}${prod.gramatura > 0 ? ` · ${prod.gramatura}g/un` : ''}
 ▸ Perdas: ${prod.total_perda_un} un (${prod.total_perda_kg} kg)
 
 📤 *EXPEDIÇÃO*
@@ -487,6 +508,7 @@ function fechamentoSemanal() {
 📦 *PRODUÇÃO*
 ▸ Último registro: ${prod.total_realizado.toLocaleString('pt-BR')} un
 ▸ Responsável: ${prod.quem || '—'}
+${prod.molde_atual ? `▸ Modelo: ${prod.molde_atual}` : ''}${prod.gramatura > 0 ? ` · ${prod.gramatura}g/un` : ''}
 ▸ Perdas: ${prod.total_perda_un} un / ${prod.total_perda_kg} kg
 ${prod.troca_molde ? '▸ 🔄 Houve troca de molde' : ''}`;
 
@@ -609,6 +631,17 @@ function doPost(e) {
   try {
     const body  = JSON.parse(e.postData.contents);
     const acao  = body.action || 'lancar';
+
+    // ── Salvar dados do Controle de Compras ───────────────────
+    if (acao === 'salvarCompras') {
+      const prop = PropertiesService.getScriptProperties();
+      if (body.pedidos !== undefined) prop.setProperty('compras_pedidos', JSON.stringify(body.pedidos));
+      if (body.prazos  !== undefined) prop.setProperty('compras_prazos',  JSON.stringify(body.prazos));
+      if (body.nextId  !== undefined) prop.setProperty('compras_nextid',  String(body.nextId));
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
 
     if (acao === 'catalogo') {
       return ContentService
@@ -832,11 +865,12 @@ function doGet(e) {
   }
 
   if (action === 'login') {
-    const nome = (e.parameter.nome || '').trim();
-    const pin  = (e.parameter.pin  || '').trim();
-    const pins = JSON.parse(PropertiesService.getScriptProperties().getProperty('estoquistas_pins') || '{}');
-    if (!pins[nome])       return ContentService.createTextOutput(JSON.stringify({ ok:false, erro:'Usuário não encontrado' })).setMimeType(ContentService.MimeType.JSON);
-    if (pins[nome] !== pin) return ContentService.createTextOutput(JSON.stringify({ ok:false, erro:'PIN incorreto' })).setMimeType(ContentService.MimeType.JSON);
+    const nome  = (e.parameter.nome  || '').trim();
+    const senha = (e.parameter.senha || e.parameter.pin || '').trim();
+    const usuarios = JSON.parse(PropertiesService.getScriptProperties().getProperty('usuarios') || '{}');
+    if (!nome || !senha || usuarios[nome] !== senha) {
+      return ContentService.createTextOutput(JSON.stringify({ ok:false, erro:'Usuário ou senha incorretos' })).setMimeType(ContentService.MimeType.JSON);
+    }
     return ContentService.createTextOutput(JSON.stringify({ ok:true, nome })).setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -862,6 +896,14 @@ function doGet(e) {
     return ContentService.createTextOutput(JSON.stringify({ ok:true, estoquistas: Object.keys(pins) })).setMimeType(ContentService.MimeType.JSON);
   }
 
+  if (action === 'initSenhas') {
+    const adminKey = e.parameter.adminKey || '';
+    if (adminKey !== ADMIN_KEY) return ContentService.createTextOutput(JSON.stringify({ ok:false, erro:'Acesso negado' })).setMimeType(ContentService.MimeType.JSON);
+    const senhas = ['ADM333@', 'MDAA22!', 'DM166H1'];
+    PropertiesService.getScriptProperties().setProperty('valid_passwords', JSON.stringify(senhas));
+    return ContentService.createTextOutput(JSON.stringify({ ok:true, msg:'Senhas inicializadas', total: senhas.length })).setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action === 'lancarEstoque') {
     return lancarEstoqueGC_(e.parameter);
   }
@@ -870,6 +912,17 @@ function doGet(e) {
     return HtmlService.createHtmlOutputFromFile('estoque')
       .setTitle('Controle de Estoque — Montenegro')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
+  // ── Controle de Compras ───────────────────────────────────────
+  if (action === 'getCompras') {
+    const prop   = PropertiesService.getScriptProperties();
+    const pedidos = JSON.parse(prop.getProperty('compras_pedidos') || '[]');
+    const prazos  = JSON.parse(prop.getProperty('compras_prazos')  || '{}');
+    const nextId  = parseInt(prop.getProperty('compras_nextid')    || '1');
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true, pedidos, prazos, nextId }))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 
   // Retorna todos os dados: planilhas + Gestão Click
@@ -1106,8 +1159,33 @@ function ultimaLinha(sheetId, gid) {
   return Array(20).fill('');
 }
 
-// Retorna última linha, ou as 2 últimas se houve troca de molde no mesmo dia
-// Regra: só soma manhã + tarde quando col[9] (troca de molde) indica troca
+// Retorna a última linha de HOJE (col[0] = timestamp Forms)
+// Se não há preenchimento hoje, retorna null
+function ultimaLinhaDoDia(sheetId, gid) {
+  const ss    = SpreadsheetApp.openById(sheetId);
+  const sheet = gid != null
+    ? (ss.getSheets().find(s => s.getSheetId() === gid) || ss.getSheets()[0])
+    : ss.getSheets()[0];
+  const data  = sheet.getDataRange().getValues();
+  const hoje  = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy');
+  for (let i = data.length - 1; i >= 1; i--) {
+    if (!_linhaReal(data[i])) continue;
+    const ts = data[i][0];
+    let dataTs;
+    if (ts instanceof Date) {
+      dataTs = Utilities.formatDate(ts, 'America/Sao_Paulo', 'dd/MM/yyyy');
+    } else {
+      // string ISO "2026-03-21 10:30:00" → converte para Date
+      try { dataTs = Utilities.formatDate(new Date(ts), 'America/Sao_Paulo', 'dd/MM/yyyy'); }
+      catch(_) { dataTs = ''; }
+    }
+    if (dataTs === hoje) return data[i];
+  }
+  return null; // sem preenchimento hoje
+}
+
+// Retorna linhas do DIA DE HOJE — vazio se não houve preenchimento hoje
+// Regra: múltiplos turnos retornados quando há troca de molde no mesmo dia
 function linhasDoDia(sheetId, gid) {
   const ss    = SpreadsheetApp.openById(sheetId);
   const sheet = gid != null
@@ -1115,40 +1193,24 @@ function linhasDoDia(sheetId, gid) {
     : ss.getSheets()[0];
   const data  = sheet.getDataRange().getValues();
 
-  // Acha índice da última linha real
-  let ultimaIdx = -1;
-  for (let i = data.length - 1; i >= 1; i--) {
-    if (_linhaReal(data[i])) { ultimaIdx = i; break; }
-  }
-  if (ultimaIdx === -1) return [];
+  // Data de hoje no formato do formulário (col[2])
+  const hoje = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy');
 
-  const ultima     = data[ultimaIdx];
-  const dataRef    = String(ultima[2]).trim();
-
-  // Acha índice da penúltima linha real
-  let penultimaIdx = -1;
-  for (let i = ultimaIdx - 1; i >= 1; i--) {
-    if (_linhaReal(data[i])) { penultimaIdx = i; break; }
-  }
-
-  // Verifica se houve troca de molde (col 9) em qualquer uma das 2 últimas
-  function houveTroca(row) {
-    const v = String(row[9] || '').toLowerCase().trim();
-    return v !== '' && v !== 'não' && v !== 'nao';
+  // Coleta TODAS as linhas reais de hoje
+  const linhasHoje = [];
+  for (let i = 1; i < data.length; i++) {
+    if (!_linhaReal(data[i])) continue;
+    const dataCol = data[i][2];
+    let dataStr;
+    if (dataCol instanceof Date) {
+      dataStr = Utilities.formatDate(dataCol, 'America/Sao_Paulo', 'dd/MM/yyyy');
+    } else {
+      dataStr = String(dataCol).trim();
+    }
+    if (dataStr === hoje) linhasHoje.push(data[i]);
   }
 
-  const mesmoDia = penultimaIdx !== -1 &&
-    String(data[penultimaIdx][2]).trim() === dataRef;
-
-  const trocaDetectada = houveTroca(ultima) ||
-    (mesmoDia && houveTroca(data[penultimaIdx]));
-
-  // Inclui as 2 se mesmo dia E houve troca de molde
-  if (mesmoDia && trocaDetectada) {
-    return [data[penultimaIdx], ultima];
-  }
-
-  return [ultima];
+  return linhasHoje; // [] = sem preenchimento hoje
 }
 
 function toNum(val) {
