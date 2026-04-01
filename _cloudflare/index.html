@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!-- PWA / Add to Home Screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Estoque MNT">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2563EB">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%232563EB'/%3E%3Crect x='28' y='30' width='32' height='20' rx='8' fill='white'/%3E%3Crect x='20' y='48' width='48' height='80' rx='16' fill='white'/%3E%3Crect x='120' y='30' width='32' height='20' rx='8' fill='white'/%3E%3Crect x='112' y='48' width='48' height='80' rx='16' fill='white'/%3E%3Cpath d='M44 62 Q90 118 136 62' stroke='white' stroke-width='18' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+<title>Montenegro · Estoque</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+:root{
+  --brand:#2563EB;--brand-dark:#1D4ED8;--brand-light:#EFF6FF;--brand-50:#F0F4FF;
+  --bg:#F1F5F9;--surface:#FFFFFF;--border:#E2E8F0;--border-strong:#CBD5E1;
+  --text:#0F172A;--muted:#64748B;--subtle:#94A3B8;
+  --green:#059669;--green-bg:#ECFDF5;--green-bd:#A7F3D0;
+  --red:#DC2626;--red-bg:#FEF2F2;--red-bd:#FECACA;
+  --orange:#D97706;--orange-bg:#FFFBEB;--orange-bd:#FDE68A;
+  --r:12px;--r-lg:16px;--r-xl:20px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --sh-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04);
+}
+html{font-size:18px}
+html,body{height:100%;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);overscroll-behavior:contain}
+body{padding-bottom:100px;padding-top:env(safe-area-inset-top)}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+input{font-family:inherit;outline:none}
+a{text-decoration:none}
+
+/* ── LOGIN SCREEN ─────────────────────────────────────────────── */
+#login-screen{
+  position:fixed;inset:0;z-index:2000;
+  background:linear-gradient(160deg,#1D4ED8 0%,#2563EB 55%,#3B82F6 100%);
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:32px 24px;
+  transition:opacity .3s ease;overflow-y:auto;
+}
+#login-screen.hide{opacity:0;pointer-events:none}
+
+.login-brand{display:flex;flex-direction:column;align-items:center;gap:16px;margin-bottom:36px}
+.login-logo-wrap{
+  width:88px;height:88px;border-radius:24px;
+  background:rgba(255,255,255,.15);
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(255,255,255,.3);
+  box-shadow:0 8px 32px rgba(0,0,0,.2);
+  flex-shrink:0;
+}
+.login-brand-texts{text-align:center}
+.login-brand-name{color:#fff;font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1}
+.login-brand-sub{color:rgba(255,255,255,.65);font-size:14px;font-weight:500;margin-top:6px;letter-spacing:.01em}
+
+.login-card{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:var(--r-xl);
+  padding:24px;
+  width:100%;max-width:360px;
+  backdrop-filter:blur(12px);
+}
+
+.login-section-title{color:rgba(255,255,255,.75);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+
+.login-names-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.login-name-btn{
+  background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.2);
+  border-radius:var(--r);color:#fff;font-size:15px;font-weight:600;
+  padding:16px 10px;text-align:center;cursor:pointer;
+  transition:all .15s ease;min-height:56px;
+}
+.login-name-btn:active{background:rgba(255,255,255,.3);transform:scale(.97)}
+
+.login-error{color:#FECACA;font-size:13px;font-weight:500;text-align:center;min-height:22px;margin-bottom:8px}
+.login-password-wrap{display:flex;flex-direction:column;gap:12px;width:100%}
+.login-password-input{
+  width:100%;padding:16px;border-radius:var(--r);
+  border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.12);
+  color:#fff;font-size:16px;font-weight:600;
+  outline:none;-webkit-appearance:none;box-sizing:border-box;
+}
+.login-password-input::placeholder{font-weight:400;font-size:15px;color:rgba(255,255,255,.45)}
+.login-password-input:focus{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.18)}
+.login-btn-enter{
+  width:100%;height:56px;border-radius:var(--r);border:none;
+  background:#fff;color:var(--brand);font-size:16px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .1s;box-shadow:0 4px 16px rgba(0,0,0,.15);
+}
+.login-btn-enter:disabled{opacity:.4;cursor:not-allowed}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}60%{transform:translateX(8px)}}
+.shake{animation:shake .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── HEADER ───────────────────────────────────────────────────── */
+.hdr{
+  position:sticky;top:0;z-index:100;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  padding:0 16px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.hdr-left{display:flex;align-items:center;gap:12px}
+.hdr-mark{
+  width:38px;height:38px;border-radius:11px;
+  background:var(--brand);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  box-shadow:0 2px 8px rgba(37,99,235,.35);
+}
+.hdr-texts{display:flex;flex-direction:column}
+.hdr-title{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1}
+.hdr-sub{font-size:12px;color:var(--subtle);margin-top:3px;font-weight:500}
+.hdr-user{display:none;align-items:center;gap:8px}
+.hdr-user-chip{
+  display:flex;align-items:center;gap:6px;
+  background:var(--brand-light);border:1px solid #BFDBFE;
+  border-radius:999px;padding:5px 12px;
+  font-size:12px;font-weight:700;color:var(--brand);max-width:130px;
+}
+.hdr-user-chip-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+.hdr-user-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logout-btn{
+  background:none;border:1.5px solid var(--border);border-radius:8px;
+  color:var(--muted);font-size:12px;font-weight:600;padding:6px 12px;
+  cursor:pointer;transition:all .15s;min-height:34px;
+}
+.logout-btn:active{background:var(--bg)}
+.qr-btn{
+  background:#7C3AED;border:none;border-radius:8px;
+  color:#fff;font-size:12px;font-weight:700;padding:6px 10px;
+  cursor:pointer;transition:all .15s;min-height:34px;
+  display:flex;align-items:center;gap:5px;flex-shrink:0;
+}
+.qr-btn:active{background:#6D28D9}
+
+/* ── STEP BAR ─────────────────────────────────────────────────── */
+.step-bar{
+  background:#fff;border-bottom:1px solid var(--border);
+  padding:12px 16px 10px;
+}
+.step-info{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.step-label{font-size:13px;font-weight:700;color:var(--text)}
+.step-counter{font-size:12px;font-weight:600;color:var(--muted)}
+.step-track{height:5px;background:var(--border);border-radius:999px;overflow:hidden}
+.step-fill{height:100%;background:var(--brand);border-radius:999px;transition:width .3s ease;width:25%}
+
+/* ── VIEWS ────────────────────────────────────────────────────── */
+.view{display:none;padding:16px;animation:fadeIn .18s ease}
+.view.on{display:block;min-height:calc(100vh - 130px)}
+
+/* ── TABS ─────────────────────────────────────────────────────── */
+.tab-bar{
+  display:flex;gap:4px;margin-bottom:16px;
+  background:var(--bg);border-radius:var(--r);padding:4px;
+  border:1px solid var(--border);
+}
+.cat-tab{
+  flex:1;padding:14px 4px;border-radius:10px;
+  font-size:16px;font-weight:700;color:var(--muted);
+  background:none;border:none;cursor:pointer;
+  transition:all .15s;min-height:58px;letter-spacing:-.01em;
+}
+.cat-tab.on{background:var(--brand);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3)}
+
+/* ── PRODUCT ITEMS ─────────────────────────────────────────────── */
+.prod-list{display:none}
+.prod-list.on{display:flex;flex-direction:column;gap:8px}
+
+.item-btn{
+  width:100%;background:#fff;border:1.5px solid var(--border);border-radius:var(--r);
+  padding:18px 16px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:all .15s;text-align:left;min-height:88px;
+  box-shadow:var(--sh);
+}
+.item-btn:active{background:var(--brand-light);border-color:#BFDBFE}
+.item-btn.sel{border-color:var(--brand);background:var(--brand-light);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.item-btn-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.item-icon{
+  width:40px;height:40px;border-radius:11px;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+  border:1.5px solid var(--border);
+}
+.item-name{font-size:17px;font-weight:700;color:var(--text);line-height:1.25}
+.item-sub{font-size:14px;color:var(--muted);margin-top:5px;font-weight:500}
+.item-check{
+  width:24px;height:24px;border-radius:50%;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.item-btn.sel .item-check{background:var(--brand);border-color:var(--brand)}
+.item-btn.sel .item-check::after{content:'';display:block;width:6px;height:10px;border:2.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+
+.color-dot{width:28px;height:28px;border-radius:8px;flex-shrink:0}
+
+/* ── GRUPO / BOCAL HEADERS ─────────────────────────────────────── */
+.grupo-hdr,.bocal-hdr{display:flex;align-items:center;gap:8px;margin:18px 0 10px}
+.grupo-label,.bocal-label{font-size:11px;font-weight:800;color:var(--brand);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+.grupo-fator{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+.bocal-sub{font-size:11px;color:var(--muted)}
+.grupo-line{flex:1;height:1px;background:var(--border)}
+
+/* ── SECTION LABEL ─────────────────────────────────────────────── */
+.sec{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin:16px 0 10px}
+
+/* ── SELECTED BADGE ────────────────────────────────────────────── */
+.sel-badge{
+  display:flex;align-items:center;gap:12px;
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--r);padding:14px;margin-bottom:16px;
+  box-shadow:var(--sh-md);
+}
+.sel-badge-icon{width:40px;height:40px;border-radius:11px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1.5px solid var(--border)}
+.sel-badge-nome{font-size:15px;font-weight:700;color:var(--text);line-height:1.2}
+.sel-badge-sub{font-size:12px;color:var(--muted);margin-top:3px;font-weight:500}
+
+/* ── OPERATION CARDS ───────────────────────────────────────────── */
+.op-cards{display:flex;flex-direction:column;gap:12px}
+.op-card{
+  width:100%;background:#fff;border:2px solid var(--border);border-radius:var(--r-lg);
+  padding:18px 16px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:all .15s;text-align:left;min-height:80px;
+  box-shadow:var(--sh);
+}
+.op-card:active{transform:scale(.99)}
+.op-icon-wrap{
+  width:48px;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.op-icon-wrap svg{width:24px;height:24px}
+.op-title{font-size:16px;font-weight:700;color:var(--text);line-height:1.2}
+.op-desc{font-size:13px;color:var(--muted);margin-top:3px}
+.op-radio{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);margin-left:auto;flex-shrink:0;transition:all .15s}
+
+.op-card.entrada{border-color:var(--green-bd);background:var(--green-bg)}
+.op-card.entrada .op-icon-wrap{background:var(--green)}.op-card.entrada .op-radio{border-color:var(--green)}
+.op-card.saida{border-color:var(--red-bd);background:var(--red-bg)}
+.op-card.saida .op-icon-wrap{background:var(--red)}.op-card.saida .op-radio{border-color:var(--red)}
+.op-card.conferencia{border-color:#BFDBFE;background:var(--brand-light)}
+.op-card.conferencia .op-icon-wrap{background:var(--brand)}.op-card.conferencia .op-radio{border-color:var(--brand)}
+
+.op-card.sel.entrada{border-width:2px;border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.12)}
+.op-card.sel.saida{border-width:2px;border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.1)}
+.op-card.sel.conferencia{border-width:2px;border-color:var(--brand);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.op-card.sel .op-radio{background:var(--brand);border-color:var(--brand)}
+.op-card.sel.entrada .op-radio{background:var(--green);border-color:var(--green)}
+.op-card.sel.saida .op-radio{background:var(--red);border-color:var(--red)}
+.op-card.sel .op-radio::after{content:'';display:block;width:8px;height:8px;border-radius:50%;background:#fff;margin:6px}
+
+/* ── QUANTITY FORM ──────────────────────────────────────────────── */
+.op-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  border-radius:999px;padding:5px 12px;font-size:11px;font-weight:800;
+  letter-spacing:.05em;margin-bottom:16px;
+}
+.op-tag.entrada{background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-bd)}
+.op-tag.saida{background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-bd)}
+.op-tag.conferencia{background:var(--brand-light);color:var(--brand);border:1.5px solid #BFDBFE}
+
+.qform{background:#fff;border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh-md)}
+
+.field-row{display:flex;gap:10px;margin-bottom:14px}
+.field-row.two .fld{flex:1}
+.fld{display:flex;flex-direction:column;gap:7px;flex:1}
+.fld label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.fld input{
+  background:var(--bg);border:2px solid var(--border);border-radius:var(--r);
+  color:var(--text);font-size:28px;font-weight:800;padding:16px;
+  width:100%;transition:border-color .15s;min-height:68px;text-align:center;
+}
+.fld input:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fld input::placeholder{color:var(--subtle);font-weight:400;font-size:18px}
+
+.conv{
+  background:var(--brand-light);border:1.5px solid #BFDBFE;border-radius:var(--r);
+  padding:16px;display:flex;align-items:center;justify-content:space-between;
+}
+.conv.saida-conv{background:var(--red-bg);border-color:var(--red-bd)}
+.conv.pending{background:var(--bg);border-color:var(--border)}
+.conv-label{font-size:12px;font-weight:700;color:var(--muted)}
+.conv-unit{font-size:11px;color:var(--subtle);margin-top:3px}
+.conv-val{font-size:24px;font-weight:800;color:var(--brand)}
+.conv.saida-conv .conv-val{color:var(--red)}
+.conv.pending .conv-val{color:var(--subtle);font-size:16px}
+
+.fator-cfg{background:var(--orange-bg);border:1.5px solid var(--orange-bd);border-radius:var(--r);padding:14px;margin-bottom:14px}
+.fator-cfg-label{font-size:12px;font-weight:700;color:var(--orange);margin-bottom:10px}
+.fator-cfg-row{display:flex;gap:8px}
+.fator-cfg-input{flex:1;background:#fff;border:1.5px solid var(--orange-bd);border-radius:9px;color:var(--text);font-size:16px;font-weight:600;padding:10px 12px}
+.fator-cfg-save{background:var(--orange);color:#fff;border-radius:9px;font-size:13px;font-weight:700;padding:0 16px;white-space:nowrap;min-height:46px}
+
+/* ── STEP 4 CONFIRM ─────────────────────────────────────────────── */
+.confirm-card{background:#fff;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-md);margin-bottom:14px}
+.confirm-header{padding:18px;display:flex;align-items:center;gap:12px}
+.confirm-header.entrada{background:var(--green-bg);border-bottom:1px solid var(--green-bd)}
+.confirm-header.saida{background:var(--red-bg);border-bottom:1px solid var(--red-bd)}
+.confirm-header.conferencia{background:var(--brand-light);border-bottom:1px solid #BFDBFE}
+.confirm-op-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.confirm-header.entrada .confirm-op-icon{background:var(--green)}
+.confirm-header.saida .confirm-op-icon{background:var(--red)}
+.confirm-header.conferencia .confirm-op-icon{background:var(--brand)}
+.confirm-op-icon svg{width:22px;height:22px}
+.confirm-op-title{font-size:16px;font-weight:800;letter-spacing:.02em}
+.confirm-op-title.entrada{color:var(--green)}.confirm-op-title.saida{color:var(--red)}.confirm-op-title.conferencia{color:var(--brand)}
+.confirm-op-sub{font-size:12px;color:var(--muted);margin-top:3px}
+.confirm-row{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border)}
+.confirm-row:last-child{border-bottom:none}
+.confirm-row-label{font-size:12px;color:var(--muted);font-weight:600}
+.confirm-row-val{font-size:14px;font-weight:700;color:var(--text);text-align:right;max-width:60%}
+.confirm-row-val.muted{color:var(--muted);font-size:12px;font-weight:500}
+.confirm-row-val.big{font-size:22px;font-weight:800}
+.confirm-row-val.big.entrada{color:var(--green)}.confirm-row-val.big.saida{color:var(--red)}.confirm-row-val.big.conferencia{color:var(--brand)}
+
+.warn-box{background:var(--orange-bg);border:1.5px solid var(--orange-bd);border-radius:var(--r);padding:14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+.warn-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.warn-text{font-size:13px;color:var(--orange);font-weight:500;line-height:1.5}
+
+.confirm-check-wrap{
+  background:#fff;border:2px solid var(--border);border-radius:var(--r);
+  padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;
+  transition:all .15s;min-height:56px;
+}
+.confirm-check-wrap.checked{border-color:var(--green);background:var(--green-bg)}
+.confirm-checkbox{
+  width:26px;height:26px;border-radius:8px;border:2px solid var(--border);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;font-size:14px;font-weight:700;color:#fff;
+}
+.confirm-check-wrap.checked .confirm-checkbox{background:var(--green);border-color:var(--green)}
+.confirm-check-text{font-size:13px;font-weight:500;color:var(--text);line-height:1.45}
+
+/* ── ACTION BAR ─────────────────────────────────────────────────── */
+.action-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:90;
+  background:#fff;border-top:1px solid var(--border);
+  padding:12px 16px;display:flex;gap:10px;
+  padding-bottom:max(14px, env(safe-area-inset-bottom));
+  box-shadow:0 -2px 16px rgba(0,0,0,.08);
+}
+.btn-back-step{
+  background:var(--bg);border:2px solid var(--border);border-radius:var(--r);
+  color:var(--muted);font-size:16px;font-weight:700;
+  padding:0 22px;min-height:64px;cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.btn-back-step:active{background:var(--border)}
+.btn-next-step{
+  flex:1;background:var(--brand);border-radius:var(--r);
+  color:#fff;font-size:18px;font-weight:700;
+  min-height:64px;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 16px rgba(37,99,235,.35);
+  letter-spacing:-.01em;
+}
+.btn-next-step:disabled{background:#BFDBFE;color:#93C5FD;cursor:not-allowed;box-shadow:none}
+.btn-next-step:not(:disabled):active{background:var(--brand-dark)}
+.btn-send{
+  flex:1;background:var(--brand);border-radius:var(--r);
+  color:#fff;font-size:17px;font-weight:700;
+  min-height:64px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .15s;box-shadow:0 4px 16px rgba(37,99,235,.35);
+}
+.btn-send.saida-btn{background:var(--red);box-shadow:0 4px 16px rgba(220,38,38,.3)}
+.btn-send.conferencia-btn{background:var(--brand)}
+.btn-send:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.btn-send:not(:disabled):active{filter:brightness(.9)}
+
+/* ── TOAST ──────────────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(12px);
+  background:var(--text);color:#fff;border-radius:var(--r);
+  padding:14px 20px;font-size:14px;font-weight:600;
+  opacity:0;transition:all .25s;z-index:999;white-space:nowrap;
+  max-width:92vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);
+}
+.toast.ok{background:#065F46}
+.toast.err{background:#991B1B}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── SPINNER ────────────────────────────────────────────────────── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:22px;height:22px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
+
+/* ── SCANNER MODAL ──────────────────────────────────────────────── */
+.scanner-overlay{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.85);display:flex;align-items:flex-end;justify-content:center}
+.scanner-box{background:#111827;border-radius:24px 24px 0 0;padding:20px;width:100%;max-width:480px}
+.scanner-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.scanner-hdr-title{color:#fff;font-size:16px;font-weight:700}
+.btn-scanner-close{background:#374151;border:none;border-radius:8px;color:#9CA3AF;font-size:13px;font-weight:600;padding:8px 14px;cursor:pointer;min-height:38px}
+#scanner-view{border-radius:14px;overflow:hidden;background:#000;min-height:200px}
+#scanner-view video{border-radius:14px}
+.scanner-msg{text-align:center;margin-top:12px;font-size:13px;font-weight:600;color:#fff;padding:10px;background:rgba(255,255,255,.1);border-radius:10px;min-height:40px;display:flex;align-items:center;justify-content:center}
+.scanner-msg.found{background:rgba(5,150,105,.4);color:#D1FAE5}
+.scanner-msg.notfound{background:rgba(220,38,38,.3);color:#FECACA}
+.scanner-hint{text-align:center;margin-top:10px;font-size:12px;color:#6B7280;line-height:1.5}
+
+/* ── HIST BUTTON ────────────────────────────────────────────────── */
+.hist-btn{
+  background:none;border:1.5px solid var(--border);border-radius:8px;
+  color:var(--muted);font-size:12px;font-weight:600;padding:6px 12px;
+  cursor:pointer;transition:all .15s;min-height:34px;
+  display:flex;align-items:center;gap:6px;
+}
+.hist-btn:active{background:var(--bg)}
+
+/* ── HISTÓRICO SCREEN ───────────────────────────────────────────── */
+.hist-hdr{
+  position:sticky;top:0;z-index:10;
+  background:#fff;border-bottom:1px solid var(--border);
+  padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.hist-hdr-left{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text)}
+.hist-close-btn{
+  background:var(--bg);border:1.5px solid var(--border);border-radius:8px;
+  color:var(--muted);font-size:12px;font-weight:600;padding:7px 14px;cursor:pointer;
+}
+.hist-tabs{
+  display:flex;gap:0;background:#fff;border-bottom:2px solid var(--border);
+  padding:0 16px;overflow-x:auto;
+}
+.hist-tab{
+  background:none;border:none;border-bottom:3px solid transparent;
+  padding:12px 18px;font-size:14px;font-weight:600;color:var(--muted);
+  cursor:pointer;white-space:nowrap;margin-bottom:-2px;transition:all .15s;
+}
+.hist-tab.on{color:var(--brand);border-bottom-color:var(--brand)}
+.hist-body{display:flex;flex-direction:column;padding:16px;gap:0}
+.hist-col{display:block}
+.hist-col-hidden{display:none}
+.hist-col-hdr{
+  display:flex;align-items:center;gap:12px;
+  padding:16px;background:#fff;border-radius:var(--r-lg) var(--r-lg) 0 0;
+  border:1px solid var(--border);border-bottom:none;margin-top:8px;
+}
+.hist-col-avatar{
+  width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:13px;font-weight:800;flex-shrink:0;letter-spacing:.5px;
+}
+.hist-col-name{font-size:15px;font-weight:700;color:var(--text)}
+.hist-col-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.hist-items{
+  background:#fff;border:1px solid var(--border);border-radius:0 0 var(--r-lg) var(--r-lg);
+  overflow:hidden;
+}
+.hist-empty{padding:24px;text-align:center;color:var(--subtle);font-size:13px}
+.hist-item{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:10px;
+}
+.hist-item:last-child{border-bottom:none}
+.hist-item-badge{
+  border-radius:6px;padding:3px 8px;font-size:10px;font-weight:800;
+  letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px;
+}
+.hist-item-badge.entrada{background:var(--green-bg);color:var(--green)}
+.hist-item-badge.saida{background:var(--red-bg);color:var(--red)}
+.hist-item-badge.conferencia{background:var(--brand-light);color:var(--brand)}
+.hist-item-info{flex:1;min-width:0}
+.hist-item-prod{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist-item-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.hist-item-qty{font-size:13px;font-weight:700;color:var(--text);flex-shrink:0;text-align:right;white-space:nowrap}
+
+/* ── UPLOAD SCREEN ───────────────────────────────────────────────── */
+.upload-btn{
+  background:var(--brand);border:none;border-radius:8px;
+  color:#fff;font-size:12px;font-weight:700;padding:6px 10px;
+  cursor:pointer;transition:all .15s;min-height:34px;
+  display:flex;align-items:center;gap:5px;flex-shrink:0;
+}
+.upload-btn:active{background:var(--brand-dark)}
+/* No mobile esconde os textos dos botões do header para não apertar */
+@media(max-width:600px){
+  .hdr-btn-label{display:none}
+  .hist-btn{padding:6px 10px}
+  .upload-btn{padding:6px 10px}
+  .logout-btn{padding:6px 10px;font-size:11px}
+  .hdr-user-chip{max-width:100px}
+}
+/* ── QR SCANNER SCREEN ─────────────────────────────── */
+#qr-screen{position:fixed;inset:0;z-index:1800;background:#0f172a;display:none;overflow-y:auto}
+.qr-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px;background:#1e293b;border-bottom:1px solid #334155;color:#fff}
+.qr-hdr-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+.qr-close-btn{background:none;border:1px solid #475569;border-radius:8px;color:#94a3b8;padding:6px 12px;font-size:12px;cursor:pointer}
+#qr-reader-wrap{padding:20px 16px;display:flex;flex-direction:column;align-items:center}
+#qr-reader{width:100%;max-width:400px;border-radius:12px;overflow:hidden}
+#qr-reader video{border-radius:12px}
+.qr-hint{color:#94a3b8;font-size:13px;text-align:center;margin-top:14px}
+.qr-modal-overlay{position:fixed;inset:0;z-index:2100;background:rgba(0,0,0,.7);display:flex;align-items:flex-end;justify-content:center}
+.qr-modal{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:480px;padding:24px 20px 36px;animation:slideUpQR .25s ease}
+@keyframes slideUpQR{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.qr-modal-title{font-size:15px;font-weight:800;color:#0f172a;margin-bottom:2px}
+.qr-modal-raw{font-size:11px;color:#94a3b8;margin-bottom:14px;word-break:break-all}
+.qr-prod-badge{background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:12px;font-size:14px;font-weight:700;color:#1D4ED8;margin-bottom:6px;text-align:center}
+.qr-units-info{font-size:12px;color:#64748b;text-align:center;margin-bottom:14px}
+.qr-sel-prod{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;margin-bottom:14px;background:#fff}
+.qr-act-label,.qr-qtd-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.qr-act-row{display:flex;gap:8px;margin-bottom:16px}
+.qr-act-opt{flex:1;padding:10px 4px;border-radius:10px;border:2px solid #e2e8f0;background:#f8fafc;font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s}
+.qr-act-opt.sel[data-act="entrada"]{background:#DCFCE7;border-color:#22C55E;color:#15803D}
+.qr-act-opt.sel[data-act="saida"]{background:#FEE2E2;border-color:#EF4444;color:#B91C1C}
+.qr-act-opt.sel[data-act="total"]{background:#FEF9C3;border-color:#EAB308;color:#854D0E}
+.qr-qtd-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.qr-qtd-pm{width:42px;height:42px;border-radius:10px;border:1.5px solid #e2e8f0;background:#f8fafc;font-size:22px;font-weight:700;color:#374151;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qr-qtd-inp{flex:1;text-align:center;font-size:26px;font-weight:800;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px;color:#0f172a}
+.qr-un-prev{font-size:12px;color:#64748b;text-align:center;margin-bottom:18px}
+.qr-confirm{width:100%;padding:14px;background:var(--brand);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer}
+.qr-confirm:disabled{background:#94a3b8;cursor:not-allowed}
+#qr-toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;z-index:3000;box-shadow:0 4px 20px rgba(0,0,0,.3);white-space:nowrap;pointer-events:none;transition:opacity .4s;opacity:0}
+
+#upload-screen{
+  position:fixed;inset:0;z-index:1600;
+  background:var(--bg);overflow-y:auto;display:none;
+}
+.upload-hdr{
+  position:sticky;top:0;z-index:10;
+  background:#fff;border-bottom:1px solid var(--border);
+  padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+}
+.upload-hdr-left{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--text)}
+.upload-close-btn{
+  background:var(--bg);border:1.5px solid var(--border);border-radius:8px;
+  color:var(--muted);font-size:12px;font-weight:600;padding:7px 14px;cursor:pointer;
+}
+.upload-body{padding:20px 16px;max-width:600px;margin:0 auto}
+.upload-state{display:none}
+.upload-state.on{display:block}
+.upload-drop-zone{
+  border:2.5px dashed var(--border-strong);border-radius:var(--r-xl);
+  padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#fff;
+}
+.upload-drop-zone:hover{border-color:var(--brand);background:var(--brand-50)}
+.upload-drop-icon{margin-bottom:16px;opacity:.5}
+.upload-drop-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+.upload-drop-sub{font-size:14px;color:var(--muted);line-height:1.5}
+.upload-file-btn{
+  margin-top:20px;display:inline-flex;align-items:center;gap:8px;
+  background:var(--brand);color:#fff;border-radius:var(--r);
+  font-size:15px;font-weight:700;padding:14px 28px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(37,99,235,.3);border:none;font-family:inherit;
+}
+.upload-loading,.upload-sending{text-align:center;padding:60px 20px}
+.upload-loading-title{font-size:18px;font-weight:700;color:var(--text);margin-top:20px;margin-bottom:8px}
+.upload-loading-sub{font-size:14px;color:var(--muted)}
+@keyframes spin-lg{to{transform:rotate(360deg)}}
+.spinner-lg{
+  width:52px;height:52px;margin:0 auto;
+  border:4px solid var(--border);border-top-color:var(--brand);
+  border-radius:50%;animation:spin-lg .8s linear infinite;
+}
+.upload-mode-bar{display:flex;gap:8px;margin-bottom:16px}
+.upload-mode-btn{
+  flex:1;padding:12px 6px;border-radius:var(--r);
+  border:2px solid var(--border);background:#fff;
+  font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;
+  font-family:inherit;
+}
+.upload-mode-btn.sel.conferencia{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+.upload-mode-btn.sel.entrada{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.upload-mode-btn.sel.saida{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+.upload-confirm-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.upload-item-row{
+  background:#fff;border:1.5px solid var(--border);border-radius:var(--r);
+  padding:12px 14px;display:flex;align-items:center;gap:10px;
+}
+.upload-item-row.zero{opacity:.45}
+.upload-item-nome{flex:1;font-size:14px;font-weight:600;color:var(--text);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.upload-item-input{
+  width:84px;background:var(--bg);border:1.5px solid var(--border);
+  border-radius:8px;color:var(--text);font-size:17px;font-weight:700;
+  padding:8px;text-align:center;flex-shrink:0;font-family:inherit;
+}
+.upload-item-input:focus{border-color:var(--brand);background:#fff;outline:none}
+.upload-submit-btn{
+  width:100%;min-height:64px;border-radius:var(--r);border:none;
+  background:var(--brand);color:#fff;font-size:18px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  box-shadow:0 4px 16px rgba(37,99,235,.3);font-family:inherit;
+}
+.upload-submit-btn:disabled{background:#BFDBFE;color:#93C5FD;box-shadow:none;cursor:not-allowed}
+.upload-done{text-align:center;padding:40px 20px}
+.upload-done-icon{width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.upload-done-icon.ok{background:var(--green-bg)}
+.upload-done-icon.err{background:var(--red-bg)}
+.upload-done-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px}
+.upload-done-sub{font-size:15px;color:var(--muted);line-height:1.5;margin-bottom:20px}
+.upload-results{
+  text-align:left;background:#fff;border:1px solid var(--border);
+  border-radius:var(--r-lg);overflow:hidden;margin-bottom:20px;max-height:320px;overflow-y:auto;
+}
+.upload-result-row{
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;font-size:13px;
+}
+.upload-result-row:last-child{border-bottom:none}
+.upload-result-ok{color:var(--green);font-weight:700;flex-shrink:0}
+.upload-result-err{color:var(--red);font-weight:700;flex-shrink:0}
+.upload-result-nome{flex:1;font-weight:500;color:var(--text)}
+.upload-result-val{font-weight:700;color:var(--text);flex-shrink:0}
+.upload-done-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--brand);color:#fff;border-radius:var(--r);
+  font-size:15px;font-weight:700;padding:14px 28px;cursor:pointer;
+  border:none;box-shadow:0 4px 16px rgba(37,99,235,.3);font-family:inherit;
+}
+
+/* ── DESKTOP RESPONSIVE ──────────────────────────────────────────── */
+@media(min-width:768px){
+  /* Histórico: 3 colunas lado a lado */
+  .hist-tabs{display:none}
+  .hist-body{flex-direction:row;align-items:flex-start;gap:16px;padding:20px 24px;max-width:1100px;margin:0 auto}
+  .hist-col,.hist-col-hidden{display:block;flex:1;min-width:0}
+  .hist-col-hdr{margin-top:0}
+  html{font-size:16px}
+  body{padding-bottom:0;display:flex;flex-direction:column;min-height:100vh}
+  /* Login centrado e limitado em largura */
+  #login-screen{padding:48px 24px}
+  .login-brand{margin-bottom:32px}
+  .login-logo-wrap{width:100px;height:100px;border-radius:28px}
+  .login-brand-name{font-size:32px}
+  .login-card{max-width:420px}
+  .login-names-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  /* Layout principal em coluna centrada */
+  .hdr{padding:0 32px}
+  .step-bar{padding:14px 32px 12px;max-width:800px;margin:0 auto;width:100%}
+  .view{max-width:800px;margin:0 auto;width:100%;padding:24px 32px}
+  .view.on{min-height:auto}
+  /* Action bar fixa com largura limitada */
+  .action-bar{
+    position:sticky;bottom:0;
+    max-width:800px;margin:0 auto;
+    border-radius:16px 16px 0 0;
+  }
+  /* Item buttons maiores em desktop */
+  .item-btn{min-height:72px}
+  .item-name{font-size:16px}
+  /* Op cards em 2 colunas */
+  .op-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  /* Inputs menores em desktop */
+  .fld input{font-size:24px;min-height:60px}
+  /* Step bar e header dentro de wrapper centralizado */
+  .hdr{width:100%}
+}
+@media(min-width:1024px){
+  .view{max-width:900px;padding:32px 48px}
+  .step-bar{max-width:900px}
+  .action-bar{max-width:900px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ──────────────────────────────────────────────── -->
+<div id="login-screen">
+  <div class="login-brand">
+    <div class="login-logo-wrap">
+      <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+        <!-- Left bottle neck -->
+        <rect x="10" y="4" width="9" height="8" rx="3" fill="white"/>
+        <!-- Left bottle body -->
+        <rect x="7" y="11" width="15" height="24" rx="7" fill="white"/>
+        <!-- Right bottle neck -->
+        <rect x="37" y="4" width="9" height="8" rx="3" fill="white"/>
+        <!-- Right bottle body -->
+        <rect x="34" y="11" width="15" height="24" rx="7" fill="white"/>
+        <!-- M arc connecting bottles -->
+        <path d="M14 13 Q28 40 42 13" stroke="white" stroke-width="5" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="login-brand-texts">
+      <div class="login-brand-name">Montenegro</div>
+      <div class="login-brand-sub">Controle de Estoque</div>
+    </div>
+  </div>
+
+  <!-- Formulário único: nome + senha -->
+  <div id="login-form-wrap" style="width:100%;max-width:340px">
+    <div class="login-card">
+      <div class="login-section-title">Acesso ao sistema</div>
+      <div class="login-password-wrap">
+        <input type="text" id="login-username" class="login-password-input"
+          placeholder="Seu nome"
+          autocomplete="username"
+          oninput="onLoginChange()"
+          onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()"
+          style="letter-spacing:normal;font-size:16px;font-weight:600;text-align:left" />
+        <input type="password" id="login-password" class="login-password-input"
+          placeholder="Senha"
+          autocomplete="current-password"
+          oninput="onLoginChange()"
+          onkeydown="if(event.key==='Enter')pinSubmit()" />
+        <div class="login-error" id="login-error"></div>
+        <button class="login-btn-enter" id="pin-ok-btn" onclick="pinSubmit()" disabled>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Entrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ───────────────────────────────────────────────────── -->
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-mark">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
+        <!-- Left bottle -->
+        <rect x="3" y="3" width="5" height="5" rx="1.5" fill="white"/>
+        <rect x="2" y="8" width="7" height="14" rx="3" fill="white"/>
+        <!-- Right bottle -->
+        <rect x="24" y="3" width="5" height="5" rx="1.5" fill="white"/>
+        <rect x="23" y="8" width="7" height="14" rx="3" fill="white"/>
+        <!-- M curve -->
+        <path d="M5 11 Q11 22 16 17 Q21 12 27 11" stroke="white" stroke-width="3" stroke-linecap="round" fill="none"/>
+      </svg>
+    </div>
+    <div class="hdr-texts">
+      <div class="hdr-title">Controle de Estoque</div>
+      <div class="hdr-sub">Montenegro Industria</div>
+    </div>
+  </div>
+  <div class="hdr-user" id="hdr-resp-wrap">
+    <div class="hdr-user-chip">
+      <div class="hdr-user-chip-dot"></div>
+      <span class="hdr-user-name" id="hdr-user-label"></span>
+    </div>
+    <button class="hist-btn" onclick="abrirHistorico()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="hdr-btn-label">Histórico</span>
+    </button>
+    <button class="upload-btn" onclick="abrirUpload()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      <span class="hdr-btn-label">Upload</span>
+    </button>
+    <button class="qr-btn" onclick="abrirQR()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="3" height="3" rx=".5"/><line x1="20" y1="14" x2="20" y2="17"/><line x1="17" y1="20" x2="20" y2="20"/><line x1="20" y1="20" x2="20" y2="20"/></svg>
+      <span class="hdr-btn-label">Bipar</span>
+    </button>
+    <button class="logout-btn" onclick="logout()">Sair</button>
+  </div>
+</header>
+
+<!-- ── HISTÓRICO ─────────────────────────────────────────────────── -->
+<div id="hist-screen" style="display:none;position:fixed;inset:0;z-index:1500;background:var(--bg);overflow-y:auto">
+  <div class="hist-hdr">
+    <div class="hist-hdr-left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Histórico de Movimentos</span>
+    </div>
+    <button class="hist-close-btn" onclick="fecharHistorico()">✕ Fechar</button>
+  </div>
+
+  <!-- Tabs mobile -->
+  <div class="hist-tabs" id="hist-tabs">
+    <button class="hist-tab on" onclick="switchHistTab(0)">Lucas</button>
+    <button class="hist-tab" onclick="switchHistTab(1)">Lidiani</button>
+    <button class="hist-tab" onclick="switchHistTab(2)">Diogo</button>
+  </div>
+
+  <div class="hist-body">
+    <div class="hist-col" id="hist-col-0">
+      <div class="hist-col-hdr">
+        <div class="hist-col-avatar" style="background:#2563EB">LM</div>
+        <div>
+          <div class="hist-col-name">Lucas Montenegro</div>
+          <div class="hist-col-sub">Administrador</div>
+        </div>
+      </div>
+      <div class="hist-items" id="hist-items-0"><div class="hist-empty">Carregando...</div></div>
+    </div>
+
+    <div class="hist-col hist-col-hidden" id="hist-col-1">
+      <div class="hist-col-hdr">
+        <div class="hist-col-avatar" style="background:#7C3AED">LL</div>
+        <div>
+          <div class="hist-col-name">Lidiani Logística</div>
+          <div class="hist-col-sub">Operadora</div>
+        </div>
+      </div>
+      <div class="hist-items" id="hist-items-1"><div class="hist-empty">Carregando...</div></div>
+    </div>
+
+    <div class="hist-col hist-col-hidden" id="hist-col-2">
+      <div class="hist-col-hdr">
+        <div class="hist-col-avatar" style="background:#059669">DG</div>
+        <div>
+          <div class="hist-col-name">Diogo Gestor</div>
+          <div class="hist-col-sub">Gestor</div>
+        </div>
+      </div>
+      <div class="hist-items" id="hist-items-2"><div class="hist-empty">Carregando...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── QR SCANNER SCREEN ─────────────────────────────────────────── -->
+<div id="qr-screen">
+  <div class="qr-hdr">
+    <div class="qr-hdr-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      Bipar Fardo
+    </div>
+    <button class="qr-close-btn" onclick="fecharQR()">✕ Fechar</button>
+  </div>
+  <div id="qr-reader-wrap">
+    <div id="qr-reader"></div>
+    <p class="qr-hint">Aponte a câmera para o QR Code do fardo</p>
+  </div>
+</div>
+
+<!-- Modal produto detectado -->
+<div id="qr-modal-overlay" class="qr-modal-overlay" style="display:none" onclick="if(event.target===this)fecharQRModal()">
+  <div class="qr-modal">
+    <div class="qr-modal-title">QR Code detectado</div>
+    <div class="qr-modal-raw" id="qr-raw-text"></div>
+    <div class="qr-prod-badge" id="qr-prod-badge">—</div>
+    <div class="qr-units-info" id="qr-units-info"></div>
+    <select class="qr-sel-prod" id="qr-sel-prod" style="display:none" onchange="onProdQRChange(this.value)">
+      <option value="">— Selecione o produto —</option>
+    </select>
+    <div class="qr-act-label">Tipo de movimento</div>
+    <div class="qr-act-row">
+      <div class="qr-act-opt" data-act="entrada" onclick="selAcaoQR(this)">▲ Entrada</div>
+      <div class="qr-act-opt" data-act="saida"   onclick="selAcaoQR(this)">▼ Saída</div>
+      <div class="qr-act-opt" data-act="total"   onclick="selAcaoQR(this)">= Total</div>
+    </div>
+    <div class="qr-qtd-label">Quantidade de fardos</div>
+    <div class="qr-qtd-row">
+      <button class="qr-qtd-pm" onclick="ajustarQtdQR(-1)">−</button>
+      <input class="qr-qtd-inp" type="number" id="qr-qtd" value="1" min="1" oninput="atualizarPrevQR()">
+      <button class="qr-qtd-pm" onclick="ajustarQtdQR(1)">+</button>
+    </div>
+    <div class="qr-un-prev" id="qr-un-prev"></div>
+    <button class="qr-confirm" id="qr-confirm" onclick="confirmarQR()" disabled>Confirmar lançamento</button>
+  </div>
+</div>
+
+<div id="qr-toast"></div>
+
+<!-- ── UPLOAD SCREEN ─────────────────────────────────────────────── -->
+<div id="upload-screen">
+  <div class="upload-hdr">
+    <div class="upload-hdr-left">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      <span>Upload de Contagem</span>
+    </div>
+    <button class="upload-close-btn" onclick="fecharUpload()">✕ Fechar</button>
+  </div>
+  <div class="upload-body">
+
+    <!-- state: select -->
+    <div class="upload-state on" id="upload-state-select">
+      <div class="upload-drop-zone">
+        <div class="upload-drop-icon">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="2"/><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+        </div>
+        <div class="upload-drop-title">Foto da Planilha de Contagem</div>
+        <div class="upload-drop-sub">Selecione uma foto da galeria ou tire uma nova foto.<br>A IA interpreta os valores automaticamente.</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+          <button class="upload-file-btn" style="background:var(--brand)" onclick="document.getElementById('upload-input-galeria').click()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Galeria / Arquivo
+          </button>
+          <button class="upload-file-btn" style="background:#059669" onclick="document.getElementById('upload-input-camera').click()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 0 2-2l2-4h10l2 4a2 2 0 0 0 2 2h2a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Câmera
+          </button>
+        </div>
+      </div>
+      <!-- galeria: sem capture → abre seletor de arquivos/fotos -->
+      <input type="file" id="upload-input-galeria" accept="image/*" style="display:none" onchange="onFotoSelecionada(this.files[0])">
+      <!-- câmera: com capture → abre câmera diretamente -->
+      <input type="file" id="upload-input-camera" accept="image/*" capture="environment" style="display:none" onchange="onFotoSelecionada(this.files[0])">
+      <div style="margin-top:16px;background:var(--orange-bg);border:1.5px solid var(--orange-bd);border-radius:var(--r);padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--orange);margin-bottom:6px">Como funciona</div>
+        <div style="font-size:13px;color:#92400E;line-height:1.6">
+          1. Preencha a planilha de contagem no papel<br>
+          2. Fotografe com boa iluminação (texto legível)<br>
+          3. A IA lê os valores e você confirma antes de enviar
+        </div>
+      </div>
+    </div>
+
+    <!-- state: loading -->
+    <div class="upload-state" id="upload-state-loading">
+      <div class="upload-loading">
+        <div class="spinner-lg"></div>
+        <div class="upload-loading-title">Analisando foto...</div>
+        <div class="upload-loading-sub">A IA está interpretando os valores da planilha</div>
+      </div>
+    </div>
+
+    <!-- state: confirm -->
+    <div class="upload-state" id="upload-state-confirm">
+      <div style="margin-bottom:16px">
+        <div class="sec" style="margin-top:0;margin-bottom:10px">Tipo de operação</div>
+        <div class="upload-mode-bar">
+          <button class="upload-mode-btn sel conferencia" id="umode-conferencia" onclick="setUploadMode('conferencia')">Conferência</button>
+          <button class="upload-mode-btn" id="umode-entrada" onclick="setUploadMode('entrada')">Entrada</button>
+          <button class="upload-mode-btn" id="umode-saida" onclick="setUploadMode('saida')">Saída</button>
+        </div>
+      </div>
+      <div class="sec" style="margin-bottom:10px">Revise e corrija os valores detectados</div>
+      <div class="upload-confirm-list" id="upload-confirm-list"></div>
+      <div class="warn-box" style="margin-bottom:16px">
+        <span class="warn-icon">⚠️</span>
+        <div class="warn-text">Itens com valor 0 serão ignorados. Corrija qualquer valor errado antes de confirmar.</div>
+      </div>
+      <button class="upload-submit-btn" id="upload-submit-btn" onclick="submitUpload()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Confirmar e Enviar
+      </button>
+      <div style="height:20px"></div>
+    </div>
+
+    <!-- state: sending -->
+    <div class="upload-state" id="upload-state-sending">
+      <div class="upload-sending">
+        <div class="spinner-lg"></div>
+        <div class="upload-loading-title">Enviando para Gestão Click...</div>
+        <div class="upload-loading-sub" id="upload-sending-msg">Aguarde, atualizando o estoque</div>
+      </div>
+    </div>
+
+    <!-- state: done -->
+    <div class="upload-state" id="upload-state-done">
+      <div class="upload-done">
+        <div class="upload-done-icon ok" id="upload-done-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="upload-done-title" id="upload-done-title">Estoque atualizado!</div>
+        <div class="upload-done-sub" id="upload-done-sub"></div>
+        <div class="upload-results" id="upload-results"></div>
+        <button class="upload-done-btn" onclick="fecharUpload()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+          Concluído
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- STEP BAR -->
+<div class="step-bar">
+  <div class="step-info">
+    <span class="step-label" id="step-label">Produto</span>
+    <span class="step-counter" id="step-counter">1 de 4</span>
+  </div>
+  <div class="step-track"><div class="step-fill" id="step-fill"></div></div>
+</div>
+
+<!-- STEP 1: PRODUTO -->
+<div id="view-1" class="view on">
+  <div class="tab-bar">
+    <button class="cat-tab on" id="tab-btn-fardos" onclick="setTab('fardos',this)">Fardos</button>
+    <button class="cat-tab" id="tab-btn-preformas" onclick="setTab('preformas',this)">Pré-formas</button>
+    <button class="cat-tab" id="tab-btn-tampas" onclick="setTab('tampas',this)">Tampas</button>
+  </div>
+  <div id="tab-fardos" class="prod-list on" id="list-fardos"></div>
+  <div id="tab-tampas" class="prod-list" id="list-tampas"></div>
+  <div id="tab-preformas" class="prod-list" id="list-preformas"></div>
+</div>
+
+<!-- STEP 2: OPERAÇÃO -->
+<div id="view-2" class="view">
+  <div id="badge-2"></div>
+  <div class="op-cards">
+    <button class="op-card entrada" id="op-entrada" onclick="selecionarOp('entrada')">
+      <div class="op-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </div>
+      <div>
+        <div class="op-title">Entrada</div>
+        <div class="op-desc">Adicionar ao estoque atual</div>
+      </div>
+      <div class="op-radio"></div>
+    </button>
+    <button class="op-card saida" id="op-saida" onclick="selecionarOp('saida')">
+      <div class="op-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+      </div>
+      <div>
+        <div class="op-title">Saída</div>
+        <div class="op-desc">Retirar do estoque atual</div>
+      </div>
+      <div class="op-radio"></div>
+    </button>
+    <button class="op-card conferencia" id="op-conferencia" onclick="selecionarOp('conferencia')">
+      <div class="op-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <div class="op-title">Conferência</div>
+        <div class="op-desc">Definir quantidade real</div>
+      </div>
+      <div class="op-radio"></div>
+    </button>
+  </div>
+</div>
+
+<!-- STEP 3: QUANTIDADE -->
+<div id="view-3" class="view">
+  <div id="badge-3"></div>
+  <div id="qty-content"></div>
+</div>
+
+<!-- STEP 4: CONFIRMAR -->
+<div id="view-4" class="view">
+  <div id="confirm-content"></div>
+</div>
+
+<!-- hidden inputs -->
+<input type="hidden" id="total-calculado" value="0">
+<input type="hidden" id="detalhe-calculado" value="">
+<input type="hidden" id="responsavel" value="">
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <button class="btn-back-step" id="btn-back" onclick="voltarPasso()" style="display:none">← Voltar</button>
+  <button class="btn-next-step" id="btn-next" onclick="avancarPasso()" style="display:none;flex:1" disabled>Próximo →</button>
+  <button class="btn-send" id="btn-send" onclick="enviarLancamento()" style="display:none;flex:1" disabled>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    Enviar Lançamento
+  </button>
+</div>
+
+<!-- SCANNER MODAL -->
+<div class="scanner-overlay" id="scanner-modal" style="display:none">
+  <div class="scanner-box">
+    <div class="scanner-hdr">
+      <div class="scanner-hdr-title">Leitura de Código</div>
+      <button class="btn-scanner-close" onclick="closeScanner()">✕ Fechar</button>
+    </div>
+    <div id="scanner-view"></div>
+    <div class="scanner-msg" id="scanner-msg">Aponte a câmera para o código</div>
+    <div class="scanner-hint">Suporta QR Code, EAN-13, Code 128 e outros formatos</div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const APPS_URL = 'https://script.google.com/macros/s/AKfycbze1olAaLsvs97Qktgf0MWLJ32IB3umcWlfqPiHO8j9sMkCTM5jVdQGzgOgIS-OCMqXgQ/exec';
+
+// ── AUTH ──────────────────────────────────────────────────────
+const AUTH_KEY = 'mnt_session_v1';
+const SESSION_H = 8;
+
+function getSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+    if (!s || Date.now() > s.expiry) { localStorage.removeItem(AUTH_KEY); return null; }
+    return s;
+  } catch { return null; }
+}
+
+function saveSession(nome) {
+  localStorage.setItem(AUTH_KEY, JSON.stringify({ nome, expiry: Date.now() + SESSION_H * 3600000 }));
+}
+
+function logout() {
+  localStorage.removeItem(AUTH_KEY);
+  location.reload();
+}
+
+function applySession(nome) {
+  document.getElementById('responsavel').value = nome;
+  document.getElementById('hdr-user-label').textContent = nome;
+  document.getElementById('hdr-resp-wrap').style.display = 'flex';
+  const ls = document.getElementById('login-screen');
+  ls.classList.add('hide');
+  setTimeout(() => ls.style.display = 'none', 320);
+}
+
+function normLogin(s) {
+  return (s || '').trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function onLoginChange() {
+  const nome  = (document.getElementById('login-username').value || '').trim();
+  const senha = document.getElementById('login-password').value || '';
+  document.getElementById('pin-ok-btn').disabled = nome.length < 2 || senha.length < 3;
+  document.getElementById('login-error').textContent = '';
+}
+
+async function pinSubmit() {
+  const nome  = normLogin(document.getElementById('login-username').value);
+  const senha = normLogin(document.getElementById('login-password').value);
+  if (!nome || senha.length < 3) return;
+
+  const btn = document.getElementById('pin-ok-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+  document.getElementById('login-error').textContent = '';
+
+  try {
+    const r = await fetch(`${APPS_URL}?action=login&nome=${encodeURIComponent(nome)}&senha=${encodeURIComponent(senha)}`);
+    const d = await r.json();
+    if (d.ok) {
+      saveSession(nome);
+      applySession(nome);
+    } else {
+      document.getElementById('login-error').textContent = d.erro || 'Usuário ou senha incorretos';
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-password').classList.add('shake');
+      setTimeout(() => document.getElementById('login-password').classList.remove('shake'), 350);
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Entrar';
+      btn.disabled = false;
+    }
+  } catch {
+    document.getElementById('login-error').textContent = 'Sem conexão. Verifique a internet.';
+    btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Entrar';
+    btn.disabled = false;
+  }
+}
+
+// Inicializa auth
+(function initAuth() {
+  const s = getSession();
+  if (s) { applySession(s.nome); }
+})();
+
+// ── CATÁLOGO ──────────────────────────────────────────────────
+const FARDOS = [
+  { id:'FAR-38-120-450', nome:'Fardo 120 ML',            gcNome:'Fardo 120ml Boca Larga PCO38',          sub:'PCO38 · 450 un/fardo', fator:450,  tipo:'fardo' },
+  { id:'FAR-38-200-300', nome:'Fardo 200 ML',            gcNome:'Fardo 200ml Boca Larga PCO38',          sub:'PCO38 · 300 un/fardo', fator:300,  tipo:'fardo' },
+  { id:'FAR-38-300-240', nome:'Fardo 300 ML',            gcNome:'Fardo 300ml Boca Larga PCO38',          sub:'PCO38 · 240 un/fardo', fator:240,  tipo:'fardo' },
+  { id:'FAR-28-500-KOM', nome:'Fardo Kombucha 500 ML',   gcNome:'Fardo 500ml Kombucha Boca Fina PCO28',  sub:'PCO28 · 300 un/fardo', fator:300,  tipo:'fardo' },
+  { id:'FAR-38-500-BL',  nome:'Fardo 500 ML Boca Larga', gcNome:'Fardo 500ml Boca Larga PCO38',          sub:'PCO38 · fator a configurar', fator:null, tipo:'fardo' },
+  { id:'FAR-28-500-BOR', nome:'Fardo 500 ML Borrifador',  gcNome:'Fardo 500ml Borrifador Boca Fina PCO28', sub:'PCO28 · fator a configurar', fator:null, tipo:'fardo' },
+];
+
+const TAMPAS = [
+  { grupo:'Tampa sem lacre (Plastow)', fatorCx:2000, itens:[
+    { id:'TAM-38-SUC-PLW-PT', nome:'Preta',    gcNome:'Tampa Suco 38mm Preta sem Lacre — Plastow',    cor:'#111827', borda:'#374151', tipo:'tampa' },
+    { id:'TAM-38-SUC-PLW-AZ', nome:'Azul',     gcNome:'Tampa Suco 38mm Azul sem Lacre — Plastow',     cor:'#2563EB', borda:'#2563EB', tipo:'tampa' },
+    { id:'TAM-38-SUC-PLW-RS', nome:'Rosa',     gcNome:'Tampa Suco 38mm Rosa sem Lacre — Plastow',     cor:'#EC4899', borda:'#EC4899', tipo:'tampa' },
+    { id:'TAM-38-SUC-PLW-RX', nome:'Roxa',     gcNome:'Tampa Suco 38mm Roxa sem Lacre — Plastow',     cor:'#7C3AED', borda:'#7C3AED', tipo:'tampa' },
+    { id:'TAM-38-SUC-PLW-VM', nome:'Vermelha', gcNome:'Tampa Suco 38mm Vermelha sem Lacre — Plastow', cor:'#DC2626', borda:'#DC2626', tipo:'tampa' },
+  ]},
+  { grupo:'Tampa com lacre (Milênio)', fatorCx:3000, itens:[
+    { id:'TAM-38-SUC-MLN-PT', nome:'Preta',    gcNome:'Tampa Suco 38mm Preta com Lacre — Milênio',    cor:'#111827', borda:'#374151', tipo:'tampa' },
+    { id:'TAM-38-SUC-MLN-AZ', nome:'Azul',     gcNome:'Tampa Suco 38mm Azul com Lacre — Milênio',     cor:'#2563EB', borda:'#2563EB', tipo:'tampa' },
+    { id:'TAM-38-SUC-MLN-RS', nome:'Rosa',     gcNome:'Tampa Suco 38mm Rosa com Lacre — Milênio',     cor:'#EC4899', borda:'#EC4899', tipo:'tampa' },
+    { id:'TAM-38-SUC-MLN-RX', nome:'Roxa',     gcNome:'Tampa Suco 38mm Roxa com Lacre — Milênio',     cor:'#7C3AED', borda:'#7C3AED', tipo:'tampa' },
+    { id:'TAM-38-SUC-MLN-VM', nome:'Vermelha', gcNome:'Tampa Suco 38mm Vermelha com Lacre — Milênio', cor:'#DC2626', borda:'#DC2626', tipo:'tampa' },
+  ]},
+  { grupo:'TEMPERO', fatorCx:2000, itens:[
+    { id:'TAM-38-TMP-PT', nome:'Preta',    gcNome:'Tampa Tempero 38mm Preta PCO38',    cor:'#111827', borda:'#374151', tipo:'tampa' },
+    { id:'TAM-38-TMP-VM', nome:'Vermelha', gcNome:'Tampa Tempero 38mm Vermelha PCO38', cor:'#DC2626', borda:'#DC2626', tipo:'tampa' },
+  ]},
+  { grupo:'KOMBUCHA', fatorCx:5000, itens:[
+    { id:'TAM-28-KOM-BR', nome:'Branca', gcNome:'Tampa Kombucha 28mm Branca', cor:'#F9FAFB', borda:'#9CA3AF', tipo:'tampa' },
+  ]},
+  { grupo:'PUMP', fatorCx:1000, itens:[
+    { id:'TAM-28-PUM-PT', nome:'Preta', gcNome:'Pump Lotion 28/410 Preta 255mm — BP40', cor:'#111827', borda:'#374151', tipo:'tampa' },
+  ]},
+  { grupo:'TRIGGER', fatorCx:500, itens:[
+    { id:'TAM-28-TRI-PT', nome:'Preta', gcNome:'Trigger Borrifador 28mm Preta', cor:'#111827', borda:'#374151', tipo:'tampa' },
+  ]},
+];
+
+const PREFORMAS = [
+  { bocal:'PCO 38mm', itens:[
+    { id:'PRE-38-18-CRI', nome:'17,7g Cristal', gcNome:'Pré-forma PCO38 17,7g — 120ml e 200ml Boca Larga', sub:'120ML / 200ML · 14.000 un/cx', fatorCx:14000, cor:'#F9FAFB', borda:'#D1D5DB', tipo:'preforma' },
+    { id:'PRE-38-19-CRI', nome:'19g Cristal',   gcNome:'Pré-forma PCO38 19g — 300ml Boca Larga',           sub:'300ML · 14.112 un/cx',         fatorCx:14112, cor:'#F9FAFB', borda:'#D1D5DB', tipo:'preforma' },
+    { id:'PRE-38-20-CRI', nome:'20g Cristal',   gcNome:'Pré-forma PCO38 20g',                              sub:'500ML · 15.984 un/cx',         fatorCx:15984, cor:'#F9FAFB', borda:'#D1D5DB', tipo:'preforma' },
+  ]},
+  { bocal:'PCO 28mm', itens:[
+    { id:'PRE-28-24-CRI', nome:'24g Cristal', gcNome:'Pré-forma PCO28 24g — Borrifador e Kombucha Boca Fina', sub:'Kombucha / 500ML · 14.840 un/cx', fatorCx:14840, cor:'#F9FAFB', borda:'#D1D5DB', tipo:'preforma' },
+    { id:'PRE-28-33-AMB', nome:'33g Âmbar',   gcNome:'Pré-forma PCO38 33g Âmbar — Uso geral',               sub:'500ML · 10.080 un/cx',            fatorCx:10080, cor:'#92400E', borda:'#78350F', tipo:'preforma' },
+  ]},
+];
+
+// Pré-carrega fatores
+TAMPAS.forEach(g => g.itens.forEach(i => localStorage.setItem('fator_cx_' + i.id, g.fatorCx)));
+PREFORMAS.forEach(b => b.itens.forEach(i => localStorage.setItem('fator_cx_' + i.id, i.fatorCx)));
+
+// ── STATE ─────────────────────────────────────────────────────
+const S = { step:1, tab:'fardos', produto:null, operacao:null, unidades:0, detalhe:'', confirmado:false };
+
+// ── HELPERS ───────────────────────────────────────────────────
+function getFator(item) {
+  if (item.fator) return item.fator;
+  const s = localStorage.getItem('fator_' + item.id);
+  return s ? parseInt(s) : null;
+}
+
+function showToast(msg, type='ok', dur=3000) {
+  const t = document.getElementById('toast-el');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.className = 'toast ' + type, dur);
+}
+
+function prodBadgeHTML(p, sub2) {
+  const icon = p.tipo === 'fardo'
+    ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`
+    : p.tipo === 'tampa'
+    ? `<div style="width:20px;height:20px;border-radius:5px;background:${p.cor};border:1.5px solid ${p.borda}"></div>`
+    : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M12 2L8 6v2H4v12h16V8h-4V6z"/></svg>`;
+  return `<div class="sel-badge">
+    <div class="sel-badge-icon">${icon}</div>
+    <div>
+      <div class="sel-badge-nome">${p.nome}</div>
+      <div class="sel-badge-sub">${sub2 || p.sub || p.id}</div>
+    </div>
+  </div>`;
+}
+
+const OP_LABELS = { entrada:'ENTRADA', saida:'SAÍDA', conferencia:'CONFERÊNCIA' };
+
+// ── STEP NAVIGATION ───────────────────────────────────────────
+const STEP_LABELS = ['','Produto','Operação','Quantidade','Confirmar'];
+function goStep(n_step) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.getElementById('view-' + n_step).classList.add('on');
+  document.getElementById('step-label').textContent = STEP_LABELS[n_step];
+  document.getElementById('step-counter').textContent = n_step + ' de 4';
+  document.getElementById('step-fill').style.width = (n_step * 25) + '%';
+  S.step = n_step;
+  if (n_step === 2) renderStep2();
+  if (n_step === 3) renderStep3();
+  if (n_step === 4) renderStep4();
+  updateActionBar();
+  window.scrollTo(0,0);
+}
+
+function updateActionBar() {
+  const btnBack = document.getElementById('btn-back');
+  const btnNext = document.getElementById('btn-next');
+  const btnSend = document.getElementById('btn-send');
+  btnBack.style.display = S.step > 1 ? '' : 'none';
+  btnNext.style.display = S.step < 4 ? '' : 'none';
+  btnSend.style.display = S.step === 4 ? '' : 'none';
+  if (S.step === 1) { btnNext.disabled = !S.produto; btnNext.textContent = 'Próximo →'; }
+  else if (S.step === 2) { btnNext.disabled = !S.operacao; btnNext.textContent = 'Próximo →'; }
+  else if (S.step === 3) { btnNext.disabled = S.unidades < 1; btnNext.textContent = 'Revisar →'; }
+  else if (S.step === 4) {
+    btnSend.disabled = !S.confirmado;
+    const cls = S.operacao === 'saida' ? ' saida-btn' : S.operacao === 'conferencia' ? ' conferencia-btn' : '';
+    btnSend.className = 'btn-send' + cls;
+    const labels = { entrada:'Confirmar Entrada', saida:'Confirmar Saída', conferencia:'Confirmar Conferência' };
+    btnSend.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg> ${labels[S.operacao]}`;
+  }
+}
+
+function calcularTotalAgora() {
+  const p = S.produto;
+  if (!p) return 0;
+  if (p.tipo === 'fardo') {
+    const fator = getFator(p);
+    const qtd = parseInt(document.getElementById('qtd-fardos')?.value) || 0;
+    if (fator && qtd > 0) { S.detalhe = `${qtd} fardo(s) × ${fator} un/fardo = ${(qtd*fator).toLocaleString('pt-BR')} un`; return qtd * fator; }
+  } else if (p.tipo === 'tampa') {
+    const fk = 'fator_cx_' + p.id;
+    const fatorCx = p.fatorCx || parseInt(localStorage.getItem(fk)) || 0;
+    const fechadas = parseInt(document.getElementById('cx-fechadas')?.value) || 0;
+    const abertas  = parseInt(document.getElementById('cx-abertas')?.value)  || 0;
+    if (fatorCx && (fechadas + abertas) > 0) {
+      const totalAb = abertas * Math.round(fatorCx / 2);
+      const total = fechadas * fatorCx + totalAb;
+      S.detalhe = `${fechadas} cx fechadas + ${abertas} cx ½ = ${total.toLocaleString('pt-BR')} un`;
+      return total;
+    }
+  } else if (p.tipo === 'preforma') {
+    const fk = 'fator_cx_' + p.id;
+    const fatorCx = parseInt(localStorage.getItem(fk)) || 0;
+    const fechadas = parseInt(document.getElementById('pf-fechadas')?.value) || 0;
+    const abertas  = parseInt(document.getElementById('pf-abertas')?.value)  || 0;
+    const pct      = abertas > 0 ? (parseInt(document.getElementById('pf-pct')?.value) || 100) : 100;
+    const totalEquiv = fechadas + (abertas > 0 ? (pct / 100) : 0);
+    if (fatorCx && totalEquiv > 0) {
+      const total = Math.round(totalEquiv * fatorCx);
+      S.detalhe = `${fechadas} cx fechadas + ${abertas > 0 ? abertas + ' cx (' + pct + '%)' : '0 cx'} = ${totalEquiv.toFixed(1)} cx × ${fatorCx.toLocaleString('pt-BR')} = ${total.toLocaleString('pt-BR')} un`;
+      return total;
+    }
+  }
+  return 0;
+}
+
+function avancarPasso() {
+  if (S.step === 1 && !S.produto)  { showToast('Selecione um produto', 'err'); return; }
+  if (S.step === 2 && !S.operacao) { showToast('Selecione o tipo de operação', 'err'); return; }
+  if (S.step === 3) {
+    const total = calcularTotalAgora();
+    if (total < 1) { showToast('Informe a quantidade', 'err'); return; }
+    S.unidades = total;
+    document.getElementById('total-calculado').value = total;
+  }
+  if (S.step < 4) goStep(S.step + 1);
+}
+
+function voltarPasso() {
+  if (S.step === 2) { S.operacao = null; resetOpCards(); }
+  if (S.step === 3) { S.unidades = 0; S.detalhe = ''; }
+  if (S.step === 4) { S.confirmado = false; }
+  if (S.step > 1) goStep(S.step - 1);
+}
+
+// ── STEP 1 ────────────────────────────────────────────────────
+function setTab(tab, el) {
+  S.tab = tab;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  ['fardos','tampas','preformas'].forEach(t => {
+    const l = document.getElementById('list-' + t) || document.getElementById('tab-' + t);
+    if (l) l.classList.remove('on');
+  });
+  const target = document.getElementById('list-' + tab) || document.getElementById('tab-' + tab);
+  if (target) target.classList.add('on');
+}
+
+function renderFardos() {
+  const el = document.getElementById('tab-fardos') || document.getElementById('list-fardos');
+  el.innerHTML = FARDOS.map((f, i) => {
+    const fatorReal = getFator(f);
+    const subText = fatorReal && !f.fator ? f.sub.replace('fator a configurar', fatorReal + ' un/fardo') : f.sub;
+    return `<button class="item-btn${S.produto?.id === f.id ? ' sel' : ''}" onclick="selecionarFardo(${i})">
+      <div class="item-btn-left">
+        <div class="item-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${S.produto?.id === f.id ? '#2563EB' : '#64748B'}" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        </div>
+        <div><div class="item-name">${f.nome}</div><div class="item-sub">${subText}</div></div>
+      </div>
+      <div class="item-check"></div>
+    </button>`;
+  }).join('');
+}
+
+function renderTampas() {
+  const el = document.getElementById('tab-tampas') || document.getElementById('list-tampas');
+  el.innerHTML = TAMPAS.map(grupo => `
+    <div class="grupo-hdr">
+      <span class="grupo-label">${grupo.grupo}</span>
+      <span class="grupo-fator">${grupo.fatorCx.toLocaleString('pt-BR')} un/cx</span>
+      <div class="grupo-line"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:4px">
+      ${grupo.itens.map((t, ri) => `
+        <button class="item-btn${S.produto?.id === t.id ? ' sel' : ''}" onclick="selecionarTampa('${grupo.grupo}',${ri})">
+          <div class="item-btn-left">
+            <div class="color-dot" style="background:${t.cor};border:2px solid ${t.borda};box-shadow:0 1px 4px rgba(0,0,0,.15)"></div>
+            <div>
+              <div class="item-name">${grupo.grupo} — ${t.nome}</div>
+              <div class="item-sub">${grupo.fatorCx.toLocaleString('pt-BR')} un/caixa</div>
+            </div>
+          </div>
+          <div class="item-check"></div>
+        </button>`).join('')}
+    </div>`).join('');
+}
+
+function renderPreformas() {
+  const el = document.getElementById('tab-preformas') || document.getElementById('list-preformas');
+  el.innerHTML = PREFORMAS.map(bloco => `
+    <div class="bocal-hdr">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+      <div><div class="bocal-label">Bocal ${bloco.bocal}</div><div class="bocal-sub">${bloco.itens.length} tipo(s)</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+      ${bloco.itens.map((p, ri) => `
+        <button class="item-btn${S.produto?.id === p.id ? ' sel' : ''}" onclick="selecionarPreforma('${bloco.bocal}',${ri})">
+          <div class="item-btn-left">
+            <div class="color-dot" style="background:${p.cor};border:2px solid ${p.borda};box-shadow:0 1px 4px rgba(0,0,0,.15)"></div>
+            <div><div class="item-name">${p.nome}</div><div class="item-sub">${p.sub}</div></div>
+          </div>
+          <div class="item-check"></div>
+        </button>`).join('')}
+    </div>`).join('');
+}
+
+function selecionarFardo(i) {
+  S.produto = { ...FARDOS[i] }; S.operacao = null; S.unidades = 0;
+  renderFardos(); updateActionBar();
+}
+function selecionarTampa(grupo, ri) {
+  const grp = TAMPAS.find(g => g.grupo === grupo);
+  const item = grp.itens[ri];
+  S.produto = { ...item, grupo, nome: `${grupo} ${item.nome}`, fatorCx: grp.fatorCx };
+  S.operacao = null; S.unidades = 0;
+  renderTampas(); updateActionBar();
+}
+function selecionarPreforma(bocal, ri) {
+  const bloco = PREFORMAS.find(b => b.bocal === bocal);
+  S.produto = { ...bloco.itens[ri], bocal };
+  S.operacao = null; S.unidades = 0;
+  renderPreformas(); updateActionBar();
+}
+
+// ── STEP 2 ────────────────────────────────────────────────────
+function renderStep2() { document.getElementById('badge-2').innerHTML = prodBadgeHTML(S.produto); }
+function resetOpCards() { document.querySelectorAll('.op-card').forEach(c => c.classList.remove('sel')); }
+function selecionarOp(op) {
+  S.operacao = op; resetOpCards();
+  document.getElementById('op-' + op).classList.add('sel');
+  updateActionBar();
+}
+
+// ── STEP 3 ────────────────────────────────────────────────────
+function renderStep3() {
+  const p = S.produto;
+  document.getElementById('badge-3').innerHTML = prodBadgeHTML(p, OP_LABELS[S.operacao]);
+  const el = document.getElementById('qty-content');
+  if (p.tipo === 'fardo') renderQtyFardo(p, el);
+  else if (p.tipo === 'tampa') renderQtyTampa(p, el);
+  else if (p.tipo === 'preforma') renderQtyPreforma(p, el);
+}
+
+function calcFardo(fator) {
+  if (S.step !== 3) return;
+  const qtd = parseInt(document.getElementById('qtd-fardos')?.value) || 0;
+  const total = fator ? qtd * fator : 0;
+  const el = document.getElementById('conv-val-fardo');
+  if (el) el.textContent = total > 0 ? total.toLocaleString('pt-BR') : '—';
+  S.unidades = total; updateActionBar();
+}
+
+function calcTampa(fk, fatorCx) {
+  if (S.step !== 3) return;
+  const fechadas = parseInt(document.getElementById('cx-fechadas')?.value) || 0;
+  const abertas  = parseInt(document.getElementById('cx-abertas')?.value) || 0;
+  const totalAbertas = abertas * Math.round(fatorCx / 2);
+  const total    = fatorCx ? (fechadas * fatorCx + totalAbertas) : 0;
+  const el = document.getElementById('conv-val-tampa');
+  if (el) el.textContent = total > 0 ? total.toLocaleString('pt-BR') : '—';
+  S.unidades = total; updateActionBar();
+}
+
+function calcPreforma(fk, fatorCx) {
+  if (S.step !== 3) return;
+  const fechadas = parseInt(document.getElementById('pf-fechadas')?.value) || 0;
+  const abertas  = parseInt(document.getElementById('pf-abertas')?.value) || 0;
+  const pct      = parseInt(document.getElementById('pf-pct')?.value) || 100;
+  const totalEquiv = fechadas + (abertas > 0 ? (pct / 100) : 0);
+  const total    = fatorCx ? Math.round(totalEquiv * fatorCx) : 0;
+  const el = document.getElementById('conv-val-pf');
+  if (el) el.textContent = total > 0 ? total.toLocaleString('pt-BR') : '—';
+  S.unidades = total; updateActionBar();
+}
+
+function salvarFatorFardo(id) {
+  const v = parseInt(document.getElementById('fator-input').value);
+  if (!v || v < 1) { showToast('Informe um fator válido', 'err'); return; }
+  localStorage.setItem('fator_' + id, v);
+  showToast('Fator salvo: ' + v + ' un/fardo');
+  renderStep3();
+}
+
+function salvarFatorCx(fk) {
+  const v = parseInt(document.getElementById('fator-cx-input').value);
+  if (!v || v < 1) { showToast('Informe um fator válido', 'err'); return; }
+  localStorage.setItem(fk, v);
+  showToast('Fator salvo: ' + v + ' un/caixa');
+  renderStep3();
+}
+
+function renderQtyFardo(f, el) {
+  const fator = getFator(f);
+  const opCls = S.operacao;
+  const convCls = fator ? (opCls === 'saida' ? 'conv saida-conv' : 'conv') : 'conv pending';
+  el.innerHTML = `
+    <div class="sec" style="margin-top:0">Quantidade de fardos</div>
+    <div class="qform">
+      <div class="op-tag ${opCls}">${OP_LABELS[opCls]}</div>
+      ${f.fator === null ? `
+        <div class="fator-cfg">
+          <div class="fator-cfg-label">Configurar: quantas unidades por fardo?</div>
+          <div class="fator-cfg-row">
+            <input class="fator-cfg-input" type="number" id="fator-input" inputmode="numeric" placeholder="Ex: 240" value="${getFator(f) || ''}">
+            <button class="fator-cfg-save" onclick="salvarFatorFardo('${f.id}')">Salvar</button>
+          </div>
+        </div>` : ''}
+      <div class="field-row">
+        <div class="fld">
+          <label>Número de fardos</label>
+          <input type="number" id="qtd-fardos" inputmode="numeric" placeholder="0" min="0"
+            oninput="calcFardo(${fator || 0})" onfocus="this.select()">
+        </div>
+      </div>
+      <div class="${convCls}" id="conv-fardo">
+        <div>
+          <div class="conv-label">${fator ? 'Total em unidades' : 'Configure o fator primeiro'}</div>
+          <div class="conv-unit">${fator ? fator + ' un × fardos' : '—'}</div>
+        </div>
+        <div class="conv-val" id="conv-val-fardo">${fator ? '—' : '—'}</div>
+      </div>
+    </div>`;
+}
+
+function renderQtyTampa(t, el) {
+  const fk = 'fator_cx_' + t.id;
+  const fatorCx = t.fatorCx || parseInt(localStorage.getItem(fk)) || null;
+  const opCls = S.operacao;
+  el.innerHTML = `
+    <div class="sec" style="margin-top:0">Quantidade de caixas</div>
+    <div class="qform">
+      <div class="op-tag ${opCls}">${OP_LABELS[opCls]}</div>
+      ${!fatorCx ? `
+        <div class="fator-cfg">
+          <div class="fator-cfg-label">Quantas unidades por caixa fechada?</div>
+          <div class="fator-cfg-row">
+            <input class="fator-cfg-input" type="number" id="fator-cx-input" inputmode="numeric" placeholder="Ex: 1000">
+            <button class="fator-cfg-save" onclick="salvarFatorCx('${fk}')">Salvar</button>
+          </div>
+        </div>` : ''}
+      <div class="field-row two">
+        <div class="fld">
+          <label>Caixas Fechadas</label>
+          <input type="number" id="cx-fechadas" inputmode="numeric" placeholder="0" min="0"
+            oninput="calcTampa('${fk}',${fatorCx || 0})" onfocus="this.select()">
+        </div>
+        <div class="fld">
+          <label>Caixas Abertas</label>
+          <input type="number" id="cx-abertas" inputmode="numeric" placeholder="0" min="0"
+            oninput="calcTampa('${fk}',${fatorCx || 0})" onfocus="this.select()">
+        </div>
+      </div>
+      ${fatorCx ? `<div style="font-size:11px;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:10px;line-height:1.5">
+        Cx fechada = ${fatorCx.toLocaleString('pt-BR')} un &nbsp;·&nbsp; Cx aberta = ${Math.round(fatorCx/2).toLocaleString('pt-BR')} un (metade)
+      </div>` : ''}
+      <div class="${fatorCx ? (opCls === 'saida' ? 'conv saida-conv' : 'conv') : 'conv pending'}" id="conv-tampa">
+        <div>
+          <div class="conv-label">${fatorCx ? 'Total em unidades' : 'Configure un/caixa'}</div>
+          <div class="conv-unit">${fatorCx ? 'fechadas×' + fatorCx.toLocaleString('pt-BR') + ' + abertas×' + Math.round(fatorCx/2).toLocaleString('pt-BR') : '—'}</div>
+        </div>
+        <div class="conv-val" id="conv-val-tampa">—</div>
+      </div>
+    </div>`;
+}
+
+function renderQtyPreforma(p, el) {
+  const fk = 'fator_cx_' + p.id;
+  const fatorCx = parseInt(localStorage.getItem(fk)) || null;
+  const opCls = S.operacao;
+  el.innerHTML = `
+    <div class="sec" style="margin-top:0">Quantidade de caixas</div>
+    <div class="qform">
+      <div class="op-tag ${opCls}">${OP_LABELS[opCls]}</div>
+      ${!fatorCx ? `
+        <div class="fator-cfg">
+          <div class="fator-cfg-label">Quantas unidades por caixa fechada?</div>
+          <div class="fator-cfg-row">
+            <input class="fator-cfg-input" type="number" id="fator-cx-input" inputmode="numeric" placeholder="Ex: 14000">
+            <button class="fator-cfg-save" onclick="salvarFatorCx('${fk}')">Salvar</button>
+          </div>
+        </div>` : ''}
+      <div class="field-row two">
+        <div class="fld">
+          <label>Caixas Fechadas</label>
+          <input type="number" id="pf-fechadas" inputmode="numeric" placeholder="0" min="0"
+            oninput="calcPreforma('${fk}',${fatorCx || 0})" onfocus="this.select()">
+        </div>
+        <div class="fld">
+          <label>Caixas Abertas</label>
+          <input type="number" id="pf-abertas" inputmode="numeric" placeholder="0" min="0"
+            oninput="calcPreforma('${fk}',${fatorCx || 0})" onfocus="this.select()">
+        </div>
+      </div>
+      ${fatorCx ? `
+      <div class="field-row" style="margin-top:10px">
+        <div class="fld">
+          <label>% da caixa aberta</label>
+          <input type="number" id="pf-pct" inputmode="numeric" placeholder="100" min="0" max="100" value="100"
+            oninput="calcPreforma('${fk}',${fatorCx || 0})" onfocus="this.select()">
+        </div>
+      </div>` : ''}
+      <div class="${fatorCx ? (opCls === 'saida' ? 'conv saida-conv' : 'conv') : 'conv pending'}" id="conv-pf">
+        <div>
+          <div class="conv-label">${fatorCx ? 'Total em unidades' : 'Configure un/caixa'}</div>
+          <div class="conv-unit">${fatorCx ? fatorCx.toLocaleString('pt-BR') + ' un/cx' : '—'}</div>
+        </div>
+        <div class="conv-val" id="conv-val-pf">—</div>
+      </div>
+    </div>`;
+}
+
+// ── STEP 4 ────────────────────────────────────────────────────
+function renderStep4() {
+  S.confirmado = false;
+  S.unidadesSnap = S.unidades;
+  S.detalheSnap  = S.detalhe;
+  const p = S.produto;
+  const op = S.operacao;
+  const resp = document.getElementById('responsavel').value.trim();
+  const icons = {
+    entrada: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>`,
+    saida:   `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>`,
+    conferencia: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+  };
+  const opLabels = { entrada:'ENTRADA', saida:'SAÍDA', conferencia:'CONFERÊNCIA' };
+  const opDescs  = { entrada:'Será adicionado ao estoque atual', saida:'Será retirado do estoque atual', conferencia:'Estoque será substituído por este valor' };
+  document.getElementById('confirm-content').innerHTML = `
+    <div class="sec" style="margin-top:0">Resumo da operação</div>
+    <div class="confirm-card">
+      <div class="confirm-header ${op}">
+        <div class="confirm-op-icon">${icons[op]}</div>
+        <div>
+          <div class="confirm-op-title ${op}">${opLabels[op]}</div>
+          <div class="confirm-op-sub">${opDescs[op]}</div>
+        </div>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Produto</span>
+        <span class="confirm-row-val">${p.nome}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Detalhe</span>
+        <span class="confirm-row-val muted">${S.detalheSnap}</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Total</span>
+        <span class="confirm-row-val big ${op}">${S.unidadesSnap.toLocaleString('pt-BR')} un</span>
+      </div>
+      <div class="confirm-row">
+        <span class="confirm-row-label">Responsável</span>
+        <span class="confirm-row-val">${resp || '—'}</span>
+      </div>
+    </div>
+    <div class="warn-box">
+      <span class="warn-icon">⚠️</span>
+      <div class="warn-text">Confira os dados antes de enviar. Esta ação atualizará o estoque no Gestão Click e ficará registrada com nome, data e hora.</div>
+    </div>
+    <div class="confirm-check-wrap" id="check-wrap" onclick="toggleConfirm()">
+      <div class="confirm-checkbox" id="confirm-checkbox"></div>
+      <span class="confirm-check-text">Confirmo que revisei os dados e autorizo a atualização do estoque</span>
+    </div>`;
+  updateActionBar();
+}
+
+function toggleConfirm() {
+  S.confirmado = !S.confirmado;
+  document.getElementById('check-wrap').classList.toggle('checked', S.confirmado);
+  document.getElementById('confirm-checkbox').textContent = S.confirmado ? '✓' : '';
+  updateActionBar();
+}
+
+// ── ENVIO ─────────────────────────────────────────────────────
+async function enviarLancamento() {
+  const responsavel = document.getElementById('responsavel').value.trim();
+  if (!responsavel) { showToast('Faça login para lançar', 'err'); return; }
+  if (!S.confirmado) { showToast('Confirme a revisão dos dados', 'err'); return; }
+  const totalFinal = parseInt(document.getElementById('total-calculado').value) || S.unidadesSnap || S.unidades;
+  if (!totalFinal || totalFinal < 1) { showToast('Erro interno — volte e relance', 'err'); return; }
+
+  const btnSend = document.getElementById('btn-send');
+  const btnBack = document.getElementById('btn-back');
+  btnSend.innerHTML = '<div class="spinner"></div>';
+  btnSend.disabled = true;
+  btnBack.disabled = true;
+
+  const p = S.produto;
+  const params = new URLSearchParams({
+    action: 'lancarEstoque', itemId: p.id, itemNome: p.gcNome || p.nome,
+    totalUnidades: String(totalFinal), cxFechadas: String(totalFinal),
+    cxAbertas: '0', pctAberta: '100', fardos: String(totalFinal),
+    fatorFardo: '1', modo: S.operacao, tipo: p.tipo, responsavel,
+  });
+
+  try {
+    const res  = await fetch(APPS_URL + '?' + params.toString());
+    const data = await res.json();
+    if (data.ok) {
+      const opMsg = { entrada:'adicionadas ao', saida:'retiradas do', conferencia:'definidas no' };
+      showToast(`${p.nome} — ${S.unidades.toLocaleString('pt-BR')} un ${opMsg[S.operacao]} estoque`, 'ok', 5000);
+      setTimeout(() => resetFlow(), 700);
+    } else {
+      showToast(data.erro || 'Erro ao lançar', 'err', 6000);
+      restoreBtn();
+    }
+  } catch {
+    showToast('Erro de conexão — tente novamente', 'err');
+    restoreBtn();
+  }
+
+  function restoreBtn() {
+    const labels = { entrada:'Confirmar Entrada', saida:'Confirmar Saída', conferencia:'Confirmar Conferência' };
+    const cls = S.operacao === 'saida' ? ' saida-btn' : S.operacao === 'conferencia' ? ' conferencia-btn' : '';
+    btnSend.className = 'btn-send' + cls;
+    btnSend.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M5 12h14M12 5l7 7-7 7"/></svg> ${labels[S.operacao]}`;
+    btnSend.disabled = false;
+    btnBack.disabled = false;
+  }
+}
+
+function resetFlow() {
+  S.produto = null; S.operacao = null; S.unidades = 0; S.detalhe = ''; S.confirmado = false;
+  document.getElementById('total-calculado').value = '0';
+  document.getElementById('detalhe-calculado').value = '';
+  resetOpCards();
+  renderFardos(); renderTampas(); renderPreformas();
+  goStep(1);
+}
+
+// ── QR SCANNER ────────────────────────────────────────────────
+let qrScanner = null;
+function openScanner() {
+  document.getElementById('scanner-modal').style.display = 'flex';
+  document.getElementById('scanner-msg').textContent = 'Iniciando câmera…';
+  document.getElementById('scanner-msg').className = 'scanner-msg';
+  qrScanner = new Html5Qrcode('scanner-view');
+  qrScanner.start(
+    { facingMode:'environment' },
+    { fps:12, qrbox:{ width:260, height:180 } },
+    (text) => onScanSuccess(text.trim()),
+    () => {}
+  ).then(() => {
+    document.getElementById('scanner-msg').textContent = 'Aponte a câmera para o QR Code';
+  }).catch(() => {
+    document.getElementById('scanner-msg').textContent = 'Câmera não disponível';
+    document.getElementById('scanner-msg').className = 'scanner-msg notfound';
+  });
+}
+function closeScanner() {
+  if (qrScanner) { qrScanner.stop().catch(()=>{}); qrScanner = null; }
+  document.getElementById('scanner-modal').style.display = 'none';
+}
+function onScanSuccess(text) {
+  closeScanner();
+  const prod = [...FARDOS, ...TAMPAS.flatMap(g=>g.itens), ...PREFORMAS.flatMap(b=>b.itens)].find(p => p.id === text || p.gcNome === text);
+  if (prod) {
+    selecionarProdutoFromScan(prod);
+  } else {
+    showToast('Produto não encontrado: ' + text, 'err', 4000);
+  }
+}
+function selecionarProdutoFromScan(produto) {
+  S.produto = produto; S.operacao = null; S.unidades = 0;
+  if (produto.tipo === 'fardo') { setTab('fardos', document.getElementById('tab-btn-fardos')); renderFardos(); }
+  else if (produto.tipo === 'tampa') { setTab('tampas', document.getElementById('tab-btn-tampas')); renderTampas(); }
+  else if (produto.tipo === 'preforma') { setTab('preformas', document.getElementById('tab-btn-preformas')); renderPreformas(); }
+  updateActionBar();
+  showToast(produto.nome + ' selecionado', 'ok', 2000);
+  setTimeout(() => avancarPasso(), 400);
+}
+document.getElementById('scanner-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeScanner();
+});
+
+// ── INIT ──────────────────────────────────────────────────────
+renderFardos();
+renderTampas();
+renderPreformas();
+updateActionBar();
+
+// ── HISTÓRICO ─────────────────────────────────────────────────
+const USUARIOS_HIST = [
+  { nome: 'Lucas Montenegro',  iniciais: 'LM' },
+  { nome: 'Lidiani Logística', iniciais: 'LL' },
+  { nome: 'Diogo Gestor',      iniciais: 'DG' }
+];
+
+let histAtivo = 0;
+
+function switchHistTab(idx) {
+  histAtivo = idx;
+  document.querySelectorAll('.hist-tab').forEach((t, i) => t.classList.toggle('on', i === idx));
+  document.querySelectorAll('.hist-col').forEach((c, i) => {
+    c.classList.toggle('hist-col-hidden', i !== idx);
+  });
+}
+
+async function abrirHistorico() {
+  document.getElementById('hist-screen').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  await carregarHistorico();
+}
+
+function fecharHistorico() {
+  document.getElementById('hist-screen').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ── UPLOAD ────────────────────────────────────────────────────
+let uploadModo = 'conferencia';
+let uploadItens = [];
+
+function abrirUpload() {
+  document.getElementById('upload-screen').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  setUploadState('select');
+  uploadModo = 'conferencia';
+  setUploadMode('conferencia');
+  ['upload-input-galeria','upload-input-camera'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+}
+
+function fecharUpload() {
+  document.getElementById('upload-screen').style.display = 'none';
+  document.body.style.overflow = '';
+  ['upload-input-galeria','upload-input-camera'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+}
+
+function setUploadState(state) {
+  ['select','loading','confirm','sending','done'].forEach(s => {
+    const el = document.getElementById('upload-state-' + s);
+    if (el) el.classList.toggle('on', s === state);
+  });
+}
+
+function setUploadMode(modo) {
+  uploadModo = modo;
+  ['conferencia','entrada','saida'].forEach(m => {
+    const btn = document.getElementById('umode-' + m);
+    if (btn) btn.className = 'upload-mode-btn' + (m === modo ? ' sel ' + m : '');
+  });
+}
+
+function compressToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1200;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else       { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.80).split(',')[1]);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function onFotoSelecionada(file) {
+  if (!file) return;
+  setUploadState('loading');
+  try {
+    const base64 = await compressToBase64(file);
+    const resp = await fetch(APPS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'interpretarFoto', image: base64, mimeType: 'image/jpeg' })
+    });
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.erro || 'Erro na análise da foto');
+    uploadItens = data.itens || [];
+    renderUploadConfirm(uploadItens);
+    setUploadState('confirm');
+  } catch (err) {
+    setUploadState('select');
+    showToast('Erro: ' + err.message, 'err', 6000);
+  }
+}
+
+function renderUploadConfirm(itens) {
+  const el = document.getElementById('upload-confirm-list');
+  if (!el) return;
+  el.innerHTML = itens.map((item, i) => `
+    <div class="upload-item-row${!item.total ? ' zero' : ''}" id="upload-row-${i}">
+      <div class="upload-item-nome">${item.nome}</div>
+      <input class="upload-item-input" type="number" inputmode="numeric"
+        id="upload-qty-${i}" value="${item.total || 0}" min="0"
+        oninput="onUploadQtyChange(${i})">
+    </div>`).join('');
+}
+
+function onUploadQtyChange(i) {
+  const v = parseInt(document.getElementById('upload-qty-' + i)?.value) || 0;
+  if (uploadItens[i]) uploadItens[i].total = v;
+  const row = document.getElementById('upload-row-' + i);
+  if (row) row.classList.toggle('zero', v === 0);
+}
+
+async function submitUpload() {
+  const responsavel = document.getElementById('responsavel').value.trim();
+  if (!responsavel) { showToast('Faça login para enviar', 'err'); return; }
+
+  // lê valores atuais dos inputs
+  uploadItens.forEach((item, i) => {
+    item.total = parseInt(document.getElementById('upload-qty-' + i)?.value) || 0;
+  });
+
+  const comValor = uploadItens.filter(it => it.total > 0);
+  if (!comValor.length) { showToast('Nenhum item com quantidade informada', 'err'); return; }
+
+  setUploadState('sending');
+  const sm = document.getElementById('upload-sending-msg');
+  if (sm) sm.textContent = `Enviando ${comValor.length} ite${comValor.length > 1 ? 'ns' : 'm'} para o Gestão Click...`;
+
+  try {
+    const resp = await fetch(APPS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'lancarEstoqueEmMassa', responsavel, modo: uploadModo, itens: uploadItens })
+    });
+    const data = await resp.json();
+    renderUploadDone(data);
+    setUploadState('done');
+  } catch (err) {
+    setUploadState('confirm');
+    showToast('Erro de conexão: ' + err.message, 'err', 6000);
+  }
+}
+
+function renderUploadDone(data) {
+  const ok    = data.atualizados || 0;
+  const total = data.total || 0;
+  const resultados = data.resultados || [];
+
+  const iconEl  = document.getElementById('upload-done-icon');
+  const titleEl = document.getElementById('upload-done-title');
+  const subEl   = document.getElementById('upload-done-sub');
+  const resEl   = document.getElementById('upload-results');
+
+  if (ok > 0) {
+    iconEl.className  = 'upload-done-icon ok';
+    iconEl.innerHTML  = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    titleEl.textContent = ok + ' de ' + total + ' ite' + (total > 1 ? 'ns' : 'm') + ' atualizados';
+    subEl.textContent   = 'Contagem de ' + new Date().toLocaleDateString('pt-BR') + ' registrada com sucesso';
+  } else {
+    iconEl.className  = 'upload-done-icon err';
+    iconEl.innerHTML  = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+    titleEl.textContent = 'Nenhum item atualizado';
+    subEl.textContent   = data.erro || 'Verifique a conexão e tente novamente';
+  }
+
+  resEl.innerHTML = [
+    ...resultados.filter(r => r.ok).map(r =>
+      `<div class="upload-result-row"><span class="upload-result-ok">✓</span><span class="upload-result-nome">${r.nome}</span><span class="upload-result-val">${r.novo ?? ''}</span></div>`
+    ),
+    ...resultados.filter(r => !r.ok).map(r =>
+      `<div class="upload-result-row"><span class="upload-result-err">✗</span><span class="upload-result-nome">${r.nome}</span><span class="upload-result-val" style="color:var(--red);font-size:11px">${r.erro || 'erro'}</span></div>`
+    )
+  ].join('');
+}
+
+async function carregarHistorico() {
+  // Mostra loading em todas as colunas
+  USUARIOS_HIST.forEach((_, i) => {
+    document.getElementById('hist-items-' + i).innerHTML = '<div class="hist-empty">Carregando...</div>';
+  });
+  try {
+    const r = await fetch(APPS_URL + '?action=lancamentos');
+    const d = await r.json();
+    const todos = d.lancamentos || [];
+
+    USUARIOS_HIST.forEach((u, i) => {
+      const itens = todos.filter(l => l.responsavel === u.nome);
+      const el = document.getElementById('hist-items-' + i);
+      if (!itens.length) {
+        el.innerHTML = '<div class="hist-empty">Nenhum movimento registrado</div>';
+        return;
+      }
+      el.innerHTML = itens.map(l => {
+        const [data, hora] = (l.data || '').split(' ');
+        const modoLabel = { entrada: 'Entrada', saida: 'Saída', conferencia: 'Conferência' }[l.modo] || l.modo;
+        const sinal = l.modo === 'entrada' ? '+' : l.modo === 'saida' ? '−' : '=';
+        return `
+          <div class="hist-item">
+            <span class="hist-item-badge ${l.modo}">${modoLabel}</span>
+            <div class="hist-item-info">
+              <div class="hist-item-prod">${l.item || '—'}</div>
+              <div class="hist-item-meta">${data || ''} ${hora ? '· ' + hora : ''} · ${l.estoque_ant ?? '?'} → ${l.estoque_novo ?? '?'}</div>
+            </div>
+            <div class="hist-item-qty">${sinal}${l.quantidade ?? ''}</div>
+          </div>`;
+      }).join('');
+    });
+  } catch {
+    USUARIOS_HIST.forEach((_, i) => {
+      document.getElementById('hist-items-' + i).innerHTML =
+        '<div class="hist-empty">Erro ao carregar. Verifique a conexão.</div>';
+    });
+  }
+}
+
+// ── QR SCANNER ────────────────────────────────────────────────────────
+// SKU exato → produto. QR code deve conter o SKU exato.
+// Fallback: tenta match por palavras-chave se SKU não bater.
+const FARDOS_QR = [
+  { sku:'FAR-PCO38-17G7-120ML-450UN',     keys:['120ml','17g7'],          nome:'Fardo 120ML (450un)',            un:450, gramatura:'17,7g' },
+  { sku:'FAR-PCO38-17G7-200ML-300UN',     keys:['200ml','17g7'],          nome:'Fardo 200ML (300un)',            un:300, gramatura:'17,7g' },
+  { sku:'FAR-PCO38-19G-300ML-240UN',      keys:['300ml','19g'],           nome:'Fardo 300ML (240un)',            un:240, gramatura:'19g'   },
+  { sku:'FAR-PCO38-33G-500ML-150UN',      keys:['boca larga','150un'],    nome:'Fardo 500ML Boca Larga (150un)', un:150, gramatura:'33g'  },
+  { sku:'FAR-PCO28-24G-300ML-KMBA-300UN', keys:['kombucha','kmba'],       nome:'Fardo 300ML Kombucha (300un)',   un:300, gramatura:'24g'  },
+  { sku:'FAR-PCO28-24G-500ML-BOR-200UN',  keys:['borrifador','bor'],      nome:'Fardo 500ML Borrifador (200un)', un:200, gramatura:'24g'  },
+  { sku:'FAR-PCO28-33G-500ML-AMBAR-200UN',keys:['ambar','amber'],         nome:'Fardo 500ML Âmbar (200un)',      un:200, gramatura:'33g'  },
+];
+
+let _qrScanner=null, _qrProd=null, _qrAcao=null;
+
+function abrirQR(){
+  document.getElementById('qr-screen').style.display='block';
+  document.body.style.overflow='hidden';
+  setTimeout(iniciarScannerQR,300);
+}
+function fecharQR(){
+  fecharQRModal(false);
+  pararScannerQR();
+  document.getElementById('qr-screen').style.display='none';
+  document.body.style.overflow='';
+}
+function iniciarScannerQR(){
+  if(!window.Html5Qrcode){alert('Biblioteca QR não carregada. Recarregue a página.');return;}
+  pararScannerQR();
+  // Limpa o div do reader antes de reinstanciar
+  const el=document.getElementById('qr-reader');
+  el.innerHTML='';
+  _qrScanner=new Html5Qrcode('qr-reader');
+  _qrScanner.start(
+    {facingMode:'environment'},
+    {fps:10,qrbox:{width:260,height:260}},
+    (txt)=>onQRDetectado(txt),
+    ()=>{}
+  ).catch(err=>{
+    document.querySelector('.qr-hint').textContent='Erro ao acessar câmera: '+err;
+  });
+}
+function pararScannerQR(){
+  if(_qrScanner){
+    _qrScanner.stop().catch(()=>{}).finally(()=>{_qrScanner=null;});
+  }
+}
+function matchFardo(texto){
+  const t=texto.trim().toUpperCase();
+  // 1. SKU exato
+  const exato=FARDOS_QR.find(f=>f.sku===t||f.sku===texto.trim());
+  if(exato) return exato;
+  // 2. SKU contido no texto
+  const parcial=FARDOS_QR.find(f=>t.includes(f.sku));
+  if(parcial) return parcial;
+  // 3. Fallback por palavras-chave
+  const tl=texto.trim().toLowerCase();
+  return FARDOS_QR.find(f=>f.keys.some(k=>tl.includes(k)))||null;
+}
+function onQRDetectado(texto){
+  pararScannerQR();
+  _qrProd=matchFardo(texto);
+  _qrAcao=null;
+  document.getElementById('qr-raw-text').textContent='Lido: '+texto;
+  document.getElementById('qr-confirm').disabled=true;
+  document.querySelectorAll('.qr-act-opt').forEach(e=>e.classList.remove('sel'));
+  document.getElementById('qr-qtd').value=1;
+  if(_qrProd){
+    document.getElementById('qr-prod-badge').textContent=_qrProd.nome;
+    document.getElementById('qr-units-info').textContent=_qrProd.un+' un/fardo  ·  pré-forma '+(_qrProd.gramatura||'');
+    document.getElementById('qr-sel-prod').style.display='none';
+  } else {
+    document.getElementById('qr-prod-badge').textContent='Produto não reconhecido — selecione:';
+    document.getElementById('qr-units-info').textContent='';
+    const sel=document.getElementById('qr-sel-prod');
+    sel.innerHTML='<option value="">— Selecione o produto —</option>';
+    FARDOS_QR.forEach((f,i)=>{
+      const o=document.createElement('option');
+      o.value=i; o.textContent=f.nome+' ('+f.un+' un/fardo)';
+      sel.appendChild(o);
+    });
+    sel.style.display='block';
+  }
+  atualizarPrevQR();
+  document.getElementById('qr-modal-overlay').style.display='flex';
+}
+function onProdQRChange(val){
+  _qrProd=val!==''?FARDOS_QR[parseInt(val)]:null;
+  if(_qrProd){
+    document.getElementById('qr-prod-badge').textContent=_qrProd.nome;
+    document.getElementById('qr-units-info').textContent=_qrProd.un+' unidades por fardo';
+  }
+  atualizarPrevQR(); validarQR();
+}
+function selAcaoQR(el){
+  document.querySelectorAll('.qr-act-opt').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel'); _qrAcao=el.dataset.act;
+  validarQR();
+}
+function ajustarQtdQR(d){
+  const i=document.getElementById('qr-qtd');
+  i.value=Math.max(1,(parseInt(i.value)||1)+d);
+  atualizarPrevQR();
+}
+function atualizarPrevQR(){
+  const qtd=parseInt(document.getElementById('qr-qtd').value)||1;
+  const un=_qrProd?_qrProd.un:0;
+  document.getElementById('qr-un-prev').textContent=un>0?'= '+(qtd*un)+' unidades no estoque':'';
+}
+function validarQR(){
+  document.getElementById('qr-confirm').disabled=!(_qrProd&&_qrAcao);
+}
+async function confirmarQR(){
+  if(!_qrProd||!_qrAcao) return;
+  const qtdFardos=parseInt(document.getElementById('qr-qtd').value)||1;
+  // Salva antes de fechar o modal (fecharQRModal zera _qrProd)
+  const nomeProd=_qrProd.nome;
+  const acaoAtual=_qrAcao;
+  const btn=document.getElementById('qr-confirm');
+  btn.textContent='Enviando...'; btn.disabled=true;
+  const modoGAS={entrada:'entrada',saida:'saida',total:'conferencia'};
+  const modoLabel={entrada:'Entrada',saida:'Saída',total:'Conferência'};
+  try{
+    const params=new URLSearchParams({
+      action:'lancarEstoque',
+      itemId:(_qrProd&&_qrProd.sku)||'',
+      itemNome:nomeProd,
+      totalUnidades:String(qtdFardos),
+      modo:modoGAS[acaoAtual],
+      responsavel:(getSession()||{}).nome||'Desconhecido'
+    });
+    const res=await fetch(APPS_URL+'?'+params.toString());
+    const data=await res.json();
+    if(data.ok){
+      fecharQRModal(false);
+      mostrarToastQR('✓ '+modoLabel[acaoAtual]+': '+qtdFardos+' fardo(s) de '+nomeProd);
+      setTimeout(iniciarScannerQR,400);
+    } else {
+      btn.textContent='Confirmar lançamento'; btn.disabled=false;
+      alert('Erro: '+(data.erro||data.msg||'Falha ao lançar'));
+    }
+  }catch(e){
+    btn.textContent='Confirmar lançamento'; btn.disabled=false;
+    alert('Erro de conexão: '+e.message);
+  }
+}
+function fecharQRModal(reiniciar=true){
+  document.getElementById('qr-modal-overlay').style.display='none';
+  _qrProd=null; _qrAcao=null;
+  if(reiniciar) setTimeout(iniciarScannerQR,300);
+}
+function mostrarToastQR(msg){
+  const t=document.getElementById('qr-toast');
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(t._t);
+  t._t=setTimeout(()=>{t.style.opacity='0';},3500);
+}
+</script>
+</body>
+</html>
