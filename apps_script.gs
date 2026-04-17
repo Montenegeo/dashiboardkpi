@@ -935,6 +935,32 @@ function criarFormRastreio() {
 function doGet(e) {
   const action = e && e.parameter && e.parameter.action;
 
+  // ── Cadastrar rastreio via GET (formulário HTML usa no-cors GET) ──
+  if (action === 'cadastrarRastreio') {
+    const codigo    = (e.parameter.codigo    || '').trim().toUpperCase();
+    const nome      = (e.parameter.nome      || '').trim();
+    const telefone  = (e.parameter.telefone  || '').replace(/\D/g, '');
+    const interesse = (e.parameter.interesse || '').trim();
+    if (!codigo || !nome || !telefone || !interesse) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: false, erro: 'Campos obrigatórios ausentes.' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+    try {
+      const prop  = PropertiesService.getScriptProperties();
+      const lista = JSON.parse(prop.getProperty('rastreios_data') || '[]');
+      lista.push({ ts: new Date().toISOString(), codigo, nome, telefone, interesse });
+      prop.setProperty('rastreios_data', JSON.stringify(lista));
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch(err) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: false, erro: err.message }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   // ── OAuth callback da Shopee ─────────────────────────────────
   // Quando o usuário autoriza o app, a Shopee redireciona aqui com ?code=XXX&shop_id=YYY
   if (e && e.parameter && e.parameter.code) {

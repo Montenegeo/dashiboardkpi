@@ -347,16 +347,19 @@
     }
   });
 
-  // ── Envia via fetch com no-cors (GAS aceita POST sem preflight em no-cors) ──
+  // ── Envia via GET (parâmetros na URL) — único método confiável com GAS + CORS ──
   async function postViaForm(payload) {
-    const res = await fetch(GAS_URL, {
-      method:  'POST',
-      mode:    'no-cors', // GAS não tem CORS header — usamos no-cors
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      body:    JSON.stringify(payload),
+    const params = new URLSearchParams({
+      action:    payload.action,
+      codigo:    payload.codigo,
+      nome:      payload.nome,
+      telefone:  payload.telefone,
+      interesse: payload.interesse,
     });
-    // no-cors → response.type = 'opaque', não conseguimos ler o body.
-    // Assumimos sucesso se não lançou exceção.
+    const res = await fetch(`${GAS_URL}?${params.toString()}`, {
+      method: 'GET',
+      mode:   'no-cors',
+    });
     return res;
   }
 
