@@ -30,11 +30,13 @@ function initEstoquistas() {
 
 // ── IDs das planilhas ─────────────────────────────────────────
 const IDS = {
-  producao:   '1fgNeGLEf2fcg_X-loxkVHAmjxyjLECofK18DUMkWskk',
-  expedicao:  '1iF_XdKdr9jC4wxqHs7Lm8XEAIa9yeAKkbEoHktiFUGo',
-  reuniao:    '1Rpj4ZrYcv2-9tPNNXFmDD7-YNZDttzG5Mp66uoacVZ4',
-  devolucoes: '1ZFK2pmper_f-jg3FaZNrU3JPbawEIrsWcYGK-GypiRc',
-  prospeccao: '' // Cole o ID da planilha do form de prospecção aqui
+  producao:         '1fgNeGLEf2fcg_X-loxkVHAmjxyjLECofK18DUMkWskk',
+  expedicao:        '1iF_XdKdr9jC4wxqHs7Lm8XEAIa9yeAKkbEoHktiFUGo',
+  reuniao:          '1Rpj4ZrYcv2-9tPNNXFmDD7-YNZDttzG5Mp66uoacVZ4',
+  devolucoes:       '1ZFK2pmper_f-jg3FaZNrU3JPbawEIrsWcYGK-GypiRc',
+  prospeccao:       '', // Cole o ID da planilha do form de prospecção aqui
+  inventario_lidiane: '', // Cole o ID da planilha do form de inventário da Lidiane aqui
+  rastreios:        ''  // Cole o ID da planilha de respostas do Google Form de amostras aqui
 };
 
 const GIDS = { producao: 729143139, expedicao: 907565730 };
@@ -47,8 +49,7 @@ const WA = {
 };
 
 const DESTINATARIOS = [
-  '5527996461883', // Lucas Montenegro
-  '5522999328710'  // Gestor
+  '5527996461883' // Lucas Montenegro
 ];
 
 // ── Gestão Click API ──────────────────────────────────────────
@@ -101,6 +102,33 @@ function syncGestaoClick() {
       : [];
     const pedidosHoje = vendasHoje.length;
     const receitaHoje = vendasHoje.reduce((s, v) => s + gcNum(v.valor_total), 0);
+
+    // Pedidos inviáveis e cancelados hoje
+    const inviaveisHoje  = vendasHoje.filter(v => String(v.status||'').toLowerCase().includes('inviav')).length;
+    const canceladosHoje = vendasHoje.filter(v => String(v.status||'').toLowerCase().includes('cancel')).length;
+
+    // Total de unidades vendidas no mês (soma itens de cada pedido)
+    const unidadesMes = vendas.reduce((s, v) => {
+      const itens = v.itens || [];
+      if (itens.length > 0) return s + itens.reduce((si, i) => si + gcNum(i.quantidade || 1), 0);
+      return s + gcNum(v.quantidade_itens || 1);
+    }, 0);
+
+    // Produtos mais/menos vendidos no mês
+    const prodContagem = {};
+    vendas.forEach(v => {
+      const itens = v.itens || [];
+      itens.forEach(item => {
+        const nome = (item.nome || item.produto || item.descricao || '').split(' ').slice(0,4).join(' ');
+        if (!nome) return;
+        prodContagem[nome] = (prodContagem[nome] || 0) + gcNum(item.quantidade || 1);
+      });
+    });
+    const prodOrdenados = Object.entries(prodContagem).sort((a, b) => b[1] - a[1]);
+    const maisVendido  = prodOrdenados[0]
+      ? `${prodOrdenados[0][0]} (${Math.round(prodOrdenados[0][1])} un)` : '—';
+    const menosVendido = prodOrdenados.length > 1
+      ? `${prodOrdenados[prodOrdenados.length-1][0]} (${Math.round(prodOrdenados[prodOrdenados.length-1][1])} un)` : '—';
 
     // ── Produtos / Estoque ───────────────────────────────────
     const resProd = UrlFetchApp.fetch(
@@ -173,11 +201,16 @@ function syncGestaoClick() {
     const gcData = {
       atualizado_em: Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy HH:mm'),
       vendas: {
-        pedidos_mes:   pedidosMes,
-        receita_mes:   Math.round(receitaMes * 100) / 100,
-        ticket_medio:  Math.round(ticketMedio * 100) / 100,
-        pedidos_hoje:  pedidosHoje,
-        receita_hoje:  Math.round(receitaHoje * 100) / 100
+        pedidos_mes:      pedidosMes,
+        unidades_mes:     Math.round(unidadesMes),
+        receita_mes:      Math.round(receitaMes * 100) / 100,
+        ticket_medio:     Math.round(ticketMedio * 100) / 100,
+        pedidos_hoje:     pedidosHoje,
+        receita_hoje:     Math.round(receitaHoje * 100) / 100,
+        inviavies_hoje:   inviaveisHoje,
+        cancelados_hoje:  canceladosHoje,
+        mais_vendido:     maisVendido,
+        menos_vendido:    menosVendido
       },
       clientes: {
         // Clientes únicos no mês: contagem de cliente_id distintos nas vendas
@@ -223,6 +256,34 @@ function syncGestaoClick() {
   } catch(e) {
     Logger.log('❌ Gestão Click sync erro: ' + e.message);
     return null;
+  }
+}
+
+// ── Inventário da Lidiane — verifica se formulário foi preenchido hoje ───────
+function checkInventarioLidiane() {
+  if (!IDS.inventario_lidiane) return { preenchido: false, quem: '', horario: '' };
+  try {
+    const hoje = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM/yyyy');
+    const ss   = SpreadsheetApp.openById(IDS.inventario_lidiane);
+    const data = ss.getSheets()[0].getDataRange().getValues();
+    for (let i = data.length - 1; i >= 1; i--) {
+      const ts = data[i][0];
+      if (!ts) continue;
+      const dataTs = ts instanceof Date
+        ? Utilities.formatDate(ts, 'America/Sao_Paulo', 'dd/MM/yyyy')
+        : (() => { try { return Utilities.formatDate(new Date(ts), 'America/Sao_Paulo', 'dd/MM/yyyy'); } catch(_) { return ''; } })();
+      if (dataTs === hoje) {
+        return {
+          preenchido: true,
+          quem:       String(data[i][1] || 'Lidiane'),
+          horario:    ts instanceof Date ? Utilities.formatDate(ts, 'America/Sao_Paulo', 'HH:mm') : ''
+        };
+      }
+    }
+    return { preenchido: false, quem: '', horario: '' };
+  } catch(e) {
+    Logger.log('Inventário Lidiane check erro: ' + e.message);
+    return { preenchido: false, quem: '', horario: '' };
   }
 }
 
@@ -338,6 +399,7 @@ function buildJSON() {
       itens: devHoje.map(r => ({ rastreio:r[0]||'', produto:r[1]||'', pedido:r[2]||'', estado:r[3]||'' }))
     },
     prospeccao,
+    inventario_lidiane: checkInventarioLidiane(),
     gestaoclick,  // null se cache vazio, objeto completo se já sincronizado
     shopee: (function() {
       try {
@@ -427,48 +489,59 @@ function resumoDiario18h() {
   const d    = buildJSON();
   const prod = d.producao;
   const exp  = d.expedicao;
-  const dev  = d.devolucoes;
   const pro  = d.prospeccao;
-  const reu  = d.reuniao;
   const gc   = d.gestaoclick;
+  const inv  = d.inventario_lidiane;
 
   const totalPedidos = (exp.pedidos_1impressao || 0) + (exp.pedidos_3impressao || 0);
 
-  const blocoGC = gc ? `
-💰 *GESTÃO CLICK*
-▸ Pedidos mês: ${gc.vendas.pedidos_mes}
-▸ Receita mês: R$ ${gc.vendas.receita_mes.toLocaleString('pt-BR')}
-▸ Inventário: R$ ${gc.estoque.inventario_custo.toLocaleString('pt-BR')}
-▸ SKUs zerados: ${gc.estoque.zerados}` : '';
-
-  // Monta bloco de produção com turnos separados
+  // Bloco produção
   const blocoProd = prod.turnos && prod.turnos.length > 1
     ? prod.turnos.map(t =>
-        `▸ ${t.turno}: ${t.realizado.toLocaleString('pt-BR')} un${t.troca && t.troca !== 'Não' ? ' 🔄 troca molde' : ''}`
+        `▸ ${t.turno}: ${t.realizado.toLocaleString('pt-BR')} un${t.troca && t.troca !== 'Não' ? ' 🔄' : ''}`
       ).join('\n') + `\n▸ *Total: ${prod.total_realizado.toLocaleString('pt-BR')} un*`
     : `▸ Realizado: ${prod.total_realizado.toLocaleString('pt-BR')} un`;
+  const blocoMolde = prod.molde_atual
+    ? `▸ Modelo: ${prod.molde_atual}${prod.gramatura > 0 ? ` · ${prod.gramatura}g/un` : ''}`
+    : '';
+  const blocoPerdas = prod.total_perda_un > 0 ? `▸ Perdas: ${prod.total_perda_un} un` : '';
+
+  // Bloco expedição
+  const blocoInviav = (gc && (gc.vendas.inviavies_hoje > 0 || gc.vendas.cancelados_hoje > 0))
+    ? `▸ Inviáveis: ${gc.vendas.inviavies_hoje} · Cancelados: ${gc.vendas.cancelados_hoje}`
+    : '';
+  const blocoAtraso = exp.atraso !== 'Não' ? '⚠️ Atraso identificado' : '';
+
+  // Bloco GC
+  const blocoGC = gc ? `
+💰 *ATACADO (Gestão Click)*
+▸ Pedidos mês: ${gc.vendas.pedidos_mes} · ${gc.vendas.unidades_mes > 0 ? gc.vendas.unidades_mes.toLocaleString('pt-BR') + ' un' : '—'}
+▸ Mais vendido: ${gc.vendas.mais_vendido}
+▸ Menos vendido: ${gc.vendas.menos_vendido}` : '';
+
+  // Bloco inventário Lidiane
+  const blocoInv = IDS.inventario_lidiane
+    ? `\n📋 *INVENTÁRIO*\n▸ ${inv.preenchido ? `✅ Preenchido por ${inv.quem}${inv.horario ? ' às ' + inv.horario : ''}` : '⏳ Pendente hoje'}`
+    : '';
 
   const msg =
 `🏭 *Montenegro Industria LTDA*
 📅 Fechamento ${d.atualizado_em}
 ━━━━━━━━━━━━━━━━━━━━
 
-📦 *PRODUÇÃO* ${prod.troca_molde ? '🔄' : ''}
+📦 *PRODUÇÃO*${prod.troca_molde ? ' 🔄' : ''}
 ${blocoProd}
-${prod.molde_atual ? `▸ Modelo: ${prod.molde_atual}` : ''}${prod.gramatura > 0 ? ` · ${prod.gramatura}g/un` : ''}
-▸ Perdas: ${prod.total_perda_un} un (${prod.total_perda_kg} kg)
-
+${blocoMolde}
+${blocoPerdas}
 📤 *EXPEDIÇÃO*
 ▸ Total pedidos: ${totalPedidos}
-▸ Devoluções hoje: ${dev.total_dia}
-▸ Horas extras: ${reu.horas_extras}
-${exp.atraso !== 'Não' ? '⚠️ Atraso identificado' : '✅ Sem atrasos'}
-
+${blocoInviav}
+${blocoAtraso}
 💼 *COMERCIAL*
 ▸ Prospecções: ${pro.prospeccoes}/30
 ▸ Orçamentos: ${pro.orcamentos}
 ▸ Fechado hoje: R$ ${pro.valor_fechado.toLocaleString('pt-BR')}
-${blocoGC}
+${blocoGC}${blocoInv}
 
 _Enviado automaticamente — Sistema Montenegro_`;
 
@@ -632,6 +705,43 @@ function doPost(e) {
     const body  = JSON.parse(e.postData.contents);
     const acao  = body.action || 'lancar';
 
+    // ── Cadastrar rastreio de amostra ─────────────────────────
+    if (acao === 'cadastrarRastreio') {
+      const { codigo, nome, telefone, interesse } = body;
+      if (!codigo || !nome || !telefone || !interesse) {
+        return ContentService
+          .createTextOutput(JSON.stringify({ ok: false, erro: 'Preencha todos os campos obrigatórios.' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+      try {
+        const prop  = PropertiesService.getScriptProperties();
+        const lista = JSON.parse(prop.getProperty('rastreios_data') || '[]');
+        const entry = {
+          ts:        new Date().toISOString(),
+          codigo:    codigo.trim().toUpperCase(),
+          nome:      nome.trim(),
+          telefone:  telefone.replace(/\D/g, ''),
+          interesse: interesse.trim()
+        };
+        lista.push(entry);
+        prop.setProperty('rastreios_data', JSON.stringify(lista));
+
+        // Também grava na planilha se configurada
+        if (IDS.rastreios) {
+          const ss = SpreadsheetApp.openById(IDS.rastreios);
+          ss.getSheets()[0].appendRow([new Date(), entry.codigo, entry.nome, entry.telefone, entry.interesse]);
+        }
+
+        return ContentService
+          .createTextOutput(JSON.stringify({ ok: true, msg: 'Amostra cadastrada! O sistema monitorará a entrega automaticamente.' }))
+          .setMimeType(ContentService.MimeType.JSON);
+      } catch(err) {
+        return ContentService
+          .createTextOutput(JSON.stringify({ ok: false, erro: err.message }))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
     // ── Salvar dados do Controle de Compras ───────────────────
     if (acao === 'salvarCompras') {
       const prop = PropertiesService.getScriptProperties();
@@ -786,6 +896,41 @@ function atualizarEstoqueGC_(label, sku, novaQuantidade) {
   return { ok:false, msg:`GC retornou HTTP ${code}: ${resUp.getContentText().slice(0,120)}` };
 }
 
+// ── Criar Google Form de Amostras ─────────────────────────────
+// Execute UMA VEZ no editor do Apps Script para criar o formulário.
+// Após rodar, copie o ID da planilha exibido no Logger para IDS.rastreios
+function criarFormRastreio() {
+  const form = FormApp.create('Cadastro de Amostras — Montenegro');
+  form.setTitle('Cadastro de Amostras')
+      .setDescription('Preencha os dados para monitorar a entrega da amostra ao cliente.');
+
+  form.addTextItem()
+    .setTitle('Código de rastreio')
+    .setRequired(true);
+
+  form.addTextItem()
+    .setTitle('Nome do cliente')
+    .setRequired(true);
+
+  form.addTextItem()
+    .setTitle('Telefone do cliente')
+    .setHelpText('Somente números. Ex: 27999990000')
+    .setRequired(true);
+
+  form.addTextItem()
+    .setTitle('Interesse do Lead')
+    .setHelpText('Ex: Tempero 120ml, Suco 300ml...')
+    .setRequired(true);
+
+  // Vincula a uma planilha de respostas
+  const ss    = SpreadsheetApp.create('Respostas — Amostras Montenegro');
+  form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+
+  Logger.log('✅ Form criado: ' + form.getPublishedUrl());
+  Logger.log('✅ Planilha ID: ' + ss.getId());
+  Logger.log('👉 Cole esse ID em IDS.rastreios no apps_script.gs e faça novo deploy.');
+}
+
 // ── doGet — endpoint principal do dashboard ───────────────────
 function doGet(e) {
   const action = e && e.parameter && e.parameter.action;
@@ -915,6 +1060,286 @@ function doGet(e) {
   }
 
   // ── Controle de Compras ───────────────────────────────────────
+  // ── Rastreio de Amostras ──────────────────────────────────
+  if (action === 'rastreios') {
+    try {
+      const prop  = PropertiesService.getScriptProperties();
+      const lista = JSON.parse(prop.getProperty('rastreios_data') || '[]');
+      const rastreios = lista.map(r => ({
+        code:           r.codigo,
+        customer_name:  r.nome,
+        customer_phone: r.telefone,
+        interesse:      r.interesse,
+        created_at:     r.ts
+      }));
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, rastreios }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch(e) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: false, erro: e.message }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  // ── Formulário de Cadastro de Amostras ───────────────────────
+  if (action === 'form') {
+    const appsUrl = ScriptApp.getService().getUrl();
+    const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Amostras — Montenegro</title>
+<style>
+  :root {
+    --azul: #1a3a6b;
+    --azul-light: #2451a3;
+    --azul-bg: #eef3fb;
+    --verde: #16a34a;
+    --vermelho: #dc2626;
+    --cinza: #6b7280;
+    --borda: #d1d5db;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--azul-bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 16px 48px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(26,58,107,.12);
+    width: 100%;
+    max-width: 480px;
+    overflow: hidden;
+  }
+  .header {
+    background: var(--azul);
+    padding: 28px 28px 24px;
+    text-align: center;
+  }
+  .header .logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.65);
+    margin-bottom: 6px;
+  }
+  .header h1 {
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  .header p {
+    color: rgba(255,255,255,.75);
+    font-size: 13px;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+  .body { padding: 28px; }
+  .field { margin-bottom: 20px; }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--azul);
+    margin-bottom: 6px;
+    letter-spacing: .3px;
+  }
+  label span { color: var(--vermelho); margin-left: 2px; }
+  input, select, textarea {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--borda);
+    border-radius: 8px;
+    font-size: 15px;
+    color: #1f2937;
+    background: #fff;
+    transition: border-color .15s, box-shadow .15s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--azul-light);
+    box-shadow: 0 0 0 3px rgba(36,81,163,.12);
+  }
+  input::placeholder { color: #9ca3af; }
+  .hint {
+    font-size: 12px;
+    color: var(--cinza);
+    margin-top: 5px;
+    line-height: 1.4;
+  }
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--azul);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+    margin-top: 8px;
+    letter-spacing: .3px;
+  }
+  .btn:hover { background: var(--azul-light); }
+  .btn:active { transform: scale(.98); }
+  .btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+  .alert {
+    display: none;
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .alert.success { background: #dcfce7; color: #166534; display: flex; gap: 10px; align-items: flex-start; }
+  .alert.error   { background: #fee2e2; color: #991b1b; display: flex; gap: 10px; align-items: flex-start; }
+  .alert .ico { font-size: 18px; line-height: 1.2; flex-shrink: 0; }
+  .footer {
+    text-align: center;
+    padding: 16px 28px 20px;
+    border-top: 1px solid #f3f4f6;
+    font-size: 12px;
+    color: var(--cinza);
+  }
+  @media (max-width: 480px) {
+    .card { border-radius: 12px; }
+    .header { padding: 22px 20px 18px; }
+    .body { padding: 20px; }
+    .header h1 { font-size: 19px; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="logo">Montenegro Indústria</div>
+    <h1>📦 Cadastro de Amostras</h1>
+    <p>Preencha os dados após enviar a amostra ao cliente. O sistema monitorará a entrega e avisará quando chegar.</p>
+  </div>
+  <div class="body">
+    <div class="alert success" id="msgSucesso">
+      <span class="ico">✅</span>
+      <div id="msgSucessoText"></div>
+    </div>
+    <div class="alert error" id="msgErro">
+      <span class="ico">❌</span>
+      <div id="msgErroText"></div>
+    </div>
+    <form id="form" novalidate>
+      <div class="field">
+        <label for="codigo">Código de rastreio<span>*</span></label>
+        <input type="text" id="codigo" name="codigo" placeholder="Ex: BR123456789AA" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
+        <div class="hint">Código dos Correios ou Shopee Express — sem espaços.</div>
+      </div>
+      <div class="field">
+        <label for="nome">Nome do cliente<span>*</span></label>
+        <input type="text" id="nome" name="nome" placeholder="Ex: João Silva">
+      </div>
+      <div class="field">
+        <label for="telefone">Telefone do cliente<span>*</span></label>
+        <input type="tel" id="telefone" name="telefone" placeholder="Ex: 27 99999-0000" inputmode="numeric">
+        <div class="hint">Somente números — será usado para contato após confirmação de entrega.</div>
+      </div>
+      <div class="field">
+        <label for="interesse">Interesse do Lead<span>*</span></label>
+        <input type="text" id="interesse" name="interesse" placeholder="Ex: Tempero 120ml, Suco 300ml, Mix Completo...">
+        <div class="hint">Produto(s) de interesse do cliente.</div>
+      </div>
+      <button type="submit" class="btn" id="btnEnviar">Cadastrar Amostra</button>
+    </form>
+  </div>
+  <div class="footer">Sistema de monitoramento automático · Montenegro Indústria</div>
+</div>
+
+<script>
+const APPS_URL = '${appsUrl}';
+
+function formatarTel(v) {
+  v = v.replace(/\\D/g, '');
+  if (v.length <= 10) return v.replace(/(\\d{2})(\\d{4})(\\d{0,4})/, '($1) $2-$3');
+  return v.replace(/(\\d{2})(\\d{5})(\\d{0,4})/, '($1) $2-$3');
+}
+
+document.getElementById('telefone').addEventListener('input', function() {
+  const cur = this.selectionStart;
+  this.value = formatarTel(this.value);
+});
+
+document.getElementById('codigo').addEventListener('input', function() {
+  this.value = this.value.toUpperCase().replace(/\\s/g, '');
+});
+
+document.getElementById('form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btnEnviar');
+  const suc = document.getElementById('msgSucesso');
+  const err = document.getElementById('msgErro');
+  suc.style.display = 'none';
+  err.style.display = 'none';
+
+  const codigo    = document.getElementById('codigo').value.trim();
+  const nome      = document.getElementById('nome').value.trim();
+  const telefone  = document.getElementById('telefone').value.replace(/\\D/g, '');
+  const interesse = document.getElementById('interesse').value.trim();
+
+  if (!codigo || !nome || !telefone || !interesse) {
+    document.getElementById('msgErroText').textContent = 'Preencha todos os campos obrigatórios.';
+    err.style.display = 'flex'; return;
+  }
+  if (telefone.length < 10) {
+    document.getElementById('msgErroText').textContent = 'Telefone inválido. Digite DDD + número.';
+    err.style.display = 'flex'; return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Cadastrando...';
+
+  try {
+    const res = await fetch(APPS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'cadastrarRastreio', codigo, nome, telefone, interesse })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      document.getElementById('msgSucessoText').innerHTML =
+        '<strong>Amostra cadastrada com sucesso!</strong><br>' + data.msg;
+      suc.style.display = 'flex';
+      document.getElementById('form').reset();
+    } else {
+      document.getElementById('msgErroText').textContent = data.erro || 'Erro ao cadastrar. Tente novamente.';
+      err.style.display = 'flex';
+    }
+  } catch(ex) {
+    document.getElementById('msgErroText').textContent = 'Falha de conexão. Verifique a internet e tente novamente.';
+    err.style.display = 'flex';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Cadastrar Amostra';
+  if (suc.style.display !== 'none') window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+</body>
+</html>`;
+    return HtmlService.createHtmlOutput(html)
+      .setTitle('Cadastro de Amostras — Montenegro')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  }
+
   if (action === 'getCompras') {
     const prop   = PropertiesService.getScriptProperties();
     const pedidos = JSON.parse(prop.getProperty('compras_pedidos') || '[]');

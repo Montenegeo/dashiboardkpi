@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Amostra — Montenegro Industria</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0A2647;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2rem 1.75rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .logo-area {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    .logo-area .icon {
+      width: 56px;
+      height: 56px;
+      background: #0A2647;
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+    .logo-area .icon svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .logo-area h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0A2647;
+      letter-spacing: -0.02em;
+    }
+    .logo-area p {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-top: 0.25rem;
+    }
+
+    .field {
+      margin-bottom: 1.1rem;
+    }
+    label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1rem;
+      color: #111;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #f9fafb;
+      -webkit-appearance: none;
+    }
+    input:focus {
+      outline: none;
+      border-color: #2C74B3;
+      box-shadow: 0 0 0 3px rgba(44,116,179,0.15);
+      background: #fff;
+    }
+    input.error { border-color: #ef4444; }
+    input::placeholder { color: #9ca3af; }
+
+    /* Últimos dígitos — destaque */
+    .digits-wrap {
+      position: relative;
+    }
+    .digits-wrap input {
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: #0A2647;
+    }
+    .digits-hint {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 0.3rem;
+    }
+
+    /* Código de rastreio */
+    #codigo {
+      text-transform: uppercase;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.05em;
+      font-size: 0.95rem;
+    }
+
+    /* Interesse — botões pill */
+    .interesse-group {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .interesse-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 0.7rem 0.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 50px;
+      background: #f9fafb;
+      color: #374151;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .interesse-btn:active { transform: scale(0.97); }
+    .interesse-btn.selected {
+      border-color: #0A2647;
+      background: #0A2647;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(10,38,71,0.3);
+    }
+    .interesse-btn.tempero.selected  { background: #c2410c; border-color: #c2410c; }
+    .interesse-btn.suco.selected     { background: #15803d; border-color: #15803d; }
+    .interesse-btn.higiene.selected  { background: #1d4ed8; border-color: #1d4ed8; }
+
+    .btn-submit {
+      width: 100%;
+      padding: 0.9rem;
+      background: #0A2647;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      letter-spacing: 0.02em;
+      transition: background 0.2s, transform 0.1s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-submit:hover { background: #144272; }
+    .btn-submit:active { transform: scale(0.99); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Mensagem de feedback */
+    .msg {
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: none;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .msg.success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .msg.error-msg {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .divider {
+      height: 1px;
+      background: #f1f5f9;
+      margin: 1.25rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-area">
+    <div class="icon">
+      <!-- Ícone de caixa/pacote -->
+      <svg viewBox="0 0 24 24">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+        <line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+    </div>
+    <h1>Amostra Enviada</h1>
+    <p>Cadastre o rastreio para receber alerta de entrega</p>
+  </div>
+
+  <form id="form" novalidate>
+
+    <div class="field">
+      <label>Nome do Cliente</label>
+      <input type="text" id="nome" placeholder="Ex: João Silva" autocomplete="off" inputmode="text">
+    </div>
+
+    <div class="field">
+      <label>Últimos 4 dígitos do WhatsApp</label>
+      <div class="digits-wrap">
+        <input type="number" id="telefone" placeholder="0000"
+               maxlength="4" min="0" max="9999"
+               inputmode="numeric" pattern="[0-9]*"
+               oninput="this.value=this.value.slice(0,4)">
+      </div>
+      <p class="digits-hint">Apenas os 4 últimos dígitos do número do cliente</p>
+    </div>
+
+    <div class="field">
+      <label>Código de Rastreio</label>
+      <input type="text" id="codigo" placeholder="Ex: BR269706715588X"
+             autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Interesse do Lead</label>
+      <div class="interesse-group">
+        <button type="button" class="interesse-btn tempero"  data-v="TEMPERO">🌶 Tempero</button>
+        <button type="button" class="interesse-btn suco"     data-v="SUCO">🍋 Suco</button>
+        <button type="button" class="interesse-btn higiene"  data-v="HIGIENE">🧴 Higiene</button>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" id="btnEnviar">
+      <span id="btnTxt">📦 Cadastrar Amostra</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <div class="msg" id="msg"></div>
+
+  </form>
+</div>
+
+<script>
+  // ── Endpoint do Apps Script ──────────────────────────────────
+  const GAS_URL = 'https://script.google.com/macros/s/AKfycbyqzJCci0pwqz4hAvOS1cysRGiLJw65VSDvkw1UuQ9CkFJSBtGaAorZO8imB-ahdant/exec';
+
+  // ── Seleção de interesse ─────────────────────────────────────
+  let interesseSelecionado = '';
+
+  document.querySelectorAll('.interesse-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.interesse-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      interesseSelecionado = btn.dataset.v;
+    });
+  });
+
+  // ── Uppercase automático no código ───────────────────────────
+  document.getElementById('codigo').addEventListener('input', function () {
+    const pos = this.selectionStart;
+    this.value = this.value.toUpperCase();
+    this.setSelectionRange(pos, pos);
+  });
+
+  // ── Submit ────────────────────────────────────────────────────
+  document.getElementById('form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const nome     = document.getElementById('nome').value.trim();
+    const telefone = document.getElementById('telefone').value.trim();
+    const codigo   = document.getElementById('codigo').value.trim().toUpperCase();
+    const interesse = interesseSelecionado;
+
+    // Limpa erros anteriores
+    ['nome','telefone','codigo'].forEach(id => {
+      document.getElementById(id).classList.remove('error');
+    });
+    hideMsg();
+
+    // Validação
+    let ok = true;
+    if (!nome)           { mark('nome');     ok = false; }
+    if (!telefone || telefone.length < 4) { mark('telefone');  ok = false; }
+    if (!codigo || codigo.length < 8)     { mark('codigo');    ok = false; }
+    if (!interesse) {
+      showMsg('Selecione o interesse do lead (Tempero, Suco ou Higiene).', false);
+      ok = false;
+    }
+    if (!ok) return;
+
+    // Envia
+    setLoading(true);
+    try {
+      const payload = {
+        action:    'cadastrarRastreio',
+        codigo,
+        nome,
+        telefone,
+        interesse,
+      };
+
+      // GAS não aceita fetch() diretamente por CORS em alguns contextos.
+      // Usamos a técnica no-cors + form fallback via image trick para confirmar.
+      // Solução confiável: iframe POST form.
+      await postViaForm(payload);
+      showMsg('✅ Amostra cadastrada! O sistema irá monitorar e avisar quando chegar.', true);
+      resetForm();
+    } catch (err) {
+      showMsg('❌ Erro ao cadastrar. Verifique sua conexão e tente novamente.', false);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // ── Envia via fetch com no-cors (GAS aceita POST sem preflight em no-cors) ──
+  async function postViaForm(payload) {
+    const res = await fetch(GAS_URL, {
+      method:  'POST',
+      mode:    'no-cors', // GAS não tem CORS header — usamos no-cors
+      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+      body:    JSON.stringify(payload),
+    });
+    // no-cors → response.type = 'opaque', não conseguimos ler o body.
+    // Assumimos sucesso se não lançou exceção.
+    return res;
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────
+  function mark(id)       { document.getElementById(id).classList.add('error'); }
+  function hideMsg()      { const m = document.getElementById('msg'); m.style.display='none'; }
+  function showMsg(t, ok) {
+    const m = document.getElementById('msg');
+    m.textContent = t;
+    m.className = 'msg ' + (ok ? 'success' : 'error-msg');
+    m.style.display = 'block';
+  }
+  function setLoading(v) {
+    const btn = document.getElementById('btnEnviar');
+    const txt = document.getElementById('btnTxt');
+    const sp  = document.getElementById('spinner');
+    btn.disabled  = v;
+    txt.style.display = v ? 'none' : 'flex';
+    sp.style.display  = v ? 'block' : 'none';
+  }
+  function resetForm() {
+    document.getElementById('nome').value     = '';
+    document.getElementById('telefone').value = '';
+    document.getElementById('codigo').value   = '';
+    document.querySelectorAll('.interesse-btn').forEach(b => b.classList.remove('selected'));
+    interesseSelecionado = '';
+  }
+</script>
+
+</body>
+</html>
