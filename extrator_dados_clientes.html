@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Montenegro | Extrator de Inteligência</title>
+    <!-- Modern Corporate Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --brand-blue: #1E40AF;
+            --brand-blue-hover: #1E3A8A;
+            --brand-blue-light: rgba(30, 64, 175, 0.08);
+            
+            --bg-page: #F8FAFC;
+            --bg-surface: #FFFFFF;
+            
+            --border-light: #E2E8F0;
+            --border-focus: #1E40AF;
+            
+            --text-main: #0F172A;
+            --text-muted: #475569;
+            
+            --success: #16A34A;
+            --success-bg: #F0FDF4;
+            --error: #DC2626;
+            --error-bg: #FEF2F2;
+            --warning: #D97706;
+            --warning-bg: #FFFBEB;
+            
+            --radius-xl: 16px;
+            --radius-lg: 12px;
+            --radius-md: 8px;
+            --radius-sm: 6px;
+            
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: var(--font-body); 
+            background-color: var(--bg-page); 
+            color: var(--text-main); 
+            line-height: 1.6; 
+            min-height: 100vh;
+            overflow-x: hidden;
+            font-size: 15px;
+        }
+
+        h1, h2, h3, h4, h5 { font-family: var(--font-display); font-weight: 700; color: var(--text-main); }
+        
+        header { 
+            background: #FFFFFF; 
+            border-bottom: 1px solid var(--border-light);
+            padding: 1.2rem 3rem; 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; z-index: 50; 
+        }
+        
+        .logo { 
+            font-family: var(--font-display); font-size: 1.5rem; font-weight: 800; 
+            display: flex; align-items: center; gap: 0.75rem; 
+            color: var(--brand-blue); letter-spacing: -0.02em;
+        }
+        .logo i { font-size: 1.6rem; color: var(--brand-blue); }
+        .logo-text { display: flex; align-items: center; gap: 0.5rem; color: var(--text-main); }
+        
+        .logo-badge {
+            background: var(--brand-blue-light); padding: 0.2rem 0.6rem; border-radius: 6px; 
+            font-size: 0.8rem; color: var(--brand-blue); font-weight: 700; letter-spacing: 0.02em;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.75rem 1.5rem; font-family: var(--font-body); font-weight: 600; font-size: 0.95rem;
+            border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; 
+            transition: all 0.2s ease; text-decoration: none;
+        }
+
+        .btn-outline-header {
+            background: #FFFFFF; border-color: var(--border-light); color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-outline-header:hover { background: var(--bg-page); border-color: #cbd5e1; }
+        
+        .btn-outline {
+            background: #FFFFFF; border-color: var(--border-light); color: var(--text-main);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-outline:hover { background: var(--bg-page); }
+        
+        .settings-btn { font-size: 0.85rem; padding: 0.6rem 1rem; }
+
+        main { flex: 1; padding: 2.5rem 1.5rem; overflow-y: auto; display: flex; flex-direction: column; align-items: center; }
+        .blocks-container { width: 100%; max-width: 900px; display: flex; flex-direction: column; gap: 1.5rem; padding-bottom: 4rem; }
+
+        .api-warning { 
+            background: var(--warning-bg); border: 1px solid rgba(217, 119, 6, 0.3);
+            color: #b45309; padding: 1.25rem; border-radius: var(--radius-md); 
+            display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+            font-weight: 600; box-shadow: var(--shadow-sm);
+        }
+
+        .client-block { 
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg); padding: 2.5rem; 
+            border: 1px solid var(--border-light); 
+            box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column; gap: 1.5rem; position: relative;
+        }
+
+        .block-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); 
+        }
+        .block-title { 
+            font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; 
+            display: flex; align-items: center; gap: 0.75rem; color: var(--text-main);
+        }
+        .block-title i { color: var(--brand-blue); }
+        .client-index { 
+            background: var(--bg-page); color: var(--text-muted); border: 1px solid var(--border-light);
+            padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.85rem; font-weight: 700; 
+        }
+        
+        .remove-block-btn { 
+            background: transparent; border: 1px solid transparent; 
+            color: var(--text-muted); cursor: pointer; font-size: 1.2rem; padding: 0.4rem; 
+            border-radius: var(--radius-sm); transition: all 0.2s; 
+        }
+        .remove-block-btn:hover { color: var(--error); background: var(--error-bg); }
+
+        .input-region { display: block; }
+        .instruction { font-size: 1rem; color: var(--text-main); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-weight: 500;}
+        
+        .editor-area { 
+            width: 100%; min-height: 180px; padding: 1.5rem; 
+            border: 1px solid var(--border-light); border-radius: var(--radius-md); 
+            background: #FFFFFF; font-size: 1.05rem; color: var(--text-main);
+            transition: all 0.2s ease; overflow-y: auto; max-height: 400px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .editor-area:focus { 
+            outline: none; border-color: var(--brand-blue); 
+            box-shadow: 0 0 0 3px var(--brand-blue-light), inset 0 2px 4px rgba(0,0,0,0.02); 
+        }
+        .editor-area img { max-width: 100%; max-height: 250px; border-radius: var(--radius-sm); margin: 0.75rem 0; display: block; border: 1px solid #cbd5e1; }
+        .editor-area[data-placeholder]:empty:before { content: attr(data-placeholder); color: #94a3b8; font-style: italic; opacity: 1; pointer-events: none; }
+
+        .results-region { display: none; }
+
+        .status-badge { 
+            padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 600; 
+            display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid;
+            font-family: var(--font-body);
+        }
+        .status-complete { background-color: var(--success-bg); color: var(--success); border-color: #bbf7d0; }
+        .status-incomplete { background-color: var(--error-bg); color: var(--error); border-color: #fecaca; }
+
+        .category-block { margin-bottom: 2.5rem; }
+        
+        .category-title { 
+            font-size: 1.2rem; color: var(--text-main); margin-bottom: 1.5rem; 
+            font-family: var(--font-display); font-weight: 700;
+            display: flex; align-items: center; gap: 0.75rem; 
+            padding-bottom: 0.5rem; border-bottom: 2px solid var(--border-light);
+        }
+        .category-title i { color: var(--text-muted); }
+
+        .data-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        @media (max-width: 600px) { .data-grid { grid-template-columns: 1fr; } }
+        
+        .data-item { position: relative; display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        .data-label { 
+            font-size: 0.95rem; color: var(--text-main); font-weight: 600; 
+            display: flex; align-items: center; gap: 0.4rem; 
+        }
+        .data-label i { color: var(--text-muted); width: 16px; text-align: center; }
+        
+        .data-input, .data-select { 
+            width: 100%; font-size: 1.05rem; padding: 0 1rem; height: 48px;
+            background: #FFFFFF; border-radius: var(--radius-md); 
+            border: 1px solid var(--border-light); font-family: var(--font-body); 
+            color: var(--text-main); transition: all 0.2s ease; 
+        }
+        
+        .data-select { 
+            cursor: pointer; appearance: none; 
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); 
+            background-repeat: no-repeat; background-position: right 1rem center; background-size: 1.2em; padding-right: 2.5rem; 
+        }
+        
+        .data-input:focus, .data-select:focus { 
+            outline: none; border-color: var(--brand-blue); 
+            box-shadow: 0 0 0 3px var(--brand-blue-light); 
+        }
+        
+        /* Minimalist validation styling */
+        .data-input.missing, .data-select.missing { 
+            border-color: #fca5a5; background-color: var(--bg-surface);
+        }
+        .data-input.missing:focus, .data-select.missing:focus { 
+            border-color: var(--error); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); 
+        }
+        .missing-text { color: var(--error); font-size: 0.85rem; font-weight: 500; display: none; margin-top: -0.3rem;}
+        .missing ~ .missing-text { display: flex; align-items: center; gap: 0.4rem; }
+        
+        textarea.data-input { resize: vertical; min-height: 80px; padding: 0.8rem 1rem; }
+
+        .products-item { grid-column: 1 / -1; }
+        .product-editor {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .product-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .product-remove {
+            width: 48px;
+            height: 48px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: #FFFFFF;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .product-remove:hover {
+            color: var(--error);
+            background: var(--error-bg);
+            border-color: #fecaca;
+        }
+        .product-add {
+            align-self: flex-start;
+            margin-top: 0.25rem;
+        }
+        .product-editor.missing .data-input,
+        .product-editor.missing .data-select {
+            border-color: #fca5a5;
+        }
+        @media (max-width: 720px) {
+            .product-row { grid-template-columns: 1fr; }
+            .product-remove { width: 100%; }
+        }
+
+        .actions-group { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem; align-items: center; justify-content: flex-end; padding-top: 1.5rem; border-top: 1px solid var(--border-light); }
+        .actions-group.left { justify-content: flex-start; border-top: none; padding-top: 0; }
+        
+        .btn-primary { 
+            background: var(--brand-blue); 
+            color: white; border-color: var(--brand-blue);
+        }
+        .btn-primary:hover { background: var(--brand-blue-hover); border-color: var(--brand-blue-hover); box-shadow: var(--shadow-md); }
+        .btn-primary:active { background: #172554; }
+        .btn-primary:disabled { opacity: 0.5; background: var(--text-muted); border-color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
+        
+        .extract-btn { width: auto; font-size: 1.05rem; padding: 1rem 2rem; }
+        
+        .btn-action { 
+            background: #FFFFFF; border: 1px solid var(--border-light); 
+            padding: 0.85rem 1.25rem; border-radius: var(--radius-md); cursor: pointer; 
+            font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; 
+            transition: all 0.2s; color: var(--text-main); font-family: var(--font-body);
+        }
+        .btn-action:hover { background: var(--bg-page); border-color: #cbd5e1; }
+        
+        .btn-action.whatsapp { background: #16A34A; color: white; border-color: #16A34A; }
+        .btn-action.whatsapp:hover { background: #15803d; border-color: #15803d;}
+
+        .copy-erp-btn { font-size: 0.95rem; padding: 0.85rem 1.25rem; }
+        
+        /* Flat ERP buttons */
+        .copy-erp-btn.btn-cliente { background: #475569; border-color: #475569; }
+        .copy-erp-btn.btn-cliente:hover { background: #334155; border-color: #334155; }
+        .copy-erp-btn.btn-expedicao { background: #0F766E; border-color: #0F766E; }
+        .copy-erp-btn.btn-expedicao:hover { background: #115E59; border-color: #115E59; }
+        .copy-erp-btn.btn-logistica { background: var(--brand-blue); border-color: var(--brand-blue); }
+        .copy-erp-btn.btn-logistica:hover { background: var(--brand-blue-hover); border-color: var(--brand-blue-hover); }
+
+        .add-block-btn { 
+            background: #FFFFFF; border: 2px dashed #cbd5e1; 
+            color: var(--text-main); padding: 1.5rem; border-radius: var(--radius-lg); 
+            font-size: 1.1rem; font-family: var(--font-display); font-weight: 600; 
+            cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 0.75rem; 
+            width: 100%; transition: all 0.2s;
+        }
+        .add-block-btn:hover { border-color: var(--brand-blue); color: var(--brand-blue); background: var(--bg-page); }
+
+        .modal-overlay { 
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); 
+            z-index: 1000; display: flex; justify-content: center; align-items: center; 
+            opacity: 0; pointer-events: none; transition: opacity 0.2s; 
+            backdrop-filter: blur(4px); 
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal { 
+            background: #FFFFFF; padding: 2.5rem; border-radius: var(--radius-lg); 
+            width: 100%; max-width: 450px; box-shadow: var(--shadow-md); 
+            border: 1px solid var(--border-light); transform: scale(0.95); transition: transform 0.2s;
+        }
+        .modal-overlay.active .modal { transform: scale(1); }
+        .modal h3 { margin-bottom: 0.5rem; color: var(--text-main); font-size: 1.4rem; }
+        .modal input { 
+            width: 100%; height: 48px; padding: 0 1rem; border: 1px solid var(--border-light); 
+            border-radius: var(--radius-md); margin: 1.5rem 0; font-family: var(--font-body); 
+            font-size: 1rem; background: #FFFFFF; color: var(--text-main); transition: all 0.2s;
+        }
+        .modal input:focus { outline: none; border-color: var(--brand-blue); box-shadow: 0 0 0 3px var(--brand-blue-light); }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+        
+        .loader { 
+            display: none; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; 
+            border-top: 2px solid white; width: 18px; height: 18px; 
+            animation: spin 1s linear infinite; margin-left: auto; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .info-panel {
+            background: var(--bg-page); border: 1px solid var(--border-light); 
+            padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-radius: var(--radius-md); 
+            font-size: 1rem; color: var(--text-main); display: flex; gap: 1rem; align-items: flex-start; 
+        }
+        .info-panel i { font-size: 1.5rem; color: var(--brand-blue); margin-top: 0.1rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <i class="fas fa-bottle-water"></i>
+            <span class="logo-text">Montenegro <span style="font-weight: 400;">Inteligência</span></span>
+        </div>
+        <button class="btn btn-outline-header settings-btn" onclick="openSettings()">
+            <i class="fas fa-microchip"></i> Configurações API
+        </button>
+    </header>
+
+    <main>
+        <div class="blocks-container">
+            <div class="api-warning" id="apiWarning" style="display:none;">
+                <i class="fas fa-exclamation-triangle fa-lg"></i> 
+                Motor de IA inativo. Chave Groq não configurada. Crie grátis em console.groq.com
+            </div>
+            <div id="blocksList"></div>
+            <button class="add-block-btn" onclick="createNewBlock()">
+                <i class="fas fa-plus"></i> Novo Check-in de Venda
+            </button>
+        </div>
+    </main>
+
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <h3><i class="fas fa-key"></i> Chave de Acesso API</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">A extração automática exige uma chave Groq API. Crie grátis em <strong>console.groq.com</strong>.</p>
+            <input type="password" id="apiKeyInput" placeholder="Sua Chave Groq (gsk_...)">
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeSettings()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveSettings()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <template id="blockTemplate">
+        <div class="client-block">
+            <div class="block-header">
+                <div class="block-title">
+                    <i class="fas fa-clipboard-list"></i> Análise de Pedido
+                    <span class="client-index"></span>
+                </div>
+                <div>
+                    <span class="status-badge" style="display:none; margin-right: 15px;"></span>
+                    <button class="remove-block-btn" onclick="removeBlock(this)" title="Descartar Análise"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </div>
+            
+            <div class="input-region">
+                <p class="instruction">
+                    <i class="fas fa-info-circle" style="color: var(--brand-blue)"></i> 
+                    Cole todo o conteúdo do WhatsApp aqui: <b>Textos</b> ou <b>Imagens (Ctrl+V)</b> (Cartão CNPJ, Ficha, Histórico).
+                </p>
+                <div class="editor-area" contenteditable="true" data-placeholder="Cole aqui as informações ou prints da negociação..."></div>
+                <div class="actions-group left">
+                    <button class="btn btn-primary extract-btn" onclick="processBlock(this)">
+                        <i class="fas fa-bolt"></i> Extrair Dados Comerciais
+                        <div class="loader"></div>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="results-region"></div>
+        </div>
+    </template>
+
+    <script>
+        const API_KEY_STORAGE = 'groq_api_key_v1';
+        let apiKey = localStorage.getItem(API_KEY_STORAGE) || '';
+
+        const fieldsTemplate = [
+            { category: 'fiscal', title: 'Dados Cadastrais & Fiscais', icon: 'fa-id-card-clip', items: [
+                { key: 'nome_recebedor', label: 'Razão Social / Nome', icon: 'fa-user' },
+                { key: 'cpf_cnpj', label: 'CNPJ / CPF', icon: 'fa-id-card' },
+                { key: 'inscricao_estadual', label: 'Inscr. Estadual', icon: 'fa-file-invoice' },
+                { key: 'telefone', label: 'Contato WhatsApp', icon: 'fa-phone' }
+            ]},
+            { category: 'logistica', title: 'Roteirização Logística', icon: 'fa-truck-fast', items: [
+                { key: 'cep', label: 'CEP', icon: 'fa-map-pin' },
+                { key: 'estado', label: 'Estado (UF)', icon: 'fa-map' },
+                { key: 'cidade', label: 'Cidade', icon: 'fa-city' },
+                { key: 'bairro', label: 'Bairro', icon: 'fa-signs-post' },
+                { key: 'rua', label: 'Logradouro (Rua)', icon: 'fa-road' },
+                { key: 'numero', label: 'Número', icon: 'fa-home' }
+            ]},
+            { category: 'pedido', title: 'Setup de Produção / Expedição', icon: 'fa-box-open', items: [
+                { key: 'produtos', label: 'Modelos do Pedido', icon: 'fa-layer-group', type: 'products' },
+                { key: 'tipo_tampa', label: 'Tipo de Tampa', icon: 'fa-prescription-bottle', type: 'select', options: ['dosadora dupla + lacre indução', 'rosca + lacre anel inviolável', 'sem tampa'] },
+                { key: 'cor_tampa', label: 'Cor da Tampa', icon: 'fa-palette', type: 'select', options: ['Preto', 'Vermelho', 'Azul', 'Rosa', 'Roxo', 'N/A'] },
+                { key: 'solicitou_amostra', label: 'Kit Amostra', icon: 'fa-gift', type: 'select', options: ['Não', 'Sim (+ Kit Completo)'] },
+                { key: 'observacao', label: 'Observações Extras', icon: 'fa-comment-dots' }
+            ]}
+        ];
+
+        let blockCounter = 0;
+        document.addEventListener('DOMContentLoaded', () => { checkApiWarning(); createNewBlock(); });
+        
+        function checkApiWarning() { document.getElementById('apiWarning').style.display = apiKey ? 'none' : 'flex'; }
+        function openSettings() { document.getElementById('apiKeyInput').value = apiKey; document.getElementById('settingsModal').classList.add('active'); }
+        function closeSettings() { document.getElementById('settingsModal').classList.remove('active'); }
+        function saveSettings() { apiKey = document.getElementById('apiKeyInput').value.trim(); localStorage.setItem(API_KEY_STORAGE, apiKey); closeSettings(); checkApiWarning(); }
+
+        function createNewBlock() {
+            blockCounter++;
+            const tpl = document.getElementById('blockTemplate');
+            const clone = tpl.content.cloneNode(true);
+            const block = clone.querySelector('.client-block');
+            block.id = 'block-' + Date.now();
+            block.querySelector('.client-index').textContent = blockCounter;
+            block.querySelector('.editor-area').addEventListener('paste', handlePasteEvent);
+            document.getElementById('blocksList').appendChild(block);
+        }
+
+        function removeBlock(btn) { 
+            const block = btn.closest('.client-block');
+            block.style.opacity = '0';
+            block.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                block.remove(); 
+                if(!document.querySelectorAll('.client-block').length) blockCounter = 0; 
+            }, 200);
+        }
+
+        function handlePasteEvent(e) {
+            const clipboardData = e.clipboardData || window.clipboardData;
+            if (!clipboardData) return;
+            const items = clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        const selection = window.getSelection();
+                        if (!selection.rangeCount) return;
+                        selection.deleteFromDocument();
+                        selection.getRangeAt(0).insertNode(img);
+                        selection.collapseToEnd();
+                    };
+                    reader.readAsDataURL(blob);
+                    e.preventDefault();
+                }
+            }
+        }
+
+        async function processBlock(btn) {
+            const block = btn.closest('.client-block');
+            const editor = block.querySelector('.editor-area');
+            const extractBtn = block.querySelector('.extract-btn');
+            const loader = extractBtn.querySelector('.loader');
+            const icon = extractBtn.querySelector('i');
+
+            if (!apiKey) { openSettings(); return; }
+
+            const parts = [];
+            const textContent = editor.innerText.trim();
+            if (textContent) parts.push({ text: textContent });
+
+            const images = editor.querySelectorAll('img');
+            images.forEach(img => {
+                if (img.src.startsWith('data:image/')) {
+                    const mimeType = img.src.split(';')[0].split(':')[1];
+                    const base64Data = img.src.split(',')[1];
+                    parts.push({ inlineData: { mimeType: mimeType, data: base64Data } });
+                }
+            });
+
+            if (parts.length === 0) { 
+                editor.style.borderColor = 'var(--error)';
+                setTimeout(() => editor.style.borderColor = '', 1000);
+                return; 
+            }
+
+            extractBtn.disabled = true; icon.style.display = 'none'; loader.style.display = 'block';
+            editor.style.opacity = '0.7';
+
+            try {
+                const response = await callGroq(parts);
+                const data = parseResponse(response);
+                const cliente = data.clientes ? data.clientes[0] : data;
+                if (!cliente.cpf_cnpj && textContent) cliente.cpf_cnpj = extractTaxIdFromText(textContent);
+                renderResults(block, cliente);
+            } catch (err) {
+                console.error(err); alert("Erro: " + err.message);
+                editor.style.opacity = '1';
+            } finally {
+                extractBtn.disabled = false; icon.style.display = 'inline-block'; loader.style.display = 'none';
+            }
+        }
+
+        async function callGroq(parts) {
+            const hasImages = parts.some(p => p.inlineData);
+            const model = hasImages ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'llama-3.3-70b-versatile';
+
+            const systemPrompt = `Você é um extrator logístico de dados corporativos. Retorne EXCLUSIVAMENTE um JSON válido preenchendo os campos abaixo:
+{
+  "nome_recebedor": "", "telefone": "", "cpf_cnpj": "", "inscricao_estadual": "",
+  "cep": "", "estado": "", "cidade": "", "bairro": "", "rua": "", "numero": "",
+  "pco": "", "volume": "", "tipo_tampa": "", "cor_tampa": "", "quantidade": "",
+  "produtos": [{ "nome": "", "pco": "", "volume": "", "quantidade": "" }],
+  "solicitou_amostra": "", "observacao": ""
+}
+REGRAS OBRIGATÓRIAS:
+1. BLOQUEIO DE PIX: O CNPJ "55.316.449/0001-55" pertence à Montenegro Indústria (recebedora). IGNORE-O. Extraia APENAS o CNPJ/CPF do comprador/cliente.
+2. ENDEREÇO VIA IMAGEM: Se houver imagem de Cartão CNPJ ou Ficha Cadastral, USE-A para extrair CEP, endereço e estado.
+3. PADRONIZAÇÃO:
+   - "pco": ESTRITAMENTE "28mm" ou "38mm". Se desconhecido, null.
+   - "volume": ESTRITAMENTE "120ml", "200ml", "300ml" ou "500ml". Se desconhecido, null.
+   - "produtos": Liste TODOS os modelos separadamente (ex: 240un 300ml + 450un 120ml = dois itens).
+   - "tipo_tampa": ESTRITAMENTE "dosadora dupla + lacre indução", "rosca + lacre anel inviolável" ou "sem tampa".
+   - "cor_tampa": ESTRITAMENTE "Preto", "Vermelho", "Azul", "Rosa", "Roxo" ou "N/A".
+   - "solicitou_amostra": ESTRITAMENTE "Não" ou "Sim (+ Kit Completo)".
+   - "observacao": Texto livre. NUNCA mencione lacres ou acompanhamentos padrão. null se não houver.
+NUNCA invente valores. Campos desconhecidos = null. RESPONDA APENAS COM JSON.`;
+
+            // Converte parts do formato Gemini para OpenAI
+            const userContent = [];
+            parts.forEach(p => {
+                if (p.text) userContent.push({ type: 'text', text: p.text });
+                else if (p.inlineData) userContent.push({
+                    type: 'image_url',
+                    image_url: { url: `data:${p.inlineData.mimeType};base64,${p.inlineData.data}` }
+                });
+            });
+
+            const body = {
+                model,
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userContent.length === 1 && userContent[0].type === 'text'
+                        ? userContent[0].text
+                        : userContent }
+                ],
+                temperature: 0,
+                response_format: { type: 'json_object' }
+            };
+
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                body: JSON.stringify(body)
+            });
+            if (!res.ok) {
+                const errBody = await res.json().catch(() => ({}));
+                throw new Error(`API ${res.status}: ${errBody.error?.message || res.statusText}`);
+            }
+            const json = await res.json();
+            return json.choices[0].message.content;
+        }
+
+        function parseResponse(text) {
+            let cleanStr = text.replace(/```json/g, "").replace(/```/g, "").trim();
+            return JSON.parse(cleanStr);
+        }
+
+        function renderResults(block, cliente) {
+            const inputRegion = block.querySelector('.input-region');
+            const resultsRegion = block.querySelector('.results-region');
+            block.extractedData = cliente || {};
+            
+            inputRegion.style.display = 'none';
+            resultsRegion.style.display = 'block';
+            
+            let isCNPJ = normalizeTaxId(cliente.cpf_cnpj).length === 14; 
+            let htmlBuild = '';
+
+            fieldsTemplate.forEach(group => {
+                let groupHtml = `<div class="category-block">
+                    <h4 class="category-title"><i class="fas ${group.icon}"></i> ${group.title}</h4>
+                    <div class="data-grid">`;
+                
+                group.items.forEach(tf => {
+                    let val = cliente[tf.key] || "";
+                    if (tf.key === 'cpf_cnpj') val = formatTaxId(val);
+                    let isMissing = (val === "" || val === null || val === "null");
+                    
+                    if (tf.key === 'inscricao_estadual' && !isCNPJ) { if (isMissing) val = "N/A (CPF)"; isMissing = false; }
+                    if (tf.key === 'observacao' && isMissing) { isMissing = false; } 
+
+                    let inputClass = isMissing ? 'missing' : '';
+                    let fieldHtml = '';
+
+                    if (tf.type === 'products') {
+                        const products = getInitialProducts(cliente);
+                        inputClass = products.some(isProductComplete) ? '' : 'missing';
+                        fieldHtml = renderProductsEditor(products, inputClass);
+                    } else if (tf.type === 'select') {
+                        let opts = `<option value="">Definir Dado...</option>`;
+                        let exactMatched = false;
+                        tf.options.forEach(opt => {
+                            let selected = (val && String(val).toLowerCase().includes(opt.toLowerCase())) ? 'selected' : '';
+                            if(selected) exactMatched = true;
+                            opts += `<option value="${opt}" ${selected}>${opt}</option>`;
+                        });
+                        
+                        if(val && !exactMatched && !isMissing) {
+                            opts += `<option value="${val}" selected>${val} (Outro)</option>`;
+                        }
+
+                        fieldHtml = `<select class="data-select ${inputClass}" data-key="${tf.key}" onchange="updateBlockState(this)">${opts}</select>`;
+                    } else {
+                        fieldHtml = `<input type="text" class="data-input ${inputClass}" data-key="${tf.key}" value="${val}" placeholder="" oninput="updateBlockState(this)">`;
+                    }
+
+                    groupHtml += `
+                        <div class="data-item ${tf.type === 'products' ? 'products-item' : ''}">
+                            <label class="data-label"><i class="fas ${tf.icon}"></i> ${tf.label}</label>
+                            ${fieldHtml}
+                            <span class="missing-text"><i class="fas fa-exclamation-triangle"></i> Pendente de preenchimento</span>
+                        </div>`;
+                });
+                groupHtml += `</div></div>`;
+                htmlBuild += groupHtml;
+            });
+
+            resultsRegion.innerHTML = `
+                ${htmlBuild}
+                <div class="info-panel">
+                    <i class="fas fa-shield-check"></i>
+                    <div>
+                        <strong>Controle de Qualidade</strong><br>
+                        Confirme os dados comerciais (Volumes e Setup de Produção) antes de exportar as Fichas.
+                    </div>
+                </div>
+                <div class="actions-group">
+                    <span id="waBtnContainer" style="margin-right: auto;"></span>
+                    <button class="btn btn-outline" onclick="editBlock(this)" title="Mudar Print/Texto Inicial"><i class="fas fa-history"></i> Limpar / Retornar Mídia</button>
+                    <!-- ERP Actions -->
+                    <button class="btn btn-primary copy-erp-btn btn-cliente" onclick="copyResult(this, 'cliente')">
+                        <i class="fas fa-comment-check"></i> Resumo Cliente
+                    </button>
+                    <button class="btn btn-primary copy-erp-btn btn-expedicao" onclick="copyResult(this, 'expedicao')">
+                        <i class="fas fa-box"></i> Separar Pedido
+                    </button>
+                    <button class="btn btn-primary copy-erp-btn btn-logistica" onclick="copyResult(this, 'logistica')">
+                        <i class="fas fa-truck-fast"></i> Espelho Fiscal
+                    </button>
+                </div>
+            `;
+            
+            const cnpjInput = resultsRegion.querySelector('[data-key="cpf_cnpj"]');
+            updateBlockState(cnpjInput || resultsRegion.querySelector('[data-key]'));
+        }
+
+        window.updateBlockState = async function(inputElement) {
+            if (!inputElement) return;
+            const block = inputElement.closest('.client-block');
+            const key = inputElement.dataset.key;
+            const val = key === 'cpf_cnpj' ? normalizeTaxId(inputElement.value) : (inputElement.value ? inputElement.value.replace(/\D/g, '') : '');
+
+            if (key === 'cpf_cnpj') {
+                const formattedTaxId = formatTaxId(val);
+                if (formattedTaxId && inputElement.value !== formattedTaxId) inputElement.value = formattedTaxId;
+
+                if (val.length === 14 && inputElement.dataset.fetched !== val) {
+                    inputElement.dataset.fetched = val;
+                    await fetchCNPJData(val, block);
+                }
+            }
+            if (key === 'cep' && val.length === 8 && inputElement.dataset.fetched !== val) {
+                inputElement.dataset.fetched = val;
+                await fetchCEPData(val, block);
+            }
+
+            if (key === 'produtos') {
+                validateProductEditor(inputElement);
+            } else if(inputElement.value && String(inputElement.value).trim() !== '') {
+                inputElement.classList.remove('missing');
+            } else {
+                if (key !== 'observacao' && key !== 'inscricao_estadual') {
+                    inputElement.classList.add('missing');
+                }
+            }
+
+            const inputs = block.querySelectorAll('[data-key]');
+            let missingFields = [];
+            let clienteTel = '';
+            let clienteNome = '';
+            
+            inputs.forEach(inp => {
+                if(inp.dataset.key === 'telefone') clienteTel = inp.value ? String(inp.value).trim() : '';
+                if(inp.dataset.key === 'nome_recebedor') clienteNome = inp.value ? String(inp.value).trim() : '';
+                
+                if(inp.classList.contains('missing') && inp.dataset.key !== 'observacao' && inp.dataset.key !== 'inscricao_estadual') {
+                    const labelSpan = inp.parentElement.querySelector('.data-label').textContent.trim();
+                    missingFields.push(labelSpan);
+                }
+            });
+
+            const badge = block.querySelector('.status-badge');
+            const waBtnContainer = block.querySelector('#waBtnContainer');
+            const btnCopyERP = block.querySelectorAll('.copy-erp-btn');
+            
+            if (missingFields.length === 0) {
+                block.style.borderTopColor = 'var(--success)';
+                badge.className = 'status-badge status-complete';
+                badge.innerHTML = '<i class="fas fa-check-circle"></i> Homologado';
+                badge.style.display = 'inline-flex';
+                
+                if(waBtnContainer) waBtnContainer.innerHTML = '';
+                if(btnCopyERP.length > 0) {
+                    btnCopyERP.forEach(btn => {
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    });
+                }
+            } else {
+                block.style.borderTopColor = 'var(--error)';
+                badge.className = 'status-badge status-incomplete';
+                badge.innerHTML = '<i class="fas fa-exclamation-circle"></i> Pendências';
+                badge.style.display = 'inline-flex';
+
+                if(btnCopyERP.length > 0) {
+                    btnCopyERP.forEach(btn => {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.6';
+                    });
+                }
+
+                // AI Cobrança
+                const saudacao = clienteNome ? `Olá, ${clienteNome}!` : `Olá!`;
+                const msg = `${saudacao} Para darmos continuidade na roteirização do seu pedido, nosso sistema detectou que precisamos confirmar os seguintes dados:\n- ${missingFields.join('\n- ')}\nVocê pode me mandar por aqui mesmo!`;
+                let telLink = '';
+                if (clienteTel) {
+                    const numbersOnly = clienteTel.replace(/\D/g, '');
+                    if (numbersOnly.length >= 10) telLink = `https://wa.me/55${numbersOnly}?text=${encodeURIComponent(msg)}`;
+                }
+                
+                let waIconStr = telLink 
+                    ? `<button class="btn btn-action whatsapp" onclick="triggerWhatsApp(this, '${encodeURIComponent(msg)}', '${telLink}')"><i class="fab fa-whatsapp"></i> Acionar Cobrança Pendente</button>`
+                    : `<button class="btn btn-action" onclick="triggerWhatsApp(this, '${encodeURIComponent(msg)}', null)"><i class="fas fa-copy"></i> Copiar Alerta Faltante</button>`;
+                    
+                if(waBtnContainer) waBtnContainer.innerHTML = waIconStr;
+            }
+        };
+
+        window.editBlock = function(btn) {
+            const block = btn.closest('.client-block');
+            block.querySelector('.results-region').style.display = 'none';
+            block.querySelector('.input-region').style.display = 'block';
+            block.style.borderTopColor = 'var(--brand-blue)';
+            block.querySelector('.status-badge').style.display = 'none';
+            block.querySelector('.editor-area').style.opacity = '1';
+        };
+
+        window.copyResult = function(btnElement, type) {
+            if(btnElement.disabled) return;
+            const block = btnElement.closest('.client-block');
+            const inputs = block.querySelectorAll('[data-key]');
+            const extractedData = block.extractedData || {};
+            let rawData = {};
+            inputs.forEach(inp => rawData[inp.dataset.key] = inp.value ? String(inp.value).trim() : '');
+            rawData.produtos = getProductsFromEditor(block);
+            if (!rawData.produtos.length) rawData.produtos = extractedData.produtos;
+            
+            const produtos = getOrderProducts(rawData);
+            const totalQtd = produtos.reduce((sum, produto) => sum + produto.quantidadeNum, 0);
+            rawData.pco = produtos[0]?.pco || extractedData.pco || '';
+            rawData.volume = produtos[0]?.volume || extractedData.volume || '';
+            rawData.quantidade = totalQtd > 0 ? String(totalQtd) : (extractedData.quantidade || '');
+            let qtdStr = totalQtd > 0 ? String(totalQtd) : (rawData.quantidade || '0');
+            let qtd = totalQtd > 0 ? totalQtd : (parseInt(String(qtdStr).replace(/\D/g, '')) || 0);
+            
+            const produtosComVolumes = produtos.map(produto => ({
+                ...produto,
+                fardos: calculateFardos(produto)
+            }));
+            let fardos = produtosComVolumes.reduce((sum, produto) => sum + produto.fardos, 0);
+            
+            let numFardosText = fardos > 0 ? ` (${fardos.toFixed(1).replace('.0','')} fardos)` : '';
+            
+            let volumesGarrafas = Math.ceil(fardos);
+            let volumesTampas = Math.ceil(qtd / 5000);
+            if (qtd === 0 || rawData.tipo_tampa === 'sem tampa') volumesTampas = 0;
+            let totalVolumes = volumesGarrafas + volumesTampas;
+            
+            let tampaString = rawData.tipo_tampa;
+            
+            let obsText = '';
+            if(rawData.solicitou_amostra && rawData.solicitou_amostra.includes('Sim')) obsText += '+ Kit Amostras. ';
+            if(rawData.observacao && rawData.observacao.toLowerCase() !== 'null' && rawData.observacao.toLowerCase() !== 'nenhuma') obsText += rawData.observacao;
+            obsText = obsText.trim();
+            let obsLine = obsText ? `\nOBS: ${obsText}` : '';
+            
+            let copyText = '';
+            
+            if(type === 'cliente') {
+                const produtosResumo = formatProductsForSummary(produtosComVolumes, rawData);
+                copyText = `📄 --- SUMÁRIO DO PEDIDO ---\nCLIENTE: ${rawData.nome_recebedor || ''}\nTELEFONE: ${rawData.telefone || ''}\nCNPJ: ${rawData.cpf_cnpj || ''}\nIE: ${rawData.inscricao_estadual || ''}\n\n📍 DESTREINO E LOGÍSTICA\nRua: ${rawData.rua || ''}, ${rawData.numero || ''}\nBairro: ${rawData.bairro || ''}\nCidade/UF: ${rawData.cidade || ''} - ${rawData.estado || ''}\nCEP: ${rawData.cep || ''}\n\n📦 PEDIDO ADQUIRIDO\n${produtosResumo}\nTOTAL: ${qtd || rawData.quantidade || ''} un.\nTAMPA: ${tampaString} / Cor: ${rawData.cor_tampa || ''}${obsLine}`;
+            } else if (type === 'expedicao') {
+                const clientId = getClientId(rawData.telefone);
+                const produtosExpedicao = formatProductsForExpedition(produtosComVolumes);
+                let tampasLine = volumesTampas > 0 ? `\nQTD TAMPAS: ${qtdStr} tampas (${volumesTampas} vol. de tampas)` : '';
+                copyText = `📦 --- SEPARAR PEDIDO ---\nCLIENTE: ${rawData.nome_recebedor || ''}\nID DO CLIENTE: ${clientId}\n\n${produtosExpedicao}\nTOTAL GARRAFAS: ${qtdStr} garrafas${numFardosText}${tampasLine}\nTAMPA: ${tampaString} | Cor: ${rawData.cor_tampa || ''}${obsLine}`;
+            } else if (type === 'logistica') {
+                const produtosFiscal = formatProductsForFiscal(produtosComVolumes);
+                copyText = `🚚 --- ESPELHO FISCAL ---\nRAZÃO SOCIAL: ${rawData.nome_recebedor || ''}\nCNPJ: ${rawData.cpf_cnpj || ''}\nIE: ${rawData.inscricao_estadual || ''}\n\nCEP: ${rawData.cep || ''}\nROTA: ${rawData.cidade || ''}/${rawData.estado || ''}\nENDEREÇO: ${rawData.rua || ''}, ${rawData.numero || ''} - ${rawData.bairro || ''}\n\n📦 PRODUTOS\n${produtosFiscal}\n\n📦 VOLUMES: ${totalVolumes} itens\n-> Sendo: ${volumesGarrafas} volumes de Garrafas.\n-> Sendo: ${volumesTampas} volumes de Tampas.`;
+            }
+
+            navigator.clipboard.writeText(copyText).then(() => {
+                const originalText = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fas fa-check-double"></i> Copiado!';
+                setTimeout(() => btnElement.innerHTML = originalText, 2500);
+            });
+        }
+
+        function getInitialProducts(cliente) {
+            const products = Array.isArray(cliente.produtos) ? cliente.produtos : [];
+            if (products.length > 0) return products.map(produto => normalizeProduct(produto, cliente));
+
+            return [normalizeProduct({
+                nome: '',
+                pco: cliente.pco,
+                volume: cliente.volume,
+                quantidade: cliente.quantidade
+            }, cliente)];
+        }
+
+        function renderProductsEditor(products, inputClass = '') {
+            const rows = (products.length ? products : [{}]).map(renderProductRow).join('');
+            return `<div class="product-editor ${inputClass}" data-key="produtos">
+                ${rows}
+                <button type="button" class="btn btn-outline product-add" onclick="addProductRow(this)">
+                    <i class="fas fa-plus"></i> Adicionar modelo
+                </button>
+            </div>`;
+        }
+
+        function renderProductRow(product = {}) {
+            return `<div class="product-row" data-product-name="${escapeHtml(product.nome || '')}">
+                ${renderProductSelect('pco', product.pco, ['28mm', '38mm', 'Outro'], 'PCO')}
+                ${renderProductSelect('volume', product.volume, ['120ml', '200ml', '300ml', '500ml', 'Outro'], 'Volume')}
+                <input type="text" class="data-input product-quantity" data-product-key="quantidade" value="${escapeHtml(product.quantidade || product.quantidadeNum || '')}" placeholder="Quantidade" oninput="updateProductsFromEditor(this)">
+                <button type="button" class="product-remove" onclick="removeProductRow(this)" title="Remover modelo"><i class="fas fa-trash-alt"></i></button>
+            </div>`;
+        }
+
+        function renderProductSelect(key, value, options, label) {
+            const selectedValue = value ? String(value) : '';
+            let opts = `<option value="">${label}</option>`;
+            let exactMatched = false;
+            options.forEach(opt => {
+                const selected = selectedValue.toLowerCase() === opt.toLowerCase() ? 'selected' : '';
+                if (selected) exactMatched = true;
+                opts += `<option value="${opt}" ${selected}>${opt}</option>`;
+            });
+            if (selectedValue && !exactMatched) opts += `<option value="${escapeHtml(selectedValue)}" selected>${escapeHtml(selectedValue)} (Outro)</option>`;
+            return `<select class="data-select" data-product-key="${key}" onchange="updateProductsFromEditor(this)">${opts}</select>`;
+        }
+
+        window.addProductRow = function(btn) {
+            const editor = btn.closest('.product-editor');
+            btn.insertAdjacentHTML('beforebegin', renderProductRow({}));
+            updateProductsFromEditor(editor);
+        };
+
+        window.removeProductRow = function(btn) {
+            const editor = btn.closest('.product-editor');
+            const rows = editor.querySelectorAll('.product-row');
+            if (rows.length === 1) {
+                rows[0].querySelectorAll('[data-product-key]').forEach(input => input.value = '');
+            } else {
+                btn.closest('.product-row').remove();
+            }
+            updateProductsFromEditor(editor);
+        };
+
+        window.updateProductsFromEditor = function(element) {
+            const editor = element.closest ? element.closest('.product-editor') : element;
+            validateProductEditor(editor);
+            updateBlockState(editor);
+        };
+
+        function validateProductEditor(editor) {
+            if (!editor) return false;
+            const products = getProductsFromEditor(editor.closest('.client-block'));
+            const hasCompleteProduct = products.some(isProductComplete);
+            editor.classList.toggle('missing', !hasCompleteProduct);
+            return hasCompleteProduct;
+        }
+
+        function getProductsFromEditor(block) {
+            const editor = block ? block.querySelector('.product-editor') : null;
+            if (!editor) return [];
+
+            return Array.from(editor.querySelectorAll('.product-row')).map(row => {
+                const getValue = key => {
+                    const input = row.querySelector(`[data-product-key="${key}"]`);
+                    return input && input.value ? String(input.value).trim() : '';
+                };
+                return normalizeProduct({
+                    nome: row.dataset.productName || '',
+                    pco: getValue('pco'),
+                    volume: getValue('volume'),
+                    quantidade: getValue('quantidade')
+                }, {});
+            }).filter(product => product.pco || product.volume || product.quantidadeNum > 0);
+        }
+
+        function isProductComplete(product) {
+            return Boolean(product.pco && product.volume && product.quantidadeNum > 0);
+        }
+
+        function escapeHtml(value) {
+            return String(value || '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            }[char]));
+        }
+
+        function getOrderProducts(rawData) {
+            const extractedProducts = Array.isArray(rawData.produtos) ? rawData.produtos : [];
+            const normalized = extractedProducts
+                .map(produto => normalizeProduct(produto, rawData))
+                .filter(produto => produto.quantidadeNum > 0 || produto.volume || produto.pco || produto.nome);
+
+            if (normalized.length > 0) return normalized;
+
+            return [normalizeProduct({
+                nome: '',
+                pco: rawData.pco,
+                volume: rawData.volume,
+                quantidade: rawData.quantidade
+            }, rawData)];
+        }
+
+        function normalizeProduct(produto, rawData) {
+            const name = produto.nome || produto.produto || '';
+            const quantityText = produto.quantidade || produto.qtd || produto.quantidade_unidades || '';
+            const inferredVolume = String(name).match(/\b(120|200|300|500)\s*ml\b/i);
+            const inferredPco = String(name).match(/\bPCO\s*(28|38)\b/i) || String(name).match(/\b(28|38)\s*mm\b/i);
+            return {
+                nome: name,
+                pco: produto.pco || (inferredPco ? `${inferredPco[1]}mm` : '') || rawData.pco || '',
+                volume: produto.volume || (inferredVolume ? `${inferredVolume[1]}ml` : '') || rawData.volume || '',
+                quantidade: quantityText,
+                quantidadeNum: parseQuantity(quantityText)
+            };
+        }
+
+        function parseQuantity(value) {
+            const text = String(value || '').trim();
+            if (!text) return 0;
+            const match = text.match(/\d[\d.,]*/);
+            if (!match) return 0;
+            let normalized = match[0];
+
+            if (/^\d{1,3}(?:\.\d{3})+(?:,\d+)?$/.test(normalized)) {
+                normalized = normalized.replace(/\./g, '').replace(',', '.');
+            } else if (/^\d{1,3}(?:,\d{3})+(?:\.\d+)?$/.test(normalized)) {
+                normalized = normalized.replace(/,/g, '');
+            } else if (/^\d+,\d{1,2}$/.test(normalized)) {
+                normalized = normalized.replace(',', '.');
+            } else {
+                normalized = normalized.replace(/[.,]/g, '');
+            }
+
+            return Math.round(parseFloat(normalized)) || 0;
+        }
+
+        function normalizeTaxId(value) {
+            return String(value || '').replace(/\D/g, '');
+        }
+
+        function formatTaxId(value) {
+            const digits = normalizeTaxId(value);
+            if (digits.length === 11) {
+                return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            }
+            if (digits.length === 14) {
+                return digits.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+            }
+            return value || '';
+        }
+
+        function extractTaxIdFromText(text) {
+            const normalizedText = String(text || '');
+            const formattedMatch = normalizedText.match(/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b|\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/);
+            if (formattedMatch) return formatTaxId(formattedMatch[0]);
+
+            const digitsMatch = normalizeTaxId(normalizedText).match(/\d{14}|\d{11}/);
+            return digitsMatch ? formatTaxId(digitsMatch[0]) : '';
+        }
+
+        function calculateFardos(produto) {
+            const vol = produto.volume ? String(produto.volume).replace(/\D/g, '') : '';
+            const pco = produto.pco ? String(produto.pco).replace(/\D/g, '') : '';
+            const qtd = produto.quantidadeNum || 0;
+            if (vol === '120') return qtd / 450;
+            if (vol === '200') return qtd / 300;
+            if (vol === '300') return qtd / 240;
+            if (vol === '500') return (pco === '38') ? qtd / 150 : qtd / 200;
+            return 0;
+        }
+
+        function getClientId(phone) {
+            const digits = String(phone || '').replace(/\D/g, '');
+            return digits ? digits.slice(-4).padStart(4, '0') : '----';
+        }
+
+        function formatProductLabel(produto, fallbackRawData = {}) {
+            const parts = [];
+            if (produto.nome) parts.push(produto.nome);
+            if (!produto.nome && produto.volume) parts.push(produto.volume);
+            if (!produto.nome && produto.pco) parts.push(`PCO ${produto.pco}`);
+
+            const currentLabel = parts.join(' ').toLowerCase();
+            const pco = produto.pco || fallbackRawData.pco || '';
+            const volume = produto.volume || fallbackRawData.volume || '';
+            if (volume && !currentLabel.includes(String(volume).toLowerCase())) parts.push(volume);
+            if (pco && !productLabelHasPco(parts.join(' '), pco)) parts.push(`PCO ${pco}`);
+
+            return parts.join(' ') || 'Modelo não informado';
+        }
+
+        function productLabelHasPco(label, pco) {
+            const pcoDigits = String(pco || '').replace(/\D/g, '');
+            if (!pcoDigits) return false;
+            const normalizedLabel = String(label || '').toLowerCase();
+            return normalizedLabel.includes(String(pco).toLowerCase()) || normalizedLabel.includes(`pco${pcoDigits}`) || normalizedLabel.includes(`${pcoDigits}mm`);
+        }
+
+        function formatFardosText(produto) {
+            return produto.fardos > 0 ? ` (${produto.fardos.toFixed(1).replace('.0','')} fardos)` : '';
+        }
+
+        function formatProductsForSummary(produtos, rawData) {
+            if (!produtos.length) return `PCO: ${rawData.pco || ''}\nVOLUME: ${rawData.volume || ''}`;
+
+            if (produtos.length === 1) {
+                const produto = produtos[0];
+                return `PCO: ${produto.pco || rawData.pco || ''}\nVOLUME: ${produto.volume || rawData.volume || ''}\nQTD: ${produto.quantidadeNum || rawData.quantidade || ''} un.`;
+            }
+
+            return `MODELOS:\n${produtos.map((produto, index) => {
+                return `${index + 1}. ${formatProductLabel(produto, rawData)} - ${produto.quantidadeNum || 0} un.`;
+            }).join('\n')}`;
+        }
+
+        function formatProductsForExpedition(produtos) {
+            if (!produtos.length) return 'MODELOS: não informado';
+            return `MODELOS:\n${produtos.map((produto, index) => {
+                return `${index + 1}. ${formatProductModel(produto)}`;
+            }).join('\n')}`;
+        }
+
+        function formatProductModel(produto) {
+            const pco = produto.pco || '';
+            const volume = produto.volume || '';
+            if (pco && volume) return `PCO ${pco} - ${volume}`;
+            if (pco) return `PCO ${pco}`;
+            if (volume) return volume;
+            return 'Modelo não informado';
+        }
+
+        function formatProductsForFiscal(produtos) {
+            if (!produtos.length) return 'MODELOS: não informado';
+            return produtos.map((produto, index) => {
+                return `${index + 1}. ${formatProductLabel(produto)} - ${produto.quantidadeNum || 0} un.${formatFardosText(produto)}`;
+            }).join('\n');
+        }
+
+        window.triggerWhatsApp = function(btn, encodedMsg, link) {
+            const msg = decodeURIComponent(encodedMsg);
+            navigator.clipboard.writeText(msg).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                setTimeout(() => btn.innerHTML = orig, 1500);
+                if (link && link !== 'null') window.open(link, '_blank');
+            });
+        };
+
+        async function fetchCNPJData(cnpj, block) {
+            let foundOnPrimarySource = false;
+
+            try {
+                const res = await fetch(`https://publica.cnpj.ws/cnpj/${cnpj}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    let razao = data.razao_social || (data.estabelecimento && data.estabelecimento.nome_fantasia);
+                    let nomeInput = block.querySelector(`[data-key="nome_recebedor"]`);
+                    if(nomeInput && razao) {
+                        let curVal = nomeInput.value ? String(nomeInput.value).trim() : '';
+                        if(!curVal || nomeInput.classList.contains('missing') || curVal.toLowerCase() === 'null' || curVal === 'N/A (CPF)') {
+                            nomeInput.value = razao;
+                        }
+                        updateBlockState(nomeInput);
+                    }
+                    
+                    if (data.estabelecimento) {
+                        autoFillInput(block, 'cep', data.estabelecimento.cep ? data.estabelecimento.cep.replace(/\D/g, '') : '');
+                        if (data.estabelecimento.estado) autoFillInput(block, 'estado', data.estabelecimento.estado.sigla);
+                        if (data.estabelecimento.cidade) autoFillInput(block, 'cidade', data.estabelecimento.cidade.nome);
+                        autoFillInput(block, 'bairro', data.estabelecimento.bairro);
+                        autoFillInput(block, 'rua', (data.estabelecimento.tipo_logradouro ? data.estabelecimento.tipo_logradouro + ' ' : '') + (data.estabelecimento.logradouro || ''));
+                        autoFillInput(block, 'numero', data.estabelecimento.numero);
+                        
+                        if (data.estabelecimento.inscricoes_estaduais && data.estabelecimento.inscricoes_estaduais.length > 0) {
+                            const activeIE = data.estabelecimento.inscricoes_estaduais.find(ie => ie.ativo) || data.estabelecimento.inscricoes_estaduais[0];
+                            autoFillInput(block, 'inscricao_estadual', activeIE.inscricao_estadual);
+                        }
+                    }
+                    foundOnPrimarySource = true;
+                }
+            } catch (err) {}
+
+            if (foundOnPrimarySource) return;
+
+            try {
+                const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                autoFillInput(block, 'nome_recebedor', data.razao_social || data.nome_fantasia);
+                autoFillInput(block, 'cep', data.cep ? data.cep.replace(/\D/g, '') : '');
+                autoFillInput(block, 'estado', data.uf);
+                autoFillInput(block, 'cidade', data.municipio);
+                autoFillInput(block, 'bairro', data.bairro);
+                autoFillInput(block, 'rua', (data.descricao_tipo_de_logradouro ? data.descricao_tipo_de_logradouro + ' ' : '') + (data.logradouro || ''));
+                autoFillInput(block, 'numero', data.numero);
+            } catch (err) {}
+        }
+
+        async function fetchCEPData(cep, block) {
+            try {
+                const res = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                autoFillInput(block, 'estado', data.state);
+                autoFillInput(block, 'cidade', data.city);
+                autoFillInput(block, 'bairro', data.neighborhood);
+                autoFillInput(block, 'rua', data.street);
+            } catch (err) {}
+        }
+
+        function autoFillInput(block, key, value) {
+            if (!value) return;
+            const input = block.querySelector(`[data-key="${key}"]`);
+            if (input) {
+                const currentVal = input.value ? String(input.value).trim() : '';
+                if (!currentVal || input.classList.contains('missing') || currentVal === 'N/A (CPF)' || currentVal.toLowerCase() === 'null') {
+                    input.value = value;
+                    updateBlockState(input);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
